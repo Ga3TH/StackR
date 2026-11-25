@@ -15,4 +15,8 @@
     <EmbeddedResource Include="..\..\manifest\components.json" LogicalName="StackR.Core.components.json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Config/Templates/*.tpl" LogicalName="StackR.Core.Templates.%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>
