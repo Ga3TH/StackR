@@ -8,6 +8,6 @@
     <Directory "{{DocumentRoot}}">
         Options -Indexes +FollowSymLinks
         AllowOverride All
-        Require local
+        Require all granted
     </Directory>
 </VirtualHost>
