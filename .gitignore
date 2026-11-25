@@ -1,0 +1,16 @@
+## Visual Studio / .NET build output
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+TestResults/
+*.DotSettings.user
+
+## Publish output
+publish/
+
+## Local StackR planning/working files
+.superpowers/
