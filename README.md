@@ -138,7 +138,7 @@ Voir aussi [SECURITY.md](SECURITY.md).
 
 **SmartScreen bloque l'installeur.** Il n'est pas signé numériquement : *Informations complémentaires → Exécuter quand même*. Vous pouvez vérifier l'empreinte du fichier publiée avec la Release.
 
-**Mon antivirus signale un fichier.** Les exécutables .NET *single-file* non signés déclenchent parfois des faux positifs. Ajoutez une exception pour le dossier d'installation, ou construisez depuis les sources (installation B).
+**Mon antivirus signale un fichier.** Les exécutables non signés déclenchent parfois des faux positifs. Ajoutez une exception pour le dossier d'installation, ou construisez depuis les sources (installation B).
 
 **Le navigateur affiche un avertissement de certificat.** La CA n'est pas approuvée : ouvrez *Paramètres* dans StackR et cliquez sur **Faire confiance** (confirmez la boîte de dialogue Windows), puis redémarrez le navigateur.
 
