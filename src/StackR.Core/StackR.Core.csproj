@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.15" />
+    <EmbeddedResource Include="..\..\manifest\components.json" LogicalName="StackR.Core.components.json" />
   </ItemGroup>
 
 </Project>

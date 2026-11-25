@@ -1,0 +1,98 @@
+{
+  "releases": [
+    {
+      "component": "Apache",
+      "version": "2.4.71",
+      "channel": "stable",
+      "url": "https://www.apachelounge.com/download/VS18/binaries/httpd-2.4.71-261112-Win64-VS18.zip",
+      "sha256": "44961a929dff16b767b3adbcea55760a942a00239b2891dc55806be34029e1fc",
+      "sizeBytes": 14518924,
+      "package": "Zip",
+      "requires": [
+        "vcredist-x64"
+      ],
+      "archiveRoot": "Apache24"
+    },
+    {
+      "component": "Php",
+      "version": "8.4.28",
+      "channel": "stable",
+      "url": "https://windows.php.net/downloads/releases/php-8.4.28-Win32-vs17-x64.zip",
+      "sha256": "59ccaa095d0f0c3fbb9f7e2bfd86713ebac032d5783cc22bc8934e2285629999",
+      "sizeBytes": 35555433,
+      "package": "Zip",
+      "requires": [
+        "vcredist-x64"
+      ],
+      "archiveRoot": null
+    },
+    {
+      "component": "Php",
+      "version": "8.3.37",
+      "channel": "stable",
+      "url": "https://windows.php.net/downloads/releases/php-8.3.37-Win32-vs16-x64.zip",
+      "sha256": "07984bdcfd4391888954c2e73b1cf2c0d403cfa5fd8cb32ad60ddcd854c6b7de",
+      "sizeBytes": 34336253,
+      "package": "Zip",
+      "requires": [
+        "vcredist-x64"
+      ],
+      "archiveRoot": null
+    },
+    {
+      "component": "MySql",
+      "version": "8.4.13",
+      "channel": "stable",
+      "url": "https://cdn.mysql.com/Downloads/MySQL-8.4/mysql-8.4.13-winx64.zip",
+      "sha256": "e9cd98b1d23f122987b1afca26ad942efec5891481103d48ae3cde237fa3ea54",
+      "sizeBytes": 281154912,
+      "package": "Zip",
+      "requires": [],
+      "archiveRoot": "mysql-8.4.13-winx64"
+    },
+    {
+      "component": "Mailpit",
+      "version": "1.34.0",
+      "channel": "stable",
+      "url": "https://github.com/axllent/mailpit/releases/download/v1.34.0/mailpit-windows-amd64.zip",
+      "sha256": "8f080d41374bf22686606374a0a483c8563c1bf29ae078179792392ff8c911d7",
+      "sizeBytes": 11288840,
+      "package": "Zip",
+      "requires": [],
+      "archiveRoot": null
+    },
+    {
+      "component": "Node",
+      "version": "22.23.5",
+      "channel": "stable",
+      "url": "https://nodejs.org/dist/v22.23.5/node-v22.23.5-win-x64.zip",
+      "sha256": "4a191082e9706866830379d577d2cc8a50c776fcd9436a8d061b063ed0d9a0e3",
+      "sizeBytes": 35630346,
+      "package": "Zip",
+      "requires": [],
+      "archiveRoot": "node-v22.23.5-win-x64"
+    },
+    {
+      "component": "Node",
+      "version": "24.22.3",
+      "channel": "stable",
+      "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-win-x64.zip",
+      "sha256": "e612af99f626ab415ea225af6bce5c971feb448cb5cae250bb1c3fa50c5f7d9f",
+      "sizeBytes": 37762649,
+      "package": "Zip",
+      "requires": [],
+      "archiveRoot": "node-v24.22.3-win-x64"
+    },
+    {
+      "component": "Composer",
+      "version": "2.11.3",
+      "channel": "stable",
+      "url": "https://getcomposer.org/download/2.11.3/composer.phar",
+      "sha256": "04f8b003da4e3a2459056591fbfebd02b4dc3e5adeb158616b90cf55a65113ec",
+      "sizeBytes": 3820169,
+      "package": "File",
+      "requires": [],
+      "archiveRoot": null
+    }
+  ]
+}
