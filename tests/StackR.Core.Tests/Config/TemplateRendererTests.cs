@@ -60,4 +60,11 @@ public class TemplateRendererTests
             Assert.Contains("app.test", rendered);
         }
     }
+
+    [Theory]
+    [InlineData("C:\\a\"b")]
+    [InlineData("C:\\a\nListen 0.0.0.0")]
+    [InlineData("C:\\a\0b")]
+    public void ConfPath_QuoteOrControlChar_Throws(string path) =>
+        Assert.Throws<ArgumentException>(() => TemplateRenderer.ConfPath(path));
 }

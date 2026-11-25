@@ -12,7 +12,7 @@ public sealed record DownloadProgress(long BytesReceived, long? TotalBytes);
 /// Le fichier n'est rendu à l'appelant que si l'empreinte correspond ; dans tous les autres cas
 /// (empreinte fausse, erreur réseau, annulation) le fichier temporaire est supprimé.
 /// </summary>
-public sealed class SecureDownloader(HttpClient http)
+public sealed class SecureDownloader(HttpClient http, TimeSpan? inactivityTimeout = null)
 {
     private const int Sha256Length = 32;
     private const int BufferSize = 81_920;
@@ -21,6 +21,9 @@ public sealed class SecureDownloader(HttpClient http)
         "StackR",
         (typeof(SecureDownloader).Assembly.GetName().Version ?? new Version(0, 0, 0)).ToString(3));
 
+    private static readonly TimeSpan DefaultInactivityTimeout = TimeSpan.FromSeconds(60);
+
+    private readonly TimeSpan _inactivityTimeout = inactivityTimeout ?? DefaultInactivityTimeout;
     private readonly HttpClient _http = http ?? throw new ArgumentNullException(nameof(http));
 
     /// <summary>
@@ -34,11 +37,16 @@ public sealed class SecureDownloader(HttpClient http)
         string expectedSha256,
         string tmpDir,
         IProgress<DownloadProgress>? progress,
-        CancellationToken ct)
+        CancellationToken ct,
+        long? maxBytes = null)
     {
         ArgumentNullException.ThrowIfNull(url);
         ArgumentNullException.ThrowIfNull(expectedSha256);
         ArgumentException.ThrowIfNullOrWhiteSpace(tmpDir);
+        if (maxBytes is <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(maxBytes));
+        }
 
         if (!IsHttps(url))
         {
@@ -67,6 +75,11 @@ public sealed class SecureDownloader(HttpClient http)
 
         response.EnsureSuccessStatusCode();
 
+        if (maxBytes is { } cap && response.Content.Headers.ContentLength is { } declared && declared > cap)
+        {
+            throw new IntegrityException($"Téléchargement refusé : « {url} » annonce {declared} octets (maximum {cap}).");
+        }
+
         Directory.CreateDirectory(tmpDir);
         var path = Path.Combine(Path.GetFullPath(tmpDir), Guid.NewGuid().ToString("N") + ".download");
 
@@ -84,11 +97,33 @@ public sealed class SecureDownloader(HttpClient http)
                     var buffer = new byte[BufferSize];
                     long received = 0;
                     int read;
-                    while ((read = await source.ReadAsync(buffer, ct).ConfigureAwait(false)) > 0)
+                    // Délai d'inactivité : réarmé avant chaque lecture du corps.
+                    using var idle = CancellationTokenSource.CreateLinkedTokenSource(ct);
+                    while (true)
                     {
+                        idle.CancelAfter(_inactivityTimeout);
+                        try
+                        {
+                            read = await source.ReadAsync(buffer, idle.Token).ConfigureAwait(false);
+                        }
+                        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+                        {
+                            throw new TimeoutException($"Aucune donnée reçue depuis {_inactivityTimeout.TotalSeconds:0.###} s pour « {url} ».");
+                        }
+
+                        if (read <= 0)
+                        {
+                            break;
+                        }
+
                         hash.AppendData(buffer, 0, read);
                         await file.WriteAsync(buffer.AsMemory(0, read), ct).ConfigureAwait(false);
                         received += read;
+                        if (maxBytes is { } limit && received > limit)
+                        {
+                            throw new IntegrityException($"Téléchargement abandonné : « {url} » dépasse {limit} octets.");
+                        }
+
                         progress?.Report(new DownloadProgress(received, total));
                         ct.ThrowIfCancellationRequested();
                     }

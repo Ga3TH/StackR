@@ -98,20 +98,21 @@ public class ConfigWriterTests
             Assert.Contains("extension=" + ext, text);
         }
 
-        Assert.DoesNotContain("curl.cainfo = \"", text);
     }
 
     [Fact]
-    public void PhpIni_CaBundlePresent_IsReferenced()
+    public void PhpIni_ExportsWindowsRootsAndReferencesThem()
     {
         using var tmp = new TempDirectory();
         var phpDir = Path.Combine(tmp.Path, "php");
-        Directory.CreateDirectory(Path.Combine(phpDir, "extras", "ssl"));
-        File.WriteAllText(Path.Combine(phpDir, "extras", "ssl", "cacert.pem"), "x");
-        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings());
-        var text = File.ReadAllText(writer.WritePhpIni(phpDir));
+        var paths = new StackRPaths(tmp.Path);
+        var text = File.ReadAllText(new ConfigWriter(paths, new StackRSettings()).WritePhpIni(phpDir));
 
-        var ca = phpDir.Replace('\\', '/') + "/extras/ssl/cacert.pem";
+        var pem = Path.Combine(paths.Etc, "ssl", "cacert.pem");
+        Assert.True(File.Exists(pem));
+        Assert.Contains("-----BEGIN CERTIFICATE-----", File.ReadAllText(pem));
+        Assert.Empty(Directory.GetFiles(Path.Combine(paths.Etc, "ssl"), "*.tmp"));
+        var ca = pem.Replace('\\', '/');
         Assert.Contains($"curl.cainfo = \"{ca}\"", text);
         Assert.Contains($"openssl.cafile = \"{ca}\"", text);
     }
@@ -161,5 +162,65 @@ public class ConfigWriterTests
         var text = File.ReadAllText(writer.WriteHttpdConf(Path.Combine(root, "bin", "apache"), Path.Combine(root, "bin", "php")));
         Assert.Contains("Dossier é/etc/sites/*.conf\"", text);
         Assert.Contains("ErrorLog \"", text);
+    }
+
+    [Fact]
+    public void AllConfigs_RootWithSpaceAndAccent_PathDirectivesQuotedForwardSlash()
+    {
+        using var tmp = new TempDirectory();
+        var root = Path.Combine(tmp.Path, "Dossier é", "StackR");
+        var paths = new StackRPaths(root);
+        var writer = new ConfigWriter(paths, new StackRSettings());
+        var files = new[]
+        {
+            writer.WriteHttpdConf(Path.Combine(root, "bin", "apache"), Path.Combine(root, "bin", "php")),
+            writer.WritePhpIni(Path.Combine(root, "bin", "php")),
+            writer.WriteMyIni(Path.Combine(root, "bin", "mysql")),
+        };
+        var count = 0;
+        foreach (var file in files)
+        {
+            foreach (var line in File.ReadAllLines(file))
+            {
+                if (!line.Contains("Dossier é", StringComparison.Ordinal) || line.TrimStart().StartsWith('#') || line.TrimStart().StartsWith(';'))
+                {
+                    continue;
+                }
+
+                count++;
+                Assert.DoesNotContain("\\", line);
+                Assert.Matches("\"[^\"]*Dossier é/StackR/[^\"]*\"", line);
+            }
+        }
+
+        Assert.True(count >= 10, "directives de chemin trouvées : " + count);
+    }
+
+    [Theory]
+    [InlineData(0, 443)]
+    [InlineData(70000, 443)]
+    [InlineData(80, 80)]
+    public void Writers_InvalidOrDuplicatePorts_Throw(int http, int https)
+    {
+        using var tmp = new TempDirectory();
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { HttpPort = http, HttpsPort = https });
+        Assert.Throws<ArgumentException>(() => writer.WriteHttpdConf("a", "p"));
+        Assert.Throws<ArgumentException>(() => writer.WriteMyIni("m"));
+    }
+
+    [Fact]
+    public void Httpd_WwwPathWithQuote_Throws()
+    {
+        using var tmp = new TempDirectory();
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { WwwPath = "D:\\x\"\nListen 0.0.0.0:80" });
+        Assert.Throws<ArgumentException>(() => writer.WriteHttpdConf("a", "p"));
+    }
+
+    [Fact]
+    public void EffectiveWww_UsesWwwPathOrDefault()
+    {
+        var paths = new StackRPaths(@"C:\StackR");
+        Assert.Equal(@"C:\StackR\www", new StackRSettings().EffectiveWww(paths));
+        Assert.Equal(@"D:\Sites", new StackRSettings { WwwPath = @"D:\Sites" }.EffectiveWww(paths));
     }
 }

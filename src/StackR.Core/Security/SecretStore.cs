@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using StackR.Core.IO;
 
 namespace StackR.Core.Security;
 
@@ -45,21 +46,8 @@ public sealed partial class SecretStore(string secretsDir)
     {
         ArgumentNullException.ThrowIfNull(value);
         var path = PathFor(name);
-        Directory.CreateDirectory(secretsDir);
         var protectedBytes = ProtectedData.Protect(value, Entropy(name), DataProtectionScope.CurrentUser);
-        var tmp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
-        try
-        {
-            File.WriteAllBytes(tmp, protectedBytes);
-            File.Move(tmp, path, overwrite: true);
-        }
-        finally
-        {
-            if (File.Exists(tmp))
-            {
-                File.Delete(tmp);
-            }
-        }
+        AtomicFile.WriteAllBytes(path, protectedBytes);
     }
 
     public byte[]? GetBytes(string name)
@@ -77,7 +65,10 @@ public sealed partial class SecretStore(string secretsDir)
     public void Delete(string name)
     {
         var path = PathFor(name);
-        File.Delete(path);
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
     }
 
     private static byte[] Entropy(string name) => Encoding.UTF8.GetBytes("StackR:" + name);

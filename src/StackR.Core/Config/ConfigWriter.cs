@@ -1,4 +1,6 @@
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using StackR.Core.IO;
 using StackR.Core.Paths;
 using StackR.Core.Settings;
 
@@ -11,7 +13,7 @@ public sealed class ConfigWriter(StackRPaths paths, StackRSettings settings)
 
     public string WriteHttpdConf(string apacheDir, string phpDir)
     {
-        var www = string.IsNullOrWhiteSpace(settings.WwwPath) ? paths.Www : settings.WwwPath;
+        var www = settings.EffectiveWww(paths);
         Directory.CreateDirectory(Path.Combine(paths.Etc, "sites"));
 
         var https = settings.HttpsEnabled;
@@ -36,17 +38,10 @@ public sealed class ConfigWriter(StackRPaths paths, StackRSettings settings)
 
     public string WritePhpIni(string phpDir)
     {
-        var caBundle = Path.Combine(phpDir, "extras", "ssl", "cacert.pem");
-        string caLines;
-        if (File.Exists(caBundle))
-        {
-            var ca = TemplateRenderer.ConfPath(caBundle);
-            caLines = $"curl.cainfo = \"{ca}\"\nopenssl.cafile = \"{ca}\"";
-        }
-        else
-        {
-            caLines = "; Aucun bundle CA PHP trouvé (curl.cainfo / openssl.cafile non définis)";
-        }
+        var caBundle = Path.Combine(paths.Etc, "ssl", "cacert.pem");
+        AtomicFile.WriteAllText(caBundle, ExportTrustedRootsPem(), new UTF8Encoding(false));
+        var ca = TemplateRenderer.ConfPath(caBundle);
+        var caLines = $"curl.cainfo = \"{ca}\"\nopenssl.cafile = \"{ca}\"";
 
         var values = new Dictionary<string, string>
         {
@@ -69,14 +64,62 @@ public sealed class ConfigWriter(StackRPaths paths, StackRSettings settings)
         return Write("my.ini", "my.ini.tpl", values);
     }
 
+    // Racines de confiance Windows (utilisateur + machine), dédupliquées par empreinte, au format PEM.
+    private static string ExportTrustedRootsPem()
+    {
+        var sb = new StringBuilder();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var location in new[] { StoreLocation.CurrentUser, StoreLocation.LocalMachine })
+        {
+            using var store = new X509Store(StoreName.Root, location);
+            store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+            foreach (var cert in store.Certificates)
+            {
+                using (cert)
+                {
+                    if (seen.Add(cert.Thumbprint))
+                    {
+                        sb.Append("# ").Append(cert.Subject.ReplaceLineEndings(" ")).Append('\n');
+                        sb.Append(cert.ExportCertificatePem()).Append('\n');
+                    }
+                }
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    private void ValidatePorts()
+    {
+        var ports = new (string Name, int Value)[]
+        {
+            ("HttpPort", settings.HttpPort), ("HttpsPort", settings.HttpsPort), ("MySqlPort", settings.MySqlPort),
+            ("MailpitUiPort", settings.MailpitUiPort), ("MailpitSmtpPort", settings.MailpitSmtpPort),
+        };
+        foreach (var (name, value) in ports)
+        {
+            if (value is < 1 or > 65535)
+            {
+                throw new ArgumentException($"{name} doit être compris entre 1 et 65535 (valeur : {value}).");
+            }
+        }
+
+        var dup = ports.GroupBy(p => p.Value).FirstOrDefault(g => g.Count() > 1);
+        if (dup is not null)
+        {
+            throw new ArgumentException($"Les ports doivent être distincts : {string.Join(", ", dup.Select(p => p.Name))} = {dup.Key}.");
+        }
+    }
+
     // UTF-8 sans BOM, fins de ligne CRLF.
     private string Write(string fileName, string templateName, Dictionary<string, string> values)
     {
+        ValidatePorts();
         Directory.CreateDirectory(paths.Etc);
         var text = TemplateRenderer.Render(TemplateRenderer.LoadEmbedded(templateName), values);
         text = text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", "\r\n", StringComparison.Ordinal);
         var path = Path.Combine(paths.Etc, fileName);
-        File.WriteAllText(path, text, Utf8NoBom);
+        AtomicFile.WriteAllText(path, text, Utf8NoBom);
         return path;
     }
 }

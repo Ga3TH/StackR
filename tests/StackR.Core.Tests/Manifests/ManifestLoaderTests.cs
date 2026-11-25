@@ -61,4 +61,43 @@ public class ManifestLoaderTests
             Assert.Equal(Uri.UriSchemeHttps, r.Url.Scheme);
         });
     }
+
+    [Fact]
+    public void Parse_Sha256WithTrailingNewline_Throws() =>
+        Assert.Throws<ManifestException>(() => ManifestLoader.Parse(Json(Entry("Node", "1.2.3", sha: Sha + "\\n"))));
+
+    [Theory]
+    [InlineData("1")]
+    [InlineData("1.2.3.4.5")]
+    [InlineData("1.2.x")]
+    [InlineData("..\\\\evil")]
+    [InlineData("1.2\\n")]
+    public void Parse_BadVersion_Throws(string version) =>
+        Assert.Throws<ManifestException>(() => ManifestLoader.Parse(Json(Entry("Node", version))));
+
+    [Fact]
+    public void Parse_DuplicateComponentVersion_Throws() =>
+        Assert.Throws<ManifestException>(() => ManifestLoader.Parse(Json(Entry("Node", "1.2.3") + "," + Entry("Node", "1.2.3"))));
+
+    [Theory]
+    [InlineData("\"component\": \"Node\", ")]
+    [InlineData("\"package\": \"Zip\",")]
+    [InlineData("\"sizeBytes\": 10,")]
+    [InlineData("\"channel\": \"stable\",")]
+    [InlineData("\"url\": \"https://example.org/a.zip\",")]
+    public void Parse_MissingField_Throws(string fragment)
+    {
+        var entry = Entry("Node", "1.2.3");
+        Assert.Contains(fragment, entry);
+        Assert.Throws<ManifestException>(() => ManifestLoader.Parse(Json(entry.Replace(fragment, ""))));
+    }
+
+    [Fact]
+    public void Parse_ZeroSize_Throws() =>
+        Assert.Throws<ManifestException>(() => ManifestLoader.Parse(Json(Entry("Node", "1.2.3").Replace("\"sizeBytes\": 10", "\"sizeBytes\": 0"))));
+
+    [Fact]
+    public void LoadEmbedded_PhpUrlsUseArchives() =>
+        Assert.All(ManifestLoader.LoadEmbedded().Releases.Where(r => r.Component == ComponentKind.Php),
+            r => Assert.Contains("/releases/archives/", r.Url.AbsoluteUri));
 }

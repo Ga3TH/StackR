@@ -101,4 +101,11 @@ public sealed class SecretStoreTests : IDisposable
         Assert.Throws<ArgumentException>(() => store.Get(name));
         Assert.Throws<ArgumentException>(() => store.Delete(name));
     }
+
+    [Fact]
+    public void Delete_FolderMissing_IsNoOp()
+    {
+        var store = new SecretStore(Path.Combine(_dir, "nope"));
+        store.Delete("mysql-root");
+    }
 }

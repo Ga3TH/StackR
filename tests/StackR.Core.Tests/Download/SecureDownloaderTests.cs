@@ -212,4 +212,104 @@ public sealed class SecureDownloaderTests : IDisposable
             onReport?.Invoke(value);
         }
     }
+
+    [Fact]
+    public async Task Download_ExceedsMaxBytes_ThrowsAndDeletesFile()
+    {
+        using var handler = new FakeHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StreamContent(new NonSeekableStream(_payload)),
+        });
+        using var client = new HttpClient(handler);
+
+        await Assert.ThrowsAsync<IntegrityException>(() => new SecureDownloader(client)
+            .DownloadVerifiedAsync(HttpsUrl, Sha256Hex(_payload), _tmpDir, null, CancellationToken.None, maxBytes: 100_000));
+
+        Assert.Empty(Directory.EnumerateFileSystemEntries(_tmpDir));
+    }
+
+    [Fact]
+    public async Task Download_DeclaredLengthExceedsMaxBytes_Throws()
+    {
+        using var handler = new FakeHandler(_ => Ok(_payload));
+        using var client = new HttpClient(handler);
+
+        await Assert.ThrowsAsync<IntegrityException>(() => new SecureDownloader(client)
+            .DownloadVerifiedAsync(HttpsUrl, Sha256Hex(_payload), _tmpDir, null, CancellationToken.None, maxBytes: 10));
+    }
+
+    [Fact]
+    public async Task Download_AtMaxBytes_Succeeds()
+    {
+        using var handler = new FakeHandler(_ => Ok(_payload));
+        using var client = new HttpClient(handler);
+
+        var path = await new SecureDownloader(client)
+            .DownloadVerifiedAsync(HttpsUrl, Sha256Hex(_payload), _tmpDir, null, CancellationToken.None, maxBytes: _payload.Length);
+
+        Assert.True(File.Exists(path));
+    }
+
+    [Fact]
+    public async Task Download_StalledBody_TimesOutAndDeletesFile()
+    {
+        using var handler = new FakeHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StreamContent(new StallingStream(_payload.AsMemory(0, 1000).ToArray())),
+        });
+        using var client = new HttpClient(handler);
+        var downloader = new SecureDownloader(client, TimeSpan.FromMilliseconds(300));
+
+        await Assert.ThrowsAsync<TimeoutException>(() => downloader
+            .DownloadVerifiedAsync(HttpsUrl, Sha256Hex(_payload), _tmpDir, null, CancellationToken.None));
+
+        Assert.Empty(Directory.EnumerateFileSystemEntries(_tmpDir));
+    }
+
+    // Renvoie quelques octets puis ne répond plus (jusqu'à annulation).
+    private sealed class StallingStream(byte[] first) : Stream
+    {
+        private bool _served;
+
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+        public override long Length => throw new NotSupportedException();
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        public override void Flush() { }
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            if (!_served)
+            {
+                _served = true;
+                first.CopyTo(buffer);
+                return first.Length;
+            }
+
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+            return 0;
+        }
+    }
+
+    // Flux sans longueur connue : pas de Content-Length, le plafond doit jouer pendant la lecture.
+    private sealed class NonSeekableStream(byte[] data) : Stream
+    {
+        private readonly MemoryStream _inner = new(data);
+
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+        public override long Length => throw new NotSupportedException();
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
+        public override void Flush() { }
+        public override int Read(byte[] buffer, int offset, int count) => _inner.Read(buffer, offset, count);
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+        public override void SetLength(long value) => throw new NotSupportedException();
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+    }
 }

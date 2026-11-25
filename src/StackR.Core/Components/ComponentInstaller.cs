@@ -41,7 +41,7 @@ public sealed class ComponentInstaller(SecureDownloader downloader, StackRPaths 
             p?.Report(new InstallProgress("Téléchargement", 0));
             var dl = p is null ? null : new SyncProgress<DownloadProgress>(d =>
                 p.Report(new InstallProgress("Téléchargement", d.TotalBytes is > 0 ? 100.0 * d.BytesReceived / d.TotalBytes.Value : 0)));
-            download = await _downloader.DownloadVerifiedAsync(r.Url, r.Sha256, _paths.Tmp, dl, ct).ConfigureAwait(false);
+            download = await _downloader.DownloadVerifiedAsync(r.Url, r.Sha256, _paths.Tmp, dl, ct, r.SizeBytes).ConfigureAwait(false);
             p?.Report(new InstallProgress("Vérification", 100));
 
             // Extraction immédiate : le fichier vérifié ne reste pas disponible plus longtemps que nécessaire.
