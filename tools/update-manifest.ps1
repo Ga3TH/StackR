@@ -77,7 +77,7 @@ Add-Release 'Composer' $ver $url $sha (Get-Size $url) 'File' @() $null
 # --- MySQL 8.4 LTS : seul le MD5 est publié, SHA-256 calculé sur le zip officiel ---
 $my = $null
 for ($i = 40; $i -ge 0 -and -not $my; $i--) {
-    $u = "https://cdn.mysql.com/Downloads/MySQL-$MySqlSeries/mysql-$MySqlSeries.$i-winx64.zip"
+    $u = "https://cdn.mysql.com/archives/mysql-$MySqlSeries/mysql-$MySqlSeries.$i-winx64.zip"
     try { $null = Invoke-WebRequest -Uri $u -Method Head -UseBasicParsing; $my = @{ Url = $u; Ver = "$MySqlSeries.$i" } } catch { }
 }
 if (-not $my) { throw 'Zip MySQL introuvable sur cdn.mysql.com' }
