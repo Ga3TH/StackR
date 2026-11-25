@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppName" xml:space="preserve"><value>StackR</value></data>
+  <data name="AppTagline" xml:space="preserve"><value>Pile web locale, sécurisée</value></data>
+  <data name="NavDashboard" xml:space="preserve"><value>Tableau de bord</value></data>
+  <data name="NavSites" xml:space="preserve"><value>Sites</value></data>
+  <data name="NavVersions" xml:space="preserve"><value>Versions</value></data>
+  <data name="NavDatabase" xml:space="preserve"><value>Base de données</value></data>
+  <data name="NavLogs" xml:space="preserve"><value>Journaux</value></data>
+  <data name="NavSettings" xml:space="preserve"><value>Paramètres</value></data>
+  <data name="DashboardSubtitle" xml:space="preserve"><value>Services, versions actives et raccourcis en un coup d'œil.</value></data>
+  <data name="SitesSubtitle" xml:space="preserve"><value>Vos sites .test locaux, avec HTTPS en un clic.</value></data>
+  <data name="VersionsSubtitle" xml:space="preserve"><value>Installez, activez et mettez à jour PHP, Apache, MySQL et Mailpit.</value></data>
+  <data name="DatabaseSubtitle" xml:space="preserve"><value>Connexion MySQL, mot de passe root et client en ligne de commande.</value></data>
+  <data name="LogsSubtitle" xml:space="preserve"><value>Suivi en direct des journaux de chaque service.</value></data>
+  <data name="SettingsSubtitle" xml:space="preserve"><value>Dossiers, démarrage avec Windows, thème et langue.</value></data>
+  <data name="PlaceholderTitle" xml:space="preserve"><value>Bientôt disponible</value></data>
+  <data name="PlaceholderBody" xml:space="preserve"><value>Cette page sera complétée dans une prochaine étape.</value></data>
+  <data name="TrayTooltip" xml:space="preserve"><value>StackR</value></data>
+  <data name="TrayStartAll" xml:space="preserve"><value>Tout démarrer</value></data>
+  <data name="TrayStopAll" xml:space="preserve"><value>Tout arrêter</value></data>
+  <data name="TraySites" xml:space="preserve"><value>Sites</value></data>
+  <data name="TrayNoSites" xml:space="preserve"><value>Aucun site</value></data>
+  <data name="TrayOpen" xml:space="preserve"><value>Ouvrir StackR</value></data>
+  <data name="TrayQuit" xml:space="preserve"><value>Quitter</value></data>
+  <data name="TrayBackgroundTitle" xml:space="preserve"><value>StackR</value></data>
+  <data name="TrayBackgroundMessage" xml:space="preserve"><value>StackR continue en arrière-plan</value></data>
+  <data name="QuitTitle" xml:space="preserve"><value>Quitter StackR</value></data>
+  <data name="QuitMessage" xml:space="preserve"><value>Arrêter les services avant de quitter ?</value></data>
+  <data name="QuitYes" xml:space="preserve"><value>Oui</value></data>
+  <data name="QuitNo" xml:space="preserve"><value>Non</value></data>
+  <data name="QuitCancel" xml:space="preserve"><value>Annuler</value></data>
+</root>
