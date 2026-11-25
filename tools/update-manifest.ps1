@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Régénère manifest/components.json depuis les sources officielles (Windows PowerShell 5.1).
 .DESCRIPTION
