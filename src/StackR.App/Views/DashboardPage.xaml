@@ -1,0 +1,35 @@
+<Page x:Class="StackR.App.Views.DashboardPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:res="clr-namespace:StackR.App.Resources"
+      Title="{Binding Title}">
+    <Grid Margin="{StaticResource PagePadding}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Style="{StaticResource PageTitleTextStyle}" Text="{Binding Title}" />
+            <Border Style="{StaticResource TitleUnderlineStyle}" Margin="0,8,0,12" />
+            <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding Subtitle}" />
+        </StackPanel>
+
+        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}"
+                Margin="0,24,0,0" Padding="{StaticResource PaddingXl}"
+                VerticalAlignment="Top" HorizontalAlignment="Stretch">
+            <StackPanel Orientation="Horizontal">
+                <Border Style="{StaticResource BrandTileBorderStyle}">
+                    <ui:SymbolIcon Symbol="Home24" FontSize="28" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.PlaceholderTitle}" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="0,4,0,0"
+                               Text="{x:Static res:Strings.PlaceholderBody}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

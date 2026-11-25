@@ -1,0 +1,114 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Brand.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- ===== Espacements (4 / 8 / 12 / 16 / 24) ===== -->
+    <sys:Double x:Key="SpaceXs">4</sys:Double>
+    <sys:Double x:Key="SpaceS">8</sys:Double>
+    <sys:Double x:Key="SpaceM">12</sys:Double>
+    <sys:Double x:Key="SpaceL">16</sys:Double>
+    <sys:Double x:Key="SpaceXl">24</sys:Double>
+
+    <Thickness x:Key="PaddingXs">4</Thickness>
+    <Thickness x:Key="PaddingS">8</Thickness>
+    <Thickness x:Key="PaddingM">12</Thickness>
+    <Thickness x:Key="PaddingL">16</Thickness>
+    <Thickness x:Key="PaddingXl">24</Thickness>
+    <Thickness x:Key="PagePadding">32,24,32,24</Thickness>
+
+    <!-- ===== Rayons ===== -->
+    <CornerRadius x:Key="RadiusMd">8</CornerRadius>
+    <CornerRadius x:Key="RadiusLg">12</CornerRadius>
+    <CornerRadius x:Key="RadiusPill">999</CornerRadius>
+
+    <!-- ===== Typographie ===== -->
+    <sys:Double x:Key="FontSizeCaption">12</sys:Double>
+    <sys:Double x:Key="FontSizeBody">14</sys:Double>
+    <sys:Double x:Key="FontSizeSubtitle">16</sys:Double>
+    <sys:Double x:Key="FontSizeSection">18</sys:Double>
+    <sys:Double x:Key="FontSizeTitle">28</sys:Double>
+
+    <Style x:Key="PageTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeTitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="PageSubtitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="SectionTitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSection}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+    </Style>
+
+    <Style x:Key="BodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="CaptionTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorTertiaryBrush}" />
+    </Style>
+
+    <!-- ===== Cartes ===== -->
+    <Style x:Key="CardBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource CardBackgroundFillColorDefaultBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource CardStrokeColorDefaultBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusLg}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingL}" />
+    </Style>
+
+    <!-- Carte cliquable : survol plus lumineux, liseré violet -->
+    <Style x:Key="InteractiveCardBorderStyle" TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                <Setter Property="BorderBrush" Value="{StaticResource BrandVioletBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Pastille d'état (ex. Actif, Arrêté) -->
+    <Style x:Key="BadgeBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusPill}" />
+        <Setter Property="Padding" Value="8,2" />
+    </Style>
+
+    <!-- Tuile d'icône à dégradé de marque -->
+    <Style x:Key="BrandTileBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource BrandGradientBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusLg}" />
+        <Setter Property="Width" Value="56" />
+        <Setter Property="Height" Value="56" />
+    </Style>
+
+    <!-- Fine ligne d'accent dégradée -->
+    <Style x:Key="AccentLineStyle" TargetType="Border">
+        <Setter Property="Height" Value="2" />
+        <Setter Property="Background" Value="{StaticResource BrandLineBrush}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
+    <!-- Petit trait d'accent sous un titre de page -->
+    <Style x:Key="TitleUnderlineStyle" TargetType="Border">
+        <Setter Property="Height" Value="3" />
+        <Setter Property="Width" Value="48" />
+        <Setter Property="CornerRadius" Value="1.5" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Background" Value="{StaticResource BrandLineBrush}" />
+    </Style>
+
+</ResourceDictionary>
