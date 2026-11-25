@@ -27,6 +27,14 @@ public static partial class TemplateRenderer
     public static string ConfPath(string windowsPath)
     {
         ArgumentNullException.ThrowIfNull(windowsPath);
+        foreach (var c in windowsPath)
+        {
+            if (c == '"' || char.IsControl(c))
+            {
+                throw new ArgumentException("Chemin invalide pour une directive de configuration (guillemet ou caractère de contrôle).", nameof(windowsPath));
+            }
+        }
+
         return windowsPath.Replace('\\', '/');
     }
 

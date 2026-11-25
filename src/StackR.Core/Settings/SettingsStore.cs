@@ -1,4 +1,6 @@
+using System.Text;
 using System.Text.Json;
+using StackR.Core.IO;
 
 namespace StackR.Core.Settings;
 
@@ -25,7 +27,9 @@ public static class SettingsStore
         try
         {
             var json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<StackRSettings>(json, Options) ?? new StackRSettings();
+            var loaded = JsonSerializer.Deserialize<StackRSettings>(json, Options) ?? new StackRSettings();
+            // "activeVersions": null dans le JSON contourne l'initialiseur : on normalise.
+            return loaded.ActiveVersions is null ? loaded with { ActiveVersions = new Dictionary<string, string>() } : loaded;
         }
         catch (JsonException)
         {
@@ -39,14 +43,6 @@ public static class SettingsStore
     {
         ArgumentNullException.ThrowIfNull(settings);
 
-        var directory = System.IO.Path.GetDirectoryName(System.IO.Path.GetFullPath(path));
-        if (!string.IsNullOrEmpty(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
-
-        var tmp = path + ".tmp";
-        File.WriteAllText(tmp, JsonSerializer.Serialize(settings, Options));
-        File.Move(tmp, path, overwrite: true);
+        AtomicFile.WriteAllText(path, JsonSerializer.Serialize(settings, Options), new UTF8Encoding(false));
     }
 }

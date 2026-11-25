@@ -80,4 +80,26 @@ public class SettingsStoreTests
 
         Assert.Equal(expected, SettingsStore.DefaultPath);
     }
+
+    [Fact]
+    public void Load_NullActiveVersions_NormalizedToEmpty()
+    {
+        using var temp = new TempDirectory();
+        var path = System.IO.Path.Combine(temp.Path, "stackr.json");
+        File.WriteAllText(path, "{ \"activeVersions\": null }");
+
+        var settings = SettingsStore.Load(path);
+
+        Assert.NotNull(settings.ActiveVersions);
+        Assert.Empty(settings.ActiveVersions);
+    }
+
+    [Fact]
+    public void Save_LeavesNoTempFile()
+    {
+        using var temp = new TempDirectory();
+        var path = System.IO.Path.Combine(temp.Path, "sub", "stackr.json");
+        SettingsStore.Save(path, new StackRSettings());
+        Assert.Single(Directory.GetFiles(System.IO.Path.GetDirectoryName(path)!));
+    }
 }
