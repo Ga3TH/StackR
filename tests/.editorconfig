@@ -1,0 +1,3 @@
+# Tests use Method_Scenario_Expectation names.
+[*.cs]
+dotnet_diagnostic.CA1707.severity = none
