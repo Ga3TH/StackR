@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using StackR.Core;
 using StackR.App.Resources;
 using StackR.App.Services;
 using StackR.App.Tray;
@@ -69,7 +70,8 @@ public partial class App : System.Windows.Application
         var builder = Host.CreateApplicationBuilder(args);
         var services = builder.Services;
 
-        // >>> Tâche 13 : brancher le moteur ici : services.AddSingleton(StackREngine.Create());
+        // Moteur unique partagé par toutes les pages (libéré avec l'hôte).
+        services.AddSingleton(_ => StackREngine.Create());
 
         services.AddSingleton<AppShell>();
         services.AddSingleton<TrayIconService>();
