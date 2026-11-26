@@ -7,8 +7,14 @@ using StackR.Core.Settings;
 namespace StackR.Core.Config;
 
 // Génère les fichiers de configuration sous etc\ à partir des gabarits embarqués.
-public sealed class ConfigWriter(StackRPaths paths, StackRSettings settings)
+/// <param name="paths">Arborescence StackR.</param>
+/// <param name="settings">Paramètres.</param>
+/// <param name="rootCertificates">Source des certificats racines exportés pour PHP (par défaut : magasins Windows Root).</param>
+public sealed class ConfigWriter(
+    StackRPaths paths, StackRSettings settings, Func<IEnumerable<X509Certificate2>>? rootCertificates = null)
 {
+    private readonly Func<IEnumerable<X509Certificate2>> _rootCertificates = rootCertificates ?? SystemRootCertificates;
+
     private static readonly UTF8Encoding Utf8NoBom = new(false);
 
     public string WriteHttpdConf(string apacheDir, string phpDir)
@@ -64,25 +70,38 @@ public sealed class ConfigWriter(StackRPaths paths, StackRSettings settings)
         return Write("my.ini", "my.ini.tpl", values);
     }
 
-    // Racines de confiance Windows (utilisateur + machine), dédupliquées par empreinte, au format PEM.
-    private static string ExportTrustedRootsPem()
+    /// <summary>Racines de confiance Windows (utilisateur puis machine) ; chaque certificat est libéré après lecture.</summary>
+    internal static IEnumerable<X509Certificate2> SystemRootCertificates()
     {
-        var sb = new StringBuilder();
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var location in new[] { StoreLocation.CurrentUser, StoreLocation.LocalMachine })
         {
             using var store = new X509Store(StoreName.Root, location);
             store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
             foreach (var cert in store.Certificates)
             {
-                using (cert)
+                try
                 {
-                    if (seen.Add(cert.Thumbprint))
-                    {
-                        sb.Append("# ").Append(cert.Subject.ReplaceLineEndings(" ")).Append('\n');
-                        sb.Append(cert.ExportCertificatePem()).Append('\n');
-                    }
+                    yield return cert;
                 }
+                finally
+                {
+                    cert.Dispose();
+                }
+            }
+        }
+    }
+
+    // Racines de confiance, dédupliquées par empreinte, au format PEM.
+    private string ExportTrustedRootsPem()
+    {
+        var sb = new StringBuilder();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var cert in _rootCertificates())
+        {
+            if (seen.Add(cert.Thumbprint))
+            {
+                sb.Append("# ").Append(cert.Subject.ReplaceLineEndings(" ")).Append('\n');
+                sb.Append(cert.ExportCertificatePem()).Append('\n');
             }
         }
 

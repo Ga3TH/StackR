@@ -87,6 +87,7 @@ public abstract class ManagedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        Process? stale;
         lock (_gate)
         {
             if (_status is ServiceStatus.Starting or ServiceStatus.Running or ServiceStatus.Stopping)
@@ -94,11 +95,26 @@ public abstract class ManagedService
                 return;
             }
 
+            stale = _process;
             _status = ServiceStatus.Starting;
             _lastError = null;
         }
 
         OnStatusChanged();
+
+        if (stale is not null)
+        {
+            // Un arrêt a échoué (état Error) : le processus suivi, vérifié comme nôtre, est tué avant
+            // tout nouveau lancement pour ne jamais le laisser orphelin.
+            KillAndWait(stale);
+            if (!HasExited(stale))
+            {
+                SetStatus(stale, ServiceStatus.Error, $"Impossible d'arrêter {DisplayName} (PID {stale.Id}).");
+                return;
+            }
+
+            Release(stale, ServiceStatus.Starting, null);
+        }
 
         Process? process = null;
         try

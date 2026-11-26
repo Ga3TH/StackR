@@ -54,6 +54,9 @@ public sealed class ComponentStore(StackRPaths paths, Func<ComponentKind, string
         var dir = _paths.ComponentDir(FolderName(c), version);
         if (Directory.Exists(dir))
         {
+            // Marqueur d'abord : si la suppression échoue à mi-chemin (DLL verrouillée), le dossier
+            // restant n'est plus vu comme installé.
+            File.Delete(Path.Combine(dir, MarkerFileName));
             Directory.Delete(dir, recursive: true);
         }
     }

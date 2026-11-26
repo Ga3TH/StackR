@@ -11,40 +11,27 @@ public sealed partial class MySqlBootstrapTests : IDisposable
 
     public void Dispose() => _env.Dispose();
 
-    [GeneratedRegex("--defaults-extra-file=\"([^\"]+)\"")]
-    private static partial Regex ExtraFile();
+    [GeneratedRegex("--init-file=\"([^\"]+)\"")]
+    private static partial Regex InitFile();
 
     [Fact]
-    public async Task EnsureInitialized_EmptyDataDir_SetsRootPasswordAndStoresSecret()
+    public async Task EnsureInitialized_EmptyDataDir_SetsRootPasswordViaInitFile()
     {
-        string? clientFile = null;
+        string? initFile = null;
         string? contents = null;
-        string? secretAtAlter = null;
+        string? secretAtInit = null;
+        string? args0 = null;
         var aclUserOnly = false;
         _env.Runner.OnRun = (exe, args) =>
         {
-            switch (Path.GetFileName(exe))
-            {
-                case "mysqld.exe":
-                    Assert.Contains("--initialize-insecure", args, StringComparison.Ordinal);
-                    Directory.CreateDirectory(Path.Combine(_env.Paths.MySqlData, "mysql"));
-                    return 0;
-                case "mysql.exe":
-                    clientFile = ExtraFile().Match(args).Groups[1].Value;
-                    contents = File.ReadAllText(clientFile);
-                    secretAtAlter = _env.Secrets.Get("mysql-root");
-                    aclUserOnly = IsUserOnly(clientFile);
-                    return 0;
-                case "mysqladmin.exe":
-                    foreach (var p in _env.Runner.Processes)
-                    {
-                        FakeProcessRunner.KillQuietly(p);
-                    }
-
-                    return 0;
-                default:
-                    return 1;
-            }
+            Assert.Equal("mysqld.exe", Path.GetFileName(exe));
+            args0 = args;
+            initFile = InitFile().Match(args).Groups[1].Value;
+            contents = File.ReadAllText(initFile);
+            secretAtInit = _env.Secrets.Get("mysql-root");
+            aclUserOnly = IsUserOnly(initFile);
+            Directory.CreateDirectory(Path.Combine(_env.Paths.MySqlData, "mysql"));
+            return 0;
         };
 
         await MySqlBootstrap.EnsureInitializedAsync(
@@ -53,13 +40,15 @@ public sealed partial class MySqlBootstrapTests : IDisposable
         var password = _env.Secrets.Get("mysql-root");
         Assert.NotNull(password);
         Assert.Equal(24, password.Length);
-        Assert.Equal(password, secretAtAlter);
+        Assert.Equal(password, secretAtInit);
+        Assert.Contains("--initialize-insecure", args0, StringComparison.Ordinal);
+        Assert.DoesNotContain(password, args0, StringComparison.Ordinal);
         Assert.Contains($"ALTER USER 'root'@'localhost' IDENTIFIED BY '{password}';", contents, StringComparison.Ordinal);
-        Assert.True(aclUserOnly, "Le fichier client doit être réservé à l'utilisateur courant.");
-        Assert.False(File.Exists(clientFile));
-        Assert.Single(_env.Runner.Started);
-        Assert.All(_env.Runner.Watchers, p => Assert.True(p.WaitForExit(5000)));
-        Assert.Empty(Directory.EnumerateFiles(_env.Paths.Tmp, "client-*.cnf"));
+        Assert.True(aclUserOnly, "Le fichier d'init doit être réservé à l'utilisateur courant.");
+        Assert.False(File.Exists(initFile));
+        Assert.Single(_env.Runner.Runs);
+        Assert.Empty(_env.Runner.Started);
+        Assert.Empty(Directory.EnumerateFiles(_env.Paths.Tmp, "init-*.sql"));
     }
 
     [Fact]
@@ -89,6 +78,7 @@ public sealed partial class MySqlBootstrapTests : IDisposable
 
         Assert.Empty(Directory.EnumerateFileSystemEntries(_env.Paths.MySqlData));
         Assert.Empty(_env.Runner.Started);
+        Assert.Empty(Directory.EnumerateFiles(_env.Paths.Tmp, "init-*.sql"));
     }
 
     private static bool IsUserOnly(string path)

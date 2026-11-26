@@ -51,4 +51,30 @@ public sealed class PortProbeTests
             listener.Stop();
         }
     }
+
+    [Fact]
+    public void FindOwner_Ipv6WildcardListener_IsFound()
+    {
+        if (!Socket.OSSupportsIPv6)
+        {
+            return;
+        }
+
+        var listener = new TcpListener(IPAddress.IPv6Any, 0);
+        listener.Server.DualMode = false;
+        listener.Start();
+        try
+        {
+            var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+
+            var owner = PortProbe.FindOwner(port);
+
+            Assert.NotNull(owner);
+            Assert.Equal(Environment.ProcessId, owner.Pid);
+        }
+        finally
+        {
+            listener.Stop();
+        }
+    }
 }

@@ -50,4 +50,24 @@ public class VhostBuilderTests
         Assert.DoesNotContain("0.0.0.0", conf);
         Assert.DoesNotContain("*:", conf);
     }
+
+    [Fact]
+    public void Vhost_DefaultSiteName_Throws()
+    {
+        var site = new Site(default, @"C:\www\x", @"C:\www\x");
+
+        Assert.Throws<ArgumentException>(() => VhostBuilder.Build(site, new StackRSettings(), null, null));
+    }
+
+    [Theory]
+    [InlineData(@"C:\www\a[1]")]
+    [InlineData(@"C:\www\a*")]
+    [InlineData(@"C:\www\a?")]
+    public void Vhost_GlobCharactersInDocumentRoot_Throws(string root)
+    {
+        SiteName.TryFromFolder("a", out var name);
+
+        Assert.Throws<ArgumentException>(() =>
+            VhostBuilder.Build(new Site(name, root, root), new StackRSettings(), null, null));
+    }
 }

@@ -69,4 +69,49 @@ public class SiteScannerTests
         var done = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(5)));
         Assert.Same(tcs.Task, done);
     }
+
+    [Fact]
+    public void Scan_FolderUnderGlobPath_IsSkippedWithReason()
+    {
+        using var t = new TempDirectory();
+        var www = Path.Combine(t.Path, "www[1]");
+        Directory.CreateDirectory(Path.Combine(www, "app"));
+
+        using var scanner = new SiteScanner(www);
+
+        Assert.Empty(scanner.Scan());
+        Assert.Contains("caractère générique", Assert.Single(scanner.Skipped), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Changed_FiresWhenWwwAppearsLater()
+    {
+        using var t = new TempDirectory();
+        var www = Path.Combine(t.Path, "www");
+        using var scanner = new SiteScanner(www);
+        var tcs = new TaskCompletionSource();
+        scanner.Changed += () => tcs.TrySetResult();
+
+        Directory.CreateDirectory(www);
+        Assert.Same(tcs.Task, await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(5))));
+
+        // Et la surveillance de www est active ensuite.
+        var again = new TaskCompletionSource();
+        scanner.Changed += () => again.TrySetResult();
+        Directory.CreateDirectory(Path.Combine(www, "nouveau"));
+        Assert.Same(again.Task, await Task.WhenAny(again.Task, Task.Delay(TimeSpan.FromSeconds(5))));
+    }
+
+    [Fact]
+    public void Scan_WwwAppearsAfterConstruction_IsScanned()
+    {
+        using var t = new TempDirectory();
+        var www = Path.Combine(t.Path, "absent", "www");
+        using var scanner = new SiteScanner(www);
+        Assert.Empty(scanner.Scan());
+
+        Directory.CreateDirectory(Path.Combine(www, "app"));
+
+        Assert.Equal("app", Assert.Single(scanner.Scan()).Name.Value);
+    }
 }

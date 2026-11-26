@@ -185,4 +185,16 @@ public sealed class ServiceManagerTests : IDisposable
         Assert.Equal(ServiceStatus.Error, apache.Status);
         Assert.Equal("Apache n'est pas installé.", apache.LastError);
     }
+
+    [Fact]
+    public async Task StartAll_StateWrittenAtomically_NoTempLeft()
+    {
+        var manager = _env.Manager();
+
+        await manager.StartAllAsync(CancellationToken.None);
+
+        Assert.True(File.Exists(_env.Paths.StateFile));
+        Assert.Empty(Directory.EnumerateFiles(_env.Paths.Tmp, "state.json.*.tmp"));
+        Assert.Equal(3, _env.ReadState().Count);
+    }
 }

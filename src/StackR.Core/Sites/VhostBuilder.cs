@@ -1,4 +1,5 @@
 using StackR.Core.Config;
+using StackR.Core.Hosts;
 using StackR.Core.Settings;
 
 namespace StackR.Core.Sites;
@@ -10,6 +11,17 @@ public static class VhostBuilder
     {
         ArgumentNullException.ThrowIfNull(site);
         ArgumentNullException.ThrowIfNull(s);
+
+        if (!HostsBlock.IsValidHost(site.Name.Host))
+        {
+            throw new ArgumentException($"Nom d'hôte invalide « {site.Name.Host} ».", nameof(site));
+        }
+
+        if (SiteScanner.HasGlobCharacters(site.DocumentRoot))
+        {
+            throw new ArgumentException(
+                $"Le dossier « {site.DocumentRoot} » contient un caractère générique Apache ([ ] * ?).", nameof(site));
+        }
 
         var values = new Dictionary<string, string>
         {

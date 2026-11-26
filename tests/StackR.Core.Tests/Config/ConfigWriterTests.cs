@@ -13,7 +13,7 @@ public class ConfigWriterTests
     public void Httpd_ListensOnLoopbackOnly()
     {
         using var tmp = new TempDirectory();
-        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { HttpsEnabled = true });
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { HttpsEnabled = true }, NoRoots);
         var path = writer.WriteHttpdConf(Path.Combine(tmp.Path, "apache"), Path.Combine(tmp.Path, "php"));
 
         var listens = Lines(path).Where(l => l.TrimStart().StartsWith("Listen ", StringComparison.Ordinal)).ToList();
@@ -27,7 +27,7 @@ public class ConfigWriterTests
     public void Httpd_HttpsDisabled_NoSslListenNorModule()
     {
         using var tmp = new TempDirectory();
-        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { HttpsEnabled = false });
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { HttpsEnabled = false }, NoRoots);
         var text = File.ReadAllText(writer.WriteHttpdConf(Path.Combine(tmp.Path, "apache"), Path.Combine(tmp.Path, "php")));
 
         Assert.DoesNotContain("LoadModule ssl_module", text);
@@ -40,7 +40,7 @@ public class ConfigWriterTests
     {
         using var tmp = new TempDirectory();
         var paths = new StackRPaths(tmp.Path);
-        var writer = new ConfigWriter(paths, new StackRSettings());
+        var writer = new ConfigWriter(paths, new StackRSettings(), NoRoots);
         var phpDir = Path.Combine(tmp.Path, "php");
         var path = writer.WriteHttpdConf(Path.Combine(tmp.Path, "apache"), phpDir);
         var text = File.ReadAllText(path);
@@ -67,7 +67,7 @@ public class ConfigWriterTests
     public void Httpd_UsesCustomWwwPath_WhenSet()
     {
         using var tmp = new TempDirectory();
-        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { WwwPath = @"D:\Mes Sites é" });
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { WwwPath = @"D:\Mes Sites é" }, NoRoots);
         var text = File.ReadAllText(writer.WriteHttpdConf("a", "p"));
         Assert.Contains("DocumentRoot \"D:/Mes Sites é\"", text);
     }
@@ -77,7 +77,7 @@ public class ConfigWriterTests
     {
         using var tmp = new TempDirectory();
         var phpDir = Path.Combine(tmp.Path, "php");
-        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { MailpitSmtpPort = 2525 });
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { MailpitSmtpPort = 2525 }, NoRoots);
         var path = writer.WritePhpIni(phpDir);
         var text = File.ReadAllText(path);
 
@@ -100,17 +100,31 @@ public class ConfigWriterTests
 
     }
 
+    // Jamais les vrais magasins de certificats dans les tests.
+    private static IEnumerable<System.Security.Cryptography.X509Certificates.X509Certificate2> NoRoots() => [];
+
+    private static System.Security.Cryptography.X509Certificates.X509Certificate2 CreateFakeRoot()
+    {
+        using var key = System.Security.Cryptography.ECDsa.Create();
+        var req = new System.Security.Cryptography.X509Certificates.CertificateRequest(
+            "CN=Fake Root", key, System.Security.Cryptography.HashAlgorithmName.SHA256);
+        return req.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1));
+    }
+
     [Fact]
     public void PhpIni_ExportsWindowsRootsAndReferencesThem()
     {
         using var tmp = new TempDirectory();
         var phpDir = Path.Combine(tmp.Path, "php");
         var paths = new StackRPaths(tmp.Path);
-        var text = File.ReadAllText(new ConfigWriter(paths, new StackRSettings()).WritePhpIni(phpDir));
+        using var fake = CreateFakeRoot();
+        var text = File.ReadAllText(new ConfigWriter(paths, new StackRSettings(), () => [fake, fake]).WritePhpIni(phpDir));
 
         var pem = Path.Combine(paths.Etc, "ssl", "cacert.pem");
         Assert.True(File.Exists(pem));
-        Assert.Contains("-----BEGIN CERTIFICATE-----", File.ReadAllText(pem));
+        var pemText = File.ReadAllText(pem);
+        Assert.Contains("# CN=Fake Root", pemText, StringComparison.Ordinal);
+        Assert.Equal(1, System.Text.RegularExpressions.Regex.Count(pemText, "-----BEGIN CERTIFICATE-----"));
         Assert.Empty(Directory.GetFiles(Path.Combine(paths.Etc, "ssl"), "*.tmp"));
         var ca = pem.Replace('\\', '/');
         Assert.Contains($"curl.cainfo = \"{ca}\"", text);
@@ -122,7 +136,7 @@ public class ConfigWriterTests
     {
         using var tmp = new TempDirectory();
         var paths = new StackRPaths(tmp.Path);
-        var writer = new ConfigWriter(paths, new StackRSettings { MySqlPort = 3307 });
+        var writer = new ConfigWriter(paths, new StackRSettings { MySqlPort = 3307 }, NoRoots);
         var mysqlDir = Path.Combine(tmp.Path, "mysql");
         var path = writer.WriteMyIni(mysqlDir);
         var text = File.ReadAllText(path);
@@ -142,7 +156,7 @@ public class ConfigWriterTests
     public void Writers_ProduceUtf8NoBomAndCrlf()
     {
         using var tmp = new TempDirectory();
-        var writer = new ConfigWriter(new StackRPaths(Path.Combine(tmp.Path, "Dossier é")), new StackRSettings());
+        var writer = new ConfigWriter(new StackRPaths(Path.Combine(tmp.Path, "Dossier é")), new StackRSettings(), NoRoots);
         foreach (var path in new[] { writer.WriteHttpdConf("a", "p"), writer.WritePhpIni("p"), writer.WriteMyIni("m") })
         {
             var bytes = File.ReadAllBytes(path);
@@ -158,7 +172,7 @@ public class ConfigWriterTests
     {
         using var tmp = new TempDirectory();
         var root = Path.Combine(tmp.Path, "Dossier é");
-        var writer = new ConfigWriter(new StackRPaths(root), new StackRSettings());
+        var writer = new ConfigWriter(new StackRPaths(root), new StackRSettings(), NoRoots);
         var text = File.ReadAllText(writer.WriteHttpdConf(Path.Combine(root, "bin", "apache"), Path.Combine(root, "bin", "php")));
         Assert.Contains("Dossier é/etc/sites/*.conf\"", text);
         Assert.Contains("ErrorLog \"", text);
@@ -170,7 +184,7 @@ public class ConfigWriterTests
         using var tmp = new TempDirectory();
         var root = Path.Combine(tmp.Path, "Dossier é", "StackR");
         var paths = new StackRPaths(root);
-        var writer = new ConfigWriter(paths, new StackRSettings());
+        var writer = new ConfigWriter(paths, new StackRSettings(), NoRoots);
         var files = new[]
         {
             writer.WriteHttpdConf(Path.Combine(root, "bin", "apache"), Path.Combine(root, "bin", "php")),
@@ -203,7 +217,7 @@ public class ConfigWriterTests
     public void Writers_InvalidOrDuplicatePorts_Throw(int http, int https)
     {
         using var tmp = new TempDirectory();
-        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { HttpPort = http, HttpsPort = https });
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { HttpPort = http, HttpsPort = https }, NoRoots);
         Assert.Throws<ArgumentException>(() => writer.WriteHttpdConf("a", "p"));
         Assert.Throws<ArgumentException>(() => writer.WriteMyIni("m"));
     }
@@ -212,7 +226,7 @@ public class ConfigWriterTests
     public void Httpd_WwwPathWithQuote_Throws()
     {
         using var tmp = new TempDirectory();
-        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { WwwPath = "D:\\x\"\nListen 0.0.0.0:80" });
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings { WwwPath = "D:\\x\"\nListen 0.0.0.0:80" }, NoRoots);
         Assert.Throws<ArgumentException>(() => writer.WriteHttpdConf("a", "p"));
     }
 

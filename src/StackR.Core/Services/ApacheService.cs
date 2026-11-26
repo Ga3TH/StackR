@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
+using System.Security.Cryptography.X509Certificates;
 using StackR.Core.Config;
 using StackR.Core.Paths;
 using StackR.Core.Settings;
@@ -12,7 +13,8 @@ public sealed class ApacheService(
     StackRSettings settings,
     IProcessRunner runner,
     Func<string?> apacheDir,
-    Func<string?> phpDir) : ManagedService(paths, settings, runner)
+    Func<string?> phpDir,
+    Func<IEnumerable<X509Certificate2>>? rootCertificates = null) : ManagedService(paths, settings, runner)
 {
     private readonly Func<string?> _apacheDir = apacheDir ?? throw new ArgumentNullException(nameof(apacheDir));
     private readonly Func<string?> _phpDir = phpDir ?? throw new ArgumentNullException(nameof(phpDir));
@@ -39,7 +41,7 @@ public sealed class ApacheService(
         var httpd = RequireFile(Path.Combine(dir, "bin", ExecutableName), DisplayName);
         var php = _phpDir() ?? throw new ServiceStartException("PHP n'est pas installé.");
 
-        var writer = new ConfigWriter(Paths, Settings);
+        var writer = new ConfigWriter(Paths, Settings, rootCertificates);
         writer.WritePhpIni(php);
         var conf = writer.WriteHttpdConf(dir, php);
 

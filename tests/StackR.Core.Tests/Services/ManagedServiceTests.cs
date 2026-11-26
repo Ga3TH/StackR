@@ -136,4 +136,50 @@ public sealed partial class ManagedServiceTests : IDisposable
 
         public void Dispose() => _listener.Stop();
     }
+
+    [Fact]
+    public async Task Start_AfterFailedStop_KillsTrackedProcessFirst()
+    {
+        var mailpit = _env.Mailpit();
+        await mailpit.StartAsync(CancellationToken.None);
+        var firstId = mailpit.ProcessId!.Value;
+        using var watcher = System.Diagnostics.Process.GetProcessById(firstId);
+        _env.Runner.StopListeners();
+
+        // État laissé par un arrêt échoué : Error avec un processus encore suivi.
+        var status = typeof(ManagedService).GetField("_status", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        status.SetValue(mailpit, ServiceStatus.Error);
+        Assert.False(watcher.HasExited);
+
+        await mailpit.StartAsync(CancellationToken.None);
+
+        Assert.True(watcher.WaitForExit(5000), "L'ancien processus doit être tué avant le nouveau lancement.");
+        Assert.Equal(ServiceStatus.Running, mailpit.Status);
+        Assert.Equal(2, _env.Runner.Started.Count);
+        Assert.NotEqual(firstId, mailpit.ProcessId);
+    }
+
+    [Fact]
+    public async Task MySqlClientFile_CleanupFailure_DoesNotMaskOriginalException()
+    {
+        Directory.CreateDirectory(_env.Paths.Tmp);
+        FileStream? held = null;
+        _env.Runner.OnRun = (_, args) =>
+        {
+            var file = ExtraFile().Match(args).Groups[1].Value;
+            held = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.None);
+            throw new InvalidOperationException("origine");
+        };
+
+        try
+        {
+            var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => MySqlClientFile.RunAsync(
+                _env.Runner, _env.Paths, "mysql.exe", "[client]\r\n", "--batch", CancellationToken.None));
+            Assert.Equal("origine", ex.Message);
+        }
+        finally
+        {
+            held?.Dispose();
+        }
+    }
 }
