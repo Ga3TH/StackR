@@ -141,8 +141,19 @@ public sealed class ServiceManagerTests : IDisposable
         var manager = _env.Manager();
         Assert.True((await manager.StartAllAsync(CancellationToken.None)).Success);
         var mailpit = manager.Services.Single(s => s.Id == "mailpit");
-        var changes = 0;
-        mailpit.StatusChanged += (_, _) => Interlocked.Increment(ref changes);
+
+        // Le statut devient Error sous verrou AVANT que StatusChanged soit levé : sonder Status
+        // seul laisse une fenêtre où l'événement (et l'écriture de state.json) n'a pas encore eu lieu.
+        // On attend donc l'événement lui-même. Le gestionnaire du ServiceManager, abonné en premier
+        // (constructeur), a déjà réécrit state.json quand le nôtre s'exécute.
+        var crashed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        mailpit.StatusChanged += (_, _) =>
+        {
+            if (mailpit.Status == ServiceStatus.Error)
+            {
+                crashed.TrySetResult();
+            }
+        };
         var pid = mailpit.ProcessId!.Value;
 
         using (var victim = Process.GetProcessById(pid))
@@ -150,12 +161,14 @@ public sealed class ServiceManagerTests : IDisposable
             victim.Kill();
         }
 
-        await ServiceTestEnvironment.WaitUntilAsync(() => mailpit.Status == ServiceStatus.Error);
+        await crashed.Task.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal(ServiceStatus.Error, mailpit.Status);
         Assert.NotNull(mailpit.LastError);
         Assert.Contains("Mailpit", mailpit.LastError, StringComparison.Ordinal);
-        Assert.True(changes > 0);
-        await ServiceTestEnvironment.WaitUntilAsync(() => !_env.ReadState().ContainsKey("mailpit"));
-        Assert.Equal(2, _env.ReadState().Count);
+        Assert.Null(mailpit.ProcessId);
+        var state = _env.ReadState();
+        Assert.False(state.ContainsKey("mailpit"));
+        Assert.Equal(2, state.Count);
     }
 
     [Fact]
