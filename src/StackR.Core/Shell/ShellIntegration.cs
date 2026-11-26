@@ -35,10 +35,10 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
         var shims = new Dictionary<string, string>();
         if (activeDirs.TryGetValue(ComponentKind.Php, out var php))
         {
-            shims["php"] = Exe(Target(php, "php.exe"));
+            shims["php"] = PhpRc + Exe(Target(php, "php.exe"));
             if (activeDirs.TryGetValue(ComponentKind.Composer, out var composer))
             {
-                shims["composer"] = $"\"{Target(php, "php.exe")}\" \"{Target(composer, "composer.phar")}\" %*";
+                shims["composer"] = PhpRc + $"\"{Target(php, "php.exe")}\" \"{Target(composer, "composer.phar")}\" %*";
             }
         }
 
@@ -130,6 +130,9 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
     }
 
     private static string Exe(string path) => $"\"{path}\" %*";
+
+    // php.ini de StackR (etc\, à côté de bin\) pour PHP en ligne de commande et Composer : sans lui, aucune extension.
+    private const string PhpRc = "set \"PHPRC=%D%..\\..\\etc\"\r\n";
 
     // %~dp0 est faux quand le shim est lancé par son nom entre guillemets via PATH (« "php" -v ») : le dossier
     // est donc capturé dans une étiquette appelée (%D%, avec « \ » final). Arguments hors du « call » (qui altère « ^ »).

@@ -23,7 +23,7 @@ LoadModule env_module modules/mod_env.so
 {{SslModules}}
 
 LoadModule php_module "{{PhpDir}}/php8apache2_4.dll"
-PHPIniDir "{{EtcDir}}"
+PHPIniDir "{{PhpIniDir}}"
 AddHandler application/x-httpd-php .php
 DirectoryIndex index.php index.html
 

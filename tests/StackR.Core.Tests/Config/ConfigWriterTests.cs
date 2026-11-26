@@ -157,11 +157,17 @@ public class ConfigWriterTests
     {
         using var tmp = new TempDirectory();
         var writer = new ConfigWriter(new StackRPaths(Path.Combine(tmp.Path, "Dossier é")), new StackRSettings(), NoRoots);
-        foreach (var path in new[] { writer.WriteHttpdConf("a", "p"), writer.WritePhpIni("p"), writer.WriteMyIni("m") })
+        // my.ini et php.ini : page de code ANSI (MySQL et PHP lisent les chemins en ANSI), voir AnsiPathTests.
+        foreach (var (path, encoding) in new[]
+        {
+            (writer.WriteHttpdConf("a", "p"), (Encoding)new UTF8Encoding(false, true)),
+            (writer.WritePhpIni("p"), AnsiPath.Encoding),
+            (writer.WriteMyIni("m"), AnsiPath.Encoding),
+        })
         {
             var bytes = File.ReadAllBytes(path);
             Assert.False(bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF);
-            var text = new UTF8Encoding(false, true).GetString(bytes);
+            var text = encoding.GetString(bytes);
             Assert.Contains("\r\n", text);
             Assert.DoesNotContain("\n", text.Replace("\r\n", string.Empty, StringComparison.Ordinal));
         }
@@ -185,25 +191,30 @@ public class ConfigWriterTests
         var root = Path.Combine(tmp.Path, "Dossier é", "StackR");
         var paths = new StackRPaths(root);
         var writer = new ConfigWriter(paths, new StackRSettings(), NoRoots);
+        Directory.CreateDirectory(Path.Combine(root, "bin", "php"));
+        // PHP reçoit le nom court 8.3 (ASCII) de la racine quand elle existe, MySQL et Apache le nom long.
+        var shortRoot = TemplateRenderer.ConfPath(AnsiPath.ForAscii(root));
         var files = new[]
         {
-            writer.WriteHttpdConf(Path.Combine(root, "bin", "apache"), Path.Combine(root, "bin", "php")),
-            writer.WritePhpIni(Path.Combine(root, "bin", "php")),
-            writer.WriteMyIni(Path.Combine(root, "bin", "mysql")),
+            (writer.WriteHttpdConf(Path.Combine(root, "bin", "apache"), Path.Combine(root, "bin", "php")), (Encoding)Encoding.UTF8),
+            (writer.WritePhpIni(Path.Combine(root, "bin", "php")), AnsiPath.Encoding),
+            (writer.WriteMyIni(Path.Combine(root, "bin", "mysql")), AnsiPath.Encoding),
         };
         var count = 0;
-        foreach (var file in files)
+        foreach (var (file, encoding) in files)
         {
-            foreach (var line in File.ReadAllLines(file))
+            foreach (var line in File.ReadAllLines(file, encoding))
             {
-                if (!line.Contains("Dossier é", StringComparison.Ordinal) || line.TrimStart().StartsWith('#') || line.TrimStart().StartsWith(';'))
+                var hasLong = line.Contains("Dossier é", StringComparison.Ordinal);
+                var hasShort = line.Contains(shortRoot + "/", StringComparison.OrdinalIgnoreCase);
+                if (!(hasLong || hasShort) || line.TrimStart().StartsWith('#') || line.TrimStart().StartsWith(';'))
                 {
                     continue;
                 }
 
                 count++;
                 Assert.DoesNotContain("\\", line);
-                Assert.Matches("\"[^\"]*Dossier é/StackR/[^\"]*\"", line);
+                Assert.Matches(hasLong ? "\"[^\"]*Dossier é/StackR/[^\"]*\"" : "\"[^\"]*/[^\"]*\"", line);
             }
         }
 

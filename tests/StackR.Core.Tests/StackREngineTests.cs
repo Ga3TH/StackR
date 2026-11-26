@@ -45,7 +45,7 @@ public sealed class StackREngineTests : IDisposable
         Assert.DoesNotContain("8.3.37", httpd);
 
         var phpIni = File.ReadAllText(Path.Combine(_env.Paths.Etc, "php.ini"));
-        Assert.Contains($"extension_dir = \"{TemplateRenderer.ConfPath(newPhp)}/ext\"", phpIni);
+        Assert.Contains($"extension_dir = \"{TemplateRenderer.ConfPath(AnsiPath.ForAscii(newPhp))}/ext\"", phpIni);
 
         Assert.Contains(@"%D%..\php\8.4.28\php.exe", File.ReadAllText(Path.Combine(_env.Paths.Shims, "php.cmd")));
     }

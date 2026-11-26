@@ -1,4 +1,4 @@
-# Généré par StackR - ne pas modifier à la main.
+# Genere par StackR - ne pas modifier a la main (fichier en page de code ANSI : MySQL ne lit pas l UTF-8).
 [client]
 port = {{MySqlPort}}
 default-character-set = utf8mb4

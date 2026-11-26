@@ -28,6 +28,7 @@ public sealed class ConfigWriter(
             ["ApacheDir"] = TemplateRenderer.ConfPath(apacheDir),
             ["PhpDir"] = TemplateRenderer.ConfPath(phpDir),
             ["EtcDir"] = TemplateRenderer.ConfPath(paths.Etc),
+            ["PhpIniDir"] = TemplateRenderer.ConfPath(AnsiPath.ForAscii(paths.Etc)),
             ["LogsDir"] = TemplateRenderer.ConfPath(paths.Logs),
             ["WwwDir"] = TemplateRenderer.ConfPath(www),
             ["HttpPort"] = settings.HttpPort.ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -46,28 +47,32 @@ public sealed class ConfigWriter(
     {
         var caBundle = Path.Combine(paths.Etc, "ssl", "cacert.pem");
         AtomicFile.WriteAllText(caBundle, ExportTrustedRootsPem(), new UTF8Encoding(false));
-        var ca = TemplateRenderer.ConfPath(caBundle);
+        var ca = TemplateRenderer.ConfPath(AnsiPath.ForAscii(caBundle));
         var caLines = $"curl.cainfo = \"{ca}\"\nopenssl.cafile = \"{ca}\"";
 
         var values = new Dictionary<string, string>
         {
-            ["PhpDir"] = TemplateRenderer.ConfPath(phpDir),
+            ["PhpDir"] = TemplateRenderer.ConfPath(AnsiPath.ForAscii(phpDir)),
             ["MailpitSmtpPort"] = settings.MailpitSmtpPort.ToString(System.Globalization.CultureInfo.InvariantCulture),
             ["CaBundleLines"] = caLines,
         };
-        return Write("php.ini", "php.ini.tpl", values);
+        // PHP charge ses extensions avec des API ANSI : chemins en ASCII (nom court) et fichier en ANSI.
+        return Write("php.ini", "php.ini.tpl", values, AnsiPath.Encoding);
     }
 
+    /// <summary>my.ini en page de code ANSI (MySQL ne lit pas l'UTF-8) : voir <see cref="AnsiPath"/>.</summary>
     public string WriteMyIni(string mysqlDir)
     {
+        Directory.CreateDirectory(paths.MySqlData);
+        Directory.CreateDirectory(paths.Logs);
         var values = new Dictionary<string, string>
         {
-            ["MySqlDir"] = TemplateRenderer.ConfPath(mysqlDir),
-            ["MySqlData"] = TemplateRenderer.ConfPath(paths.MySqlData),
+            ["MySqlDir"] = TemplateRenderer.ConfPath(AnsiPath.For(mysqlDir)),
+            ["MySqlData"] = TemplateRenderer.ConfPath(AnsiPath.For(paths.MySqlData)),
             ["MySqlPort"] = settings.MySqlPort.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            ["ErrorLog"] = TemplateRenderer.ConfPath(Path.Combine(paths.Logs, "mysql-error.log")),
+            ["ErrorLog"] = TemplateRenderer.ConfPath(Path.Combine(AnsiPath.For(paths.Logs), "mysql-error.log")),
         };
-        return Write("my.ini", "my.ini.tpl", values);
+        return Write("my.ini", "my.ini.tpl", values, AnsiPath.Encoding);
     }
 
     /// <summary>Racines de confiance Windows (utilisateur puis machine) ; chaque certificat est libéré après lecture.</summary>
@@ -130,15 +135,15 @@ public sealed class ConfigWriter(
         }
     }
 
-    // UTF-8 sans BOM, fins de ligne CRLF.
-    private string Write(string fileName, string templateName, Dictionary<string, string> values)
+    // UTF-8 sans BOM (sauf encodage imposé), fins de ligne CRLF.
+    private string Write(string fileName, string templateName, Dictionary<string, string> values, Encoding? encoding = null)
     {
         ValidatePorts();
         Directory.CreateDirectory(paths.Etc);
         var text = TemplateRenderer.Render(TemplateRenderer.LoadEmbedded(templateName), values);
         text = text.Replace("\r\n", "\n", StringComparison.Ordinal).Replace("\n", "\r\n", StringComparison.Ordinal);
         var path = Path.Combine(paths.Etc, fileName);
-        AtomicFile.WriteAllText(path, text, Utf8NoBom);
+        AtomicFile.WriteAllText(path, text, encoding ?? Utf8NoBom);
         return path;
     }
 }

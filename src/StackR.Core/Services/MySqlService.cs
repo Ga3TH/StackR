@@ -45,7 +45,7 @@ public sealed class MySqlService(
     internal static ProcessStartInfo ServerStartInfo(string mysqlDir, string myIni)
     {
         var psi = new ProcessStartInfo(Path.Combine(mysqlDir, "bin", "mysqld.exe")) { WorkingDirectory = mysqlDir };
-        psi.ArgumentList.Add("--defaults-file=" + myIni);
+        psi.ArgumentList.Add("--defaults-file=" + AnsiPath.For(myIni));
         return psi;
     }
 

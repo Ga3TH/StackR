@@ -1,4 +1,4 @@
-; Généré par StackR - ne pas modifier à la main.
+; Genere par StackR - ne pas modifier a la main (fichier en page de code ANSI : PHP charge ses extensions en ANSI).
 [PHP]
 expose_php = Off
 display_errors = On
@@ -30,3 +30,5 @@ session.use_strict_mode = 1
 [mail function]
 SMTP = 127.0.0.1
 smtp_port = {{MailpitSmtpPort}}
+; Expediteur par defaut : sous Windows, mail() echoue sans lui quand le script ne fournit pas d en-tete From.
+sendmail_from = "stackr@localhost.test"

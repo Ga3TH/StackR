@@ -68,7 +68,7 @@ public static class MySqlBootstrap
 
             var code = await runner.RunAsync(
                 mysqld,
-                $"--defaults-file=\"{myIni}\" --initialize-insecure --init-file=\"{initFile}\" --console",
+                $"--defaults-file=\"{AnsiPath.For(myIni)}\" --initialize-insecure --init-file=\"{AnsiPath.For(initFile)}\" --console",
                 cancellationToken).ConfigureAwait(false);
             if (code != 0 || !Directory.Exists(Path.Combine(dataDir, "mysql")))
             {

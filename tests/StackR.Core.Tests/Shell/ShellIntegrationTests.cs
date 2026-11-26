@@ -141,6 +141,9 @@ public sealed class ShellIntegrationTests : IDisposable
         // Chemins relatifs au shim (%~dp0 = bin\shims\) : contenu ASCII quel que soit le nom de la racine.
         Assert.Contains(@"""%D%..\php\8.3\php.exe"" ""%D%..\composer\2\composer.phar"" %*", composer);
         Assert.StartsWith("@echo off", composer);
+        // PHP en ligne de commande et Composer utilisent le php.ini de StackR (etc\) : sinon aucune extension.
+        Assert.Contains(@"set ""PHPRC=%D%..\..\etc""", composer);
+        Assert.Contains(@"set ""PHPRC=%D%..\..\etc""", File.ReadAllText(Path.Combine(_paths.Shims, "php.cmd")));
         Assert.Contains(@"""%D%..\php\8.3\php.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "php.cmd")));
         Assert.Contains(@"""%D%..\mysql\8.4\bin\mysql.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "mysql.cmd")));
         Assert.Contains(@"""%D%..\mysql\8.4\bin\mysqldump.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "mysqldump.cmd")));

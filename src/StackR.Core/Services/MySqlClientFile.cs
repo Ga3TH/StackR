@@ -34,7 +34,7 @@ internal static class MySqlClientFile
         try
         {
             WriteUserOnly(file, contents);
-            return await runner.RunAsync(exe, $"--defaults-extra-file=\"{file}\" {args}", ct).ConfigureAwait(false);
+            return await runner.RunAsync(exe, $"--defaults-extra-file=\"{Config.AnsiPath.For(file)}\" {args}", ct).ConfigureAwait(false);
         }
         finally
         {
