@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -23,4 +23,75 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="DashOpenFailed" xml:space="preserve"><value>Could not open {0} in the browser.</value></data>
+  <data name="DashStopFailed" xml:space="preserve"><value>Stop failed: {0}</value></data>
+  <data name="DashSyncFailed" xml:space="preserve"><value>Updating the sites configuration failed: {0}</value></data>
+  <data name="DashStartFailed" xml:space="preserve"><value>Start failed: {0}</value></data>
+  <data name="DashNothingInstalled" xml:space="preserve"><value>No component to start is installed. Install them from the Versions page.</value></data>
+  <data name="DashSkippedNotInstalled" xml:space="preserve"><value>Skipped (not installed): {0}. Install it from the Versions page.</value></data>
+  <data name="DashPorts" xml:space="preserve"><value>Port(s): {0}</value></data>
+  <data name="DashStatusRunning" xml:space="preserve"><value>Running</value></data>
+  <data name="DashStatusStarting" xml:space="preserve"><value>Starting…</value></data>
+  <data name="DashStatusStopping" xml:space="preserve"><value>Stopping…</value></data>
+  <data name="DashStatusError" xml:space="preserve"><value>Error</value></data>
+  <data name="DashStatusStopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="DashStart" xml:space="preserve"><value>Start</value></data>
+  <data name="DashStop" xml:space="preserve"><value>Stop</value></data>
+  <data name="DashRetry" xml:space="preserve"><value>Retry</value></data>
+  <data name="DashVersion" xml:space="preserve"><value>Version {0}</value></data>
+  <data name="DashNotInstalled" xml:space="preserve"><value>Not installed</value></data>
+  <data name="DashPhpActivated" xml:space="preserve"><value>PHP {0} is now the active version.</value></data>
+  <data name="DashPhpFailed" xml:space="preserve"><value>Could not activate PHP {0}: {1}</value></data>
+  <data name="DashTerminalFailed" xml:space="preserve"><value>Could not open a terminal.</value></data>
+  <data name="DashFolderFailed" xml:space="preserve"><value>Could not open the folder {0}.</value></data>
+  <data name="DashLastError" xml:space="preserve"><value>Last error</value></data>
+  <data name="DashNotInstalledHint" xml:space="preserve"><value>This component is not installed yet. Install it from the Versions page.</value></data>
+  <data name="DashGoToVersions" xml:space="preserve"><value>Open Versions</value></data>
+  <data name="DashStartAll" xml:space="preserve"><value>Start all</value></data>
+  <data name="DashStopAll" xml:space="preserve"><value>Stop all</value></data>
+  <data name="DashPhpActive" xml:space="preserve"><value>Active PHP</value></data>
+  <data name="DashPhpHint" xml:space="preserve"><value>Apache restarts automatically if it is running.</value></data>
+  <data name="DashShortcuts" xml:space="preserve"><value>Shortcuts</value></data>
+  <data name="DashOpenTerminal" xml:space="preserve"><value>Open a terminal</value></data>
+  <data name="DashOpenWww" xml:space="preserve"><value>www folder</value></data>
+  <data name="DashOpenMailpit" xml:space="preserve"><value>Mailpit inbox</value></data>
+  <data name="DashWwwFormat" xml:space="preserve"><value>Sites folder: {0}</value></data>
+  <data name="DashRecentSites" xml:space="preserve"><value>Sites</value></data>
+  <data name="DashNoSites" xml:space="preserve"><value>No sites yet. Create one from the Sites page.</value></data>
+  <data name="SitesLoadFailed" xml:space="preserve"><value>Could not read the list of sites: {0}</value></data>
+  <data name="SitesVsCodeFailed" xml:space="preserve"><value>Could not open VS Code.</value></data>
+  <data name="SitesNew" xml:space="preserve"><value>New site</value></data>
+  <data name="SitesRefresh" xml:space="preserve"><value>Refresh the list</value></data>
+  <data name="SitesRootFormat" xml:space="preserve"><value>Web root: {0}</value></data>
+  <data name="SitesOpen" xml:space="preserve"><value>Open</value></data>
+  <data name="SitesFolder" xml:space="preserve"><value>Folder</value></data>
+  <data name="SitesVsCode" xml:space="preserve"><value>VS Code</value></data>
+  <data name="SitesEmptyTitle" xml:space="preserve"><value>No sites</value></data>
+  <data name="SitesEmptyBody" xml:space="preserve"><value>Each subfolder of the www folder becomes a .test site. Create one with “New site”.</value></data>
+  <data name="SitesSkippedHeader" xml:space="preserve"><value>Ignored folders</value></data>
+  <data name="SitesSkippedHint" xml:space="preserve"><value>These folders are not served as sites:</value></data>
+  <data name="SitesNewTitle" xml:space="preserve"><value>New site</value></data>
+  <data name="SitesNameLabel" xml:space="preserve"><value>Site name (folder name)</value></data>
+  <data name="SitesNamePlaceholder" xml:space="preserve"><value>my-project</value></data>
+  <data name="SitesTemplateLabel" xml:space="preserve"><value>Template</value></data>
+  <data name="SitesTemplateEmpty" xml:space="preserve"><value>Empty site</value></data>
+  <data name="SitesTemplateEmptyHint" xml:space="preserve"><value>Creates public/index.php with a small welcome page.</value></data>
+  <data name="SitesTemplateLaravel" xml:space="preserve"><value>Laravel</value></data>
+  <data name="SitesTemplateLaravelHint" xml:space="preserve"><value>Runs “composer create-project laravel/laravel” (a few minutes).</value></data>
+  <data name="SitesLaravelRunning" xml:space="preserve"><value>Creating the Laravel project…</value></data>
+  <data name="SitesCreate" xml:space="preserve"><value>Create</value></data>
+  <data name="SitesCancelRun" xml:space="preserve"><value>Cancel creation</value></data>
+  <data name="SitesClose" xml:space="preserve"><value>Close</value></data>
+  <data name="SitesNameChars" xml:space="preserve"><value>This name contains a character that is not allowed in a folder name, or ([ ]).</value></data>
+  <data name="SitesNameInvalid" xml:space="preserve"><value>Use letters, digits and hyphens (e.g. my-project).</value></data>
+  <data name="SitesNameExists" xml:space="preserve"><value>The site {0} already exists (or its folder).</value></data>
+  <data name="SitesLaravelNeedsPhp" xml:space="preserve"><value>Laravel requires PHP: install it from the Versions page.</value></data>
+  <data name="SitesLaravelNeedsComposer" xml:space="preserve"><value>Laravel requires Composer: install it from the Versions page.</value></data>
+  <data name="SitesLaravelIncomplete" xml:space="preserve"><value>The PHP or Composer installation is incomplete: reinstall it from the Versions page.</value></data>
+  <data name="SitesLaravelPreparing" xml:space="preserve"><value>Preparing the PHP configuration…</value></data>
+  <data name="SitesLaravelFailed" xml:space="preserve"><value>Composer ended with an error (code {0}). See the output above.</value></data>
+  <data name="SitesCreated" xml:space="preserve"><value>The site {0} is ready.</value></data>
+  <data name="SitesCreatedWarnings" xml:space="preserve"><value>The site {0} was created, with warnings:</value></data>
+  <data name="SitesCancelled" xml:space="preserve"><value>Creation cancelled: the folder was removed.</value></data>
+  <data name="SitesCreateFailed" xml:space="preserve"><value>Creation failed: {0}</value></data>
 </root>

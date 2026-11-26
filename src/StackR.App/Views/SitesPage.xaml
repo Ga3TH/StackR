@@ -4,32 +4,133 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:res="clr-namespace:StackR.App.Resources"
       Title="{Binding Title}">
-    <Grid Margin="{StaticResource PagePadding}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
-        <StackPanel Grid.Row="0">
-            <TextBlock Style="{StaticResource PageTitleTextStyle}" Text="{Binding Title}" />
-            <Border Style="{StaticResource TitleUnderlineStyle}" Margin="0,8,0,12" />
-            <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding Subtitle}" />
-        </StackPanel>
+        <!-- Visible seulement quand la liste est vide -->
+        <Style x:Key="WhenEmptyStyle" TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
+            <Setter Property="Visibility" Value="Collapsed" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding HasItems}" Value="False">
+                    <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
 
-        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}"
-                Margin="0,24,0,0" Padding="{StaticResource PaddingXl}"
-                VerticalAlignment="Top" HorizontalAlignment="Stretch">
-            <StackPanel Orientation="Horizontal">
-                <Border Style="{StaticResource BrandTileBorderStyle}">
-                    <ui:SymbolIcon Symbol="Globe24" FontSize="28" Foreground="White"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.PlaceholderTitle}" />
-                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="0,4,0,0"
-                               Text="{x:Static res:Strings.PlaceholderBody}" />
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="{StaticResource PagePadding}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Style="{StaticResource PageTitleTextStyle}" Text="{Binding Title}" />
+                    <Border Style="{StaticResource TitleUnderlineStyle}" Margin="0,8,0,12" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding Subtitle}" />
                 </StackPanel>
-            </StackPanel>
-        </Border>
-    </Grid>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,4,0,0">
+                    <ui:Button Appearance="Primary" Icon="{ui:SymbolIcon Add24}"
+                               Content="{x:Static res:Strings.SitesNew}"
+                               Command="{Binding NewSiteCommand}" />
+                    <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon Folder24}"
+                               Content="{x:Static res:Strings.DashOpenWww}"
+                               Command="{Binding OpenWwwCommand}" />
+                    <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon ArrowClockwise24}"
+                               ToolTip="{x:Static res:Strings.SitesRefresh}"
+                               Command="{Binding RefreshCommand}" />
+                </StackPanel>
+            </Grid>
+
+            <ui:InfoBar Grid.Row="1" Margin="0,20,0,0"
+                        IsOpen="{Binding IsNoticeOpen, Mode=TwoWay}"
+                        Severity="{Binding NoticeSeverity}"
+                        Message="{Binding NoticeMessage}"
+                        IsClosable="True" />
+
+            <ItemsControl Grid.Row="2" Margin="0,24,0,0" ItemsSource="{Binding Items}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,10" Padding="16,14">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Width="40" Height="40" Style="{StaticResource BrandTileBorderStyle}">
+                                    <ui:SymbolIcon Symbol="Globe24" FontSize="20" Foreground="White"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="14,0,12,0" VerticalAlignment="Center">
+                                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" FontSize="16" Text="{Binding Name}" />
+                                    <ui:HyperlinkButton Padding="0" Margin="0,2,0,0" Content="{Binding Url}"
+                                                        Command="{Binding DataContext.OpenSiteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}" />
+                                    <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,2,0,0"
+                                               TextTrimming="CharacterEllipsis" ToolTip="{Binding DocumentRoot}"
+                                               Text="{Binding DocumentRoot, StringFormat={x:Static res:Strings.SitesRootFormat}}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <ui:Button Appearance="Primary" Icon="{ui:SymbolIcon Open24}"
+                                               Content="{x:Static res:Strings.SitesOpen}"
+                                               Command="{Binding DataContext.OpenSiteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                               CommandParameter="{Binding}" />
+                                    <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon Folder24}"
+                                               Content="{x:Static res:Strings.SitesFolder}"
+                                               Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                               CommandParameter="{Binding}" />
+                                    <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon Code24}"
+                                               Content="{x:Static res:Strings.SitesVsCode}"
+                                               Visibility="{Binding DataContext.HasVsCode, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BoolToVisibility}}"
+                                               Command="{Binding DataContext.OpenVsCodeCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                               CommandParameter="{Binding}" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Border Grid.Row="2" Style="{StaticResource WhenEmptyStyle}" Margin="0,24,0,0" Padding="{StaticResource PaddingXl}">
+                <StackPanel Orientation="Horizontal">
+                    <Border Style="{StaticResource BrandTileBorderStyle}">
+                        <ui:SymbolIcon Symbol="Globe24" FontSize="28" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.SitesEmptyTitle}" />
+                        <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="0,4,0,0"
+                                   Text="{x:Static res:Strings.SitesEmptyBody}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Expander Grid.Row="3" Margin="0,12,0,0" HorizontalAlignment="Stretch"
+                      Visibility="{Binding HasSkipped, Converter={StaticResource BoolToVisibility}}"
+                      Header="{x:Static res:Strings.SitesSkippedHeader}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="0,0,0,8"
+                               Text="{x:Static res:Strings.SitesSkippedHint}" />
+                    <ItemsControl ItemsSource="{Binding Skipped}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="0,0,0,4"
+                                           Text="{Binding}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Expander>
+        </Grid>
+    </ScrollViewer>
 </Page>
