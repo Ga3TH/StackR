@@ -56,6 +56,9 @@ internal sealed class EngineTestEnvironment : IDisposable
 
     public int ElevatedResult { get; set; }
 
+    // Remplace la relance élevée simulée (après enregistrement dans ElevatedCalls).
+    public Func<string[], Task<int>>? ElevatedHandler { get; set; }
+
     public bool Elevated { get; set; }
 
     public HttpMessageHandler? Handler { get; set; }
@@ -67,8 +70,12 @@ internal sealed class EngineTestEnvironment : IDisposable
         HostsPath = HostsPath,
         RunElevated = args =>
         {
-            ElevatedCalls.Add(args);
-            return Task.FromResult(ElevatedResult);
+            lock (ElevatedCalls)
+            {
+                ElevatedCalls.Add(args);
+            }
+
+            return ElevatedHandler?.Invoke(args) ?? Task.FromResult(ElevatedResult);
         },
         IsElevated = () => Elevated,
         UserRegistryRoot = RegistryRoot,

@@ -152,10 +152,26 @@ public sealed class SecureDownloaderTests : IDisposable
         using var handler = new FakeHandler(_ => new HttpResponseMessage(HttpStatusCode.NotFound));
         using var client = new HttpClient(handler);
 
-        await Assert.ThrowsAsync<HttpRequestException>(() => new SecureDownloader(client)
+        var ex = await Assert.ThrowsAsync<HttpRequestException>(() => new SecureDownloader(client)
             .DownloadVerifiedAsync(HttpsUrl, Sha256Hex(_payload), _tmpDir, null, CancellationToken.None));
 
+        Assert.Equal(HttpStatusCode.NotFound, ex.StatusCode);
+        Assert.Contains("Téléchargement impossible", ex.Message, StringComparison.Ordinal);
+        Assert.Contains("404", ex.Message, StringComparison.Ordinal);
         Assert.False(Directory.Exists(_tmpDir) && Directory.EnumerateFileSystemEntries(_tmpDir).Any());
+    }
+
+    [Fact]
+    public async Task Download_HostUnreachable_ExplainsInFrench()
+    {
+        using var handler = new FakeHandler(_ => throw new HttpRequestException("No such host is known."));
+        using var client = new HttpClient(handler);
+
+        var ex = await Assert.ThrowsAsync<HttpRequestException>(() => new SecureDownloader(client)
+            .DownloadVerifiedAsync(HttpsUrl, Sha256Hex(_payload), _tmpDir, null, CancellationToken.None));
+
+        Assert.Contains("injoignable", ex.Message, StringComparison.Ordinal);
+        Assert.IsType<HttpRequestException>(ex.InnerException);
     }
 
     [Fact]

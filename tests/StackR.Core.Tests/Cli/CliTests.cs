@@ -240,4 +240,63 @@ public sealed class CliTests : IDisposable
         Assert.Equal(1, code);
         Assert.Contains("MySQL", output, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public async Task Cli_Start_NothingInstalled_Returns1()
+    {
+        var (code, output) = await RunAsync("start");
+
+        Assert.Equal(1, code);
+        Assert.Contains("Apache : ignoré (non installé).", output, StringComparison.Ordinal);
+        Assert.Contains("Aucun service installé", output, StringComparison.Ordinal);
+        Assert.Empty(_env.Runner.Started);
+    }
+
+    [Fact]
+    public async Task Cli_StartStop_OnlyMailpitInstalled_StartsItThenStopsIt()
+    {
+        var dir = _env.InstallFake("mailpit", "1.34.0");
+        File.WriteAllBytes(Path.Combine(dir, "mailpit.exe"), []);
+        _env.Activate("mailpit", "1.34.0");
+        _env.Runner.ListenOnStart["mailpit.exe"] = _env.Settings.MailpitUiPort;
+        using var engine = _env.CreateEngine();
+        using var output = new StringWriter();
+
+        var start = await CliApp.RunAsync(["start"], engine, output);
+        var stop = await CliApp.RunAsync(["stop", "mailpit"], engine, output);
+
+        var text = output.ToString();
+        Assert.Equal(0, start);
+        Assert.Equal(0, stop);
+        Assert.Contains("MySQL : ignoré (non installé).", text, StringComparison.Ordinal);
+        Assert.Contains("Mailpit : actif", text, StringComparison.Ordinal);
+        Assert.Contains("Mailpit : arrêté", text, StringComparison.Ordinal);
+        Assert.Single(_env.Runner.Started);
+    }
+
+    [Fact]
+    public async Task Cli_Uninstall_ActiveVersion_Returns1_AndKeepsIt()
+    {
+        _env.InstallFake("php", "8.3.37");
+        _env.Activate("php", "8.3.37");
+
+        var (code, output) = await RunAsync("uninstall", "php", "8.3.37");
+
+        Assert.Equal(1, code);
+        Assert.Contains("version active", output, StringComparison.Ordinal);
+        Assert.True(Directory.Exists(_env.Paths.ComponentDir("php", "8.3.37")));
+    }
+
+    [Fact]
+    public async Task Cli_Uninstall_InactiveVersion_Returns0()
+    {
+        _env.InstallFake("php", "8.3.37");
+        _env.InstallFake("php", "8.4.28");
+        _env.Activate("php", "8.4.28");
+
+        var (code, _) = await RunAsync("uninstall", "php", "8.3.37");
+
+        Assert.Equal(0, code);
+        Assert.False(Directory.Exists(_env.Paths.ComponentDir("php", "8.3.37")));
+    }
 }

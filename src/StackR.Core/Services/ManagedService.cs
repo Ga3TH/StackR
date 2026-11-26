@@ -15,6 +15,7 @@ namespace StackR.Core.Services;
 public abstract class ManagedService
 {
     private readonly Lock _gate = new();
+    private readonly StackRSettings _settings;
     private Process? _process;
     private ServiceStatus _status = ServiceStatus.Stopped;
     private string? _lastError;
@@ -22,7 +23,7 @@ public abstract class ManagedService
     private protected ManagedService(StackRPaths paths, StackRSettings settings, IProcessRunner runner)
     {
         Paths = paths ?? throw new ArgumentNullException(nameof(paths));
-        Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         Runner = runner ?? throw new ArgumentNullException(nameof(runner));
     }
 
@@ -78,7 +79,13 @@ public abstract class ManagedService
 
     private protected StackRPaths Paths { get; }
 
-    private protected StackRSettings Settings { get; }
+    /// <summary>
+    /// Paramètres relus à chaque usage (moteur : un changement d'HTTPS s'applique au prochain démarrage
+    /// sans relancer StackR) ; à défaut, ceux passés au constructeur.
+    /// </summary>
+    internal Func<StackRSettings>? SettingsProvider { get; init; }
+
+    private protected StackRSettings Settings => SettingsProvider?.Invoke() ?? _settings;
 
     private protected IProcessRunner Runner { get; }
 

@@ -47,9 +47,11 @@ internal sealed class CliContext(Func<StackREngine> engineFactory, TextWriter ou
         }
     }
 
-    public void PrintWarnings(ApplyResult result)
+    public void PrintWarnings(ApplyResult result) => PrintWarnings(result.Warnings);
+
+    public void PrintWarnings(IEnumerable<string> warnings)
     {
-        foreach (var warning in result.Warnings)
+        foreach (var warning in warnings)
         {
             Out.WriteLine("Attention : " + warning);
         }
