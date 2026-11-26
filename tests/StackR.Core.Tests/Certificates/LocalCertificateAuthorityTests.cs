@@ -533,6 +533,77 @@ public sealed class LocalCertificateAuthorityTests : IDisposable
         Assert.True(serial[0] < 0x80, "Le numéro de série doit être positif.");
     }
 
+    [Fact]
+    public async Task EnsureRootCa_WaitsWhileNamedMutexIsHeld()
+    {
+        // Un autre processus (GUI ou CLI) détient le verrou : la CA n'est ni lue ni créée avant sa libération.
+        using var acquired = new ManualResetEventSlim();
+        using var release = new ManualResetEventSlim();
+        var holder = new Thread(() =>
+        {
+            using var mutex = new Mutex(false, LocalCertificateAuthority.CaMutexName);
+            try
+            {
+                mutex.WaitOne();
+            }
+            catch (AbandonedMutexException)
+            {
+            }
+
+            acquired.Set();
+            release.Wait();
+            mutex.ReleaseMutex();
+        });
+        holder.Start();
+        acquired.Wait();
+
+        var ensure = Task.Run(() => NewCa().EnsureRootCa().Dispose());
+        await Task.Delay(400);
+        Assert.False(ensure.IsCompleted);
+        Assert.False(File.Exists(CaCertPath));
+
+        release.Set();
+        await ensure.WaitAsync(TimeSpan.FromSeconds(30));
+        holder.Join();
+        Assert.True(File.Exists(CaCertPath));
+    }
+
+    [Fact]
+    public void IsStaleStackRRoot_OtherStackRCa_IsStale()
+    {
+        using var current = NewCa().EnsureRootCa();
+        var otherPaths = new StackRPaths(Path.Combine(_base, "autre"));
+        using var other = new LocalCertificateAuthority(otherPaths, new SecretStore(otherPaths.Secrets)).EnsureRootCa();
+
+        Assert.True(LocalCertificateAuthority.IsStaleStackRRoot(other, current));
+        Assert.False(LocalCertificateAuthority.IsStaleStackRRoot(current, current));
+    }
+
+    [Fact]
+    public void IsStaleStackRRoot_ForeignOrUnconstrainedRoots_AreNeverStale()
+    {
+        using var current = NewCa().EnsureRootCa();
+        using var foreign = SelfSigned("CN=Autorité étrangère", withNameConstraints: true);
+        using var unconstrained = SelfSigned("CN=StackR Local CA (IMITATION)", withNameConstraints: false);
+
+        Assert.False(LocalCertificateAuthority.IsStaleStackRRoot(foreign, current));
+        Assert.False(LocalCertificateAuthority.IsStaleStackRRoot(unconstrained, current));
+    }
+
+    private static X509Certificate2 SelfSigned(string subject, bool withNameConstraints)
+    {
+        using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
+        var request = new CertificateRequest(subject, key, HashAlgorithmName.SHA256);
+        request.CertificateExtensions.Add(new X509BasicConstraintsExtension(true, false, 0, critical: true));
+        if (withNameConstraints)
+        {
+            request.CertificateExtensions.Add(LocalCertificateAuthority.BuildNameConstraintsExtension());
+        }
+
+        using var cert = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddYears(1));
+        return X509CertificateLoader.LoadCertificate(cert.RawData);
+    }
+
     private static void AssertKeyAclRestricted(string keyPath)
     {
         var security = new FileInfo(keyPath).GetAccessControl();

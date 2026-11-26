@@ -12,11 +12,15 @@ public static partial class Elevation
 {
     private const string CliExeName = "stackr.exe";
     private const int ErrorCancelled = 1223; // ERROR_CANCELLED : l'utilisateur a refusé l'UAC.
-    private const int MaxTokenLength = 64;
+
+    // Assez pour une liste de noms d'hôtes séparés par des virgules (« hosts sync --names a.test,b.test »),
+    // très en deçà de la limite de ligne de commande de ShellExecute.
+    internal const int MaxTokenLength = 8192;
 
     // Liste blanche : jetons simples uniquement (pas d'espace, guillemet, métacaractère, chemin ni non-ASCII),
     // de sorte que la jonction par espaces ne puisse jamais être réinterprétée par le parseur de ligne de commande.
-    [GeneratedRegex(@"^-{0,2}[A-Za-z0-9][A-Za-z0-9._-]*\z", RegexOptions.CultureInvariant)]
+    // La virgule (liste de noms) n'est spéciale ni pour cmd.exe ni pour CommandLineToArgvW.
+    [GeneratedRegex(@"^-{0,2}[A-Za-z0-9][A-Za-z0-9._,-]*\z", RegexOptions.CultureInvariant)]
     private static partial Regex SafeTokenRegex();
 
     /// <summary>Vrai si le processus courant s'exécute avec un jeton administrateur (élevé).</summary>
@@ -89,7 +93,7 @@ public static partial class Elevation
         {
             if (token is null || token.Length > MaxTokenLength || !SafeTokenRegex().IsMatch(token))
             {
-                throw new ArgumentException("Argument refusé pour le CLI élevé : seuls des jetons simples (lettres, chiffres, « . », « _ », « - ») sont autorisés.", nameof(args));
+                throw new ArgumentException("Argument refusé pour le CLI élevé : seuls des jetons simples (lettres, chiffres, « . », « _ », « - », « , ») sont autorisés.", nameof(args));
             }
         }
 

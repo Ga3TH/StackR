@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Text;
 using Microsoft.Win32;
 using StackR.Core.Manifests;
 using StackR.Core.Paths;
@@ -18,7 +20,20 @@ public sealed class ShellIntegrationTests : IDisposable
         _root = Registry.CurrentUser.CreateSubKey(_keyPath);
         _paths = new StackRPaths(Path.Combine(_temp.Path, "Dossier é", "StackR"));
         _paths.EnsureCreated();
-        _shell = new ShellIntegration(_paths, _root);
+
+        // Dossier d'installation sans stackr.exe : il n'est jamais ajouté au PATH.
+        var noCli = Path.Combine(_temp.Path, "sans cli");
+        Directory.CreateDirectory(noCli);
+        _shell = new ShellIntegration(_paths, _root, noCli);
+    }
+
+    // Dossier d'installation (espace + accent) contenant un stackr.exe factice.
+    private string MakeInstallDir()
+    {
+        var dir = Path.Combine(_temp.Path, "Programmes é", "StackR");
+        Directory.CreateDirectory(dir);
+        File.WriteAllBytes(Path.Combine(dir, "stackr.exe"), []);
+        return dir;
     }
 
     public void Dispose()
@@ -123,14 +138,98 @@ public sealed class ShellIntegrationTests : IDisposable
         var dirs = MakeDirs();
         _shell.WriteShims(dirs);
         var composer = File.ReadAllText(Path.Combine(_paths.Shims, "composer.cmd"));
-        Assert.Contains($"\"{dirs[ComponentKind.Php]}\\php.exe\" \"{dirs[ComponentKind.Composer]}\\composer.phar\" %*", composer);
+        // Chemins relatifs au shim (%~dp0 = bin\shims\) : contenu ASCII quel que soit le nom de la racine.
+        Assert.Contains(@"""%~dp0..\php\8.3\php.exe"" ""%~dp0..\composer\2\composer.phar"" %*", composer);
         Assert.StartsWith("@echo off", composer);
-        Assert.Contains($"\"{dirs[ComponentKind.Php]}\\php.exe\" %*", File.ReadAllText(Path.Combine(_paths.Shims, "php.cmd")));
-        Assert.Contains($"\"{dirs[ComponentKind.MySql]}\\bin\\mysql.exe\" %*", File.ReadAllText(Path.Combine(_paths.Shims, "mysql.cmd")));
-        Assert.Contains($"\"{dirs[ComponentKind.MySql]}\\bin\\mysqldump.exe\" %*", File.ReadAllText(Path.Combine(_paths.Shims, "mysqldump.cmd")));
-        Assert.Contains($"\"{dirs[ComponentKind.Node]}\\node.exe\" %*", File.ReadAllText(Path.Combine(_paths.Shims, "node.cmd")));
-        Assert.Contains($"call \"{dirs[ComponentKind.Node]}\\npm.cmd\" %*", File.ReadAllText(Path.Combine(_paths.Shims, "npm.cmd")));
-        Assert.Contains($"call \"{dirs[ComponentKind.Node]}\\npx.cmd\" %*", File.ReadAllText(Path.Combine(_paths.Shims, "npx.cmd")));
+        Assert.Contains(@"""%~dp0..\php\8.3\php.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "php.cmd")));
+        Assert.Contains(@"""%~dp0..\mysql\8.4\bin\mysql.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "mysql.cmd")));
+        Assert.Contains(@"""%~dp0..\mysql\8.4\bin\mysqldump.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "mysqldump.cmd")));
+        Assert.Contains(@"""%~dp0..\node\22\node.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "node.cmd")));
+        Assert.Contains(@"call ""%~dp0..\node\22\npm.cmd"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "npm.cmd")));
+        Assert.Contains(@"call ""%~dp0..\node\22\npx.cmd"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "npx.cmd")));
+    }
+
+    [Fact]
+    public void WriteShims_ContentIsAsciiOnly_UnderAccentedRoot()
+    {
+        _shell.WriteShims(MakeDirs());
+        foreach (var file in Directory.EnumerateFiles(_paths.Shims, "*.cmd"))
+        {
+            Assert.All(File.ReadAllBytes(file), b => Assert.True(b < 0x80, $"{Path.GetFileName(file)} contient un octet non ASCII"));
+        }
+    }
+
+    [Fact]
+    public async Task WriteShims_ShimRunsUnderOemCodePage850_WithAccentedRoot()
+    {
+        // Cible factice : un npm.cmd qui affiche ses arguments, sous une racine « Dossier é ».
+        var nodeDir = Path.Combine(_paths.Bin, "node", "22");
+        Directory.CreateDirectory(nodeDir);
+        File.WriteAllText(Path.Combine(nodeDir, "npm.cmd"), "@echo off\r\necho SHIM-OK %*\r\n", Encoding.ASCII);
+        _shell.WriteShims(new Dictionary<ComponentKind, string> { [ComponentKind.Node] = nodeDir });
+
+        var shim = Path.Combine(_paths.Shims, "npm.cmd");
+        var psi = new ProcessStartInfo(Path.Combine(Environment.SystemDirectory, "cmd.exe"))
+        {
+            // /s : cmd retire seulement les guillemets extérieurs de la commande.
+            Arguments = $"/d /s /c \"chcp 850 >nul & \"{shim}\" bonjour\"",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+        };
+        using var process = Process.Start(psi)!;
+        var stdout = process.StandardOutput.ReadToEndAsync();
+        var stderr = process.StandardError.ReadToEndAsync();
+        await process.WaitForExitAsync();
+        var output = await stdout;
+        Assert.True(process.ExitCode == 0, output + await stderr);
+        Assert.Contains("SHIM-OK bonjour", output);
+    }
+
+    [Fact]
+    public void WriteShims_TargetOutsideBin_Throws()
+    {
+        var outside = new Dictionary<ComponentKind, string> { [ComponentKind.Php] = Path.Combine(_temp.Path, "ailleurs", "php") };
+        Assert.Throws<ArgumentException>(() => _shell.WriteShims(outside));
+    }
+
+    [Fact]
+    public void EnsureOnUserPath_AddsShimsAndInstallDir()
+    {
+        var install = MakeInstallDir();
+        var shell = new ShellIntegration(_paths, _root, install);
+        SeedPath(@"C:\a", RegistryValueKind.ExpandString);
+        shell.EnsureOnUserPath();
+        shell.EnsureOnUserPath();
+        Assert.Equal([@"C:\a", _paths.Shims, install], ReadPath(out _)!.Split(';'));
+    }
+
+    [Fact]
+    public void EnsureOnUserPath_InstallDirAlreadyPresent_AddsOnlyShims()
+    {
+        var install = MakeInstallDir();
+        var shell = new ShellIntegration(_paths, _root, install);
+        SeedPath(install.ToUpperInvariant() + @"\", RegistryValueKind.ExpandString);
+        shell.EnsureOnUserPath();
+        Assert.Equal([install.ToUpperInvariant() + @"\", _paths.Shims], ReadPath(out _)!.Split(';'));
+    }
+
+    [Fact]
+    public void EnsureOnUserPath_InstallDirWithoutCli_IsNotAdded()
+    {
+        _shell.EnsureOnUserPath();
+        Assert.Equal(_paths.Shims, ReadPath(out _));
+    }
+
+    [Fact]
+    public void RemoveFromUserPath_RemovesShimsAndInstallDir()
+    {
+        var install = MakeInstallDir();
+        var shell = new ShellIntegration(_paths, _root, install);
+        SeedPath(@"C:\a;" + _paths.Shims + ";" + install + @"\;C:\b", RegistryValueKind.ExpandString);
+        shell.RemoveFromUserPath();
+        Assert.Equal(@"C:\a;C:\b", ReadPath(out _));
     }
 
     [Fact]
