@@ -122,7 +122,7 @@ public sealed class EngineBridge
         using var busy = EnterBusy();
         try
         {
-            await Task.Run(() => service.StopAsync(CancellationToken.None)).ConfigureAwait(true);
+            await Task.Run(() => _engine.StopAsync(service.Id)).ConfigureAwait(true);
         }
         catch (Exception ex) when (IsExpected(ex))
         {
@@ -163,8 +163,8 @@ public sealed class EngineBridge
                 // Apache ne relit ses vhosts qu'au démarrage.
                 await Task.Run(async () =>
                 {
-                    await apache.StopAsync(CancellationToken.None).ConfigureAwait(false);
-                    await apache.StartAsync(CancellationToken.None).ConfigureAwait(false);
+                    await _engine.StopAsync(apache.Id).ConfigureAwait(false);
+                    await _engine.StartAsync(apache.Id).ConfigureAwait(false);
                 }).ConfigureAwait(true);
             }
 
@@ -241,11 +241,17 @@ public sealed class EngineBridge
                     Strings.Format(Strings.DashSkippedNotInstalled, string.Join(", ", missing)));
             }
 
-            // Vhosts, certificats et hosts (UAC si nécessaire) avant le démarrage, comme le CLI.
-            var apply = await Task.Run(() => _engine.ApplyConfigurationAsync()).ConfigureAwait(true);
-            ReportWarnings(apply);
+            // Le moteur applique la configuration (vhosts, certificats, hosts — UAC si nécessaire) puis démarre,
+            // sous sa porte d'opérations, avec la règle « tout ou rien » si un port est occupé (même logique que le CLI).
+            var report = await Task.Run(() => installed.Count == 1 && targets.Count == 1
+                ? _engine.StartAsync(installed[0].Id)
+                : _engine.StartAllAsync()).ConfigureAwait(true);
+            if (report.Warnings.Count > 0)
+            {
+                Notify(InfoBarSeverity.Warning, string.Join(Environment.NewLine, report.Warnings));
+            }
 
-            var errors = await Task.Run(() => StartInstalledAsync(installed)).ConfigureAwait(true);
+            var errors = report.Errors;
 
             // Les erreurs propres à un service figurent déjà sur sa carte.
             var shown = installed.Select(s => s.LastError).Where(e => e is not null).ToHashSet(StringComparer.Ordinal);
@@ -259,42 +265,6 @@ public sealed class EngineBridge
         {
             Notify(InfoBarSeverity.Error, Strings.Format(Strings.DashStartFailed, ex.Message));
         }
-    }
-
-    private async Task<List<string>> StartInstalledAsync(List<ManagedService> installed)
-    {
-        if (installed.Count == _engine.Services.Services.Count)
-        {
-            var report = await _engine.StartAllAsync().ConfigureAwait(false);
-            return [.. report.Errors];
-        }
-
-        // Même règle que « tout démarrer » : si un port est pris, aucun service n'est démarré.
-        var toStart = installed.Where(s => s.Status is not (ServiceStatus.Running or ServiceStatus.Starting)).ToList();
-        var errors = new List<string>();
-        foreach (var port in toStart.SelectMany(s => s.Ports).Distinct())
-        {
-            if (PortProbe.FindOwner(port) is { } owner)
-            {
-                errors.Add(string.Create(CultureInfo.InvariantCulture, $"Port {port} utilisé par {owner.ProcessName} (PID {owner.Pid})"));
-            }
-        }
-
-        if (errors.Count > 0)
-        {
-            return errors;
-        }
-
-        foreach (var service in toStart)
-        {
-            await service.StartAsync(CancellationToken.None).ConfigureAwait(false);
-            if (service.Status == ServiceStatus.Error && service.LastError is { } error)
-            {
-                errors.Add(error);
-            }
-        }
-
-        return errors;
     }
 
     private async Task RunFromShellAsync(Func<Task> operation)

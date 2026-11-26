@@ -267,7 +267,8 @@ public sealed partial class NewSiteViewModel : ObservableObject
             throw new InvalidOperationException(Strings.SitesLaravelIncomplete);
         }
 
-        if (!File.Exists(Path.Combine(phpDir, "php.ini")))
+        // php.ini de StackR (etc\) : désigné par PHPRC ci-dessous, comme dans les shims.
+        if (!File.Exists(Path.Combine(_engine.Paths.Etc, "php.ini")))
         {
             // Composer a besoin d'openssl, zip, mbstring… : php.ini est écrit par la configuration.
             Append(Strings.SitesLaravelPreparing);
@@ -292,6 +293,7 @@ public sealed partial class NewSiteViewModel : ObservableObject
 
         info.Environment["PATH"] = string.Join(Path.PathSeparator, phpDir, _engine.Paths.Shims, Environment.GetEnvironmentVariable("PATH"));
         info.Environment["COMPOSER_NO_INTERACTION"] = "1";
+        info.Environment["PHPRC"] = _engine.Paths.Etc;
 
         Append("> composer create-project laravel/laravel " + Path.GetFileName(folder));
         using var process = new Process { StartInfo = info };

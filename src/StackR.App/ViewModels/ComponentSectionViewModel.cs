@@ -222,7 +222,7 @@ public sealed partial class ComponentSectionViewModel : ObservableObject
         try
         {
             var version = item.Version;
-            await Task.Run(() => _engine.Store.Uninstall(Kind, version));
+            await Task.Run(() => _engine.UninstallAsync(Kind, version));
             Show(UiFormat.Of(Strings.VerUninstalled, Name, version), InfoBarSeverity.Success);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException)
