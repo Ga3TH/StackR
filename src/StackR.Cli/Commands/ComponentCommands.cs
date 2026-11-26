@@ -5,7 +5,7 @@ using StackR.Core.Manifests;
 
 namespace StackR.Cli.Commands;
 
-/// <summary><c>versions</c>, <c>install</c>, <c>use</c>.</summary>
+/// <summary><c>versions</c>, <c>install</c>, <c>use</c>, <c>uninstall</c>.</summary>
 internal static class ComponentCommands
 {
     public static Command Versions(CliContext ctx)
@@ -39,6 +39,15 @@ internal static class ComponentCommands
         var version = new Argument<string>("version") { Description = "Version installée à activer." };
         var command = new Command("use", "Active une version installée (ex. : stackr use php 8.3.37).") { component, version };
         command.SetAction(CliApp.Guarded(ctx, (pr, _) => UseAsync(ctx, pr.GetValue(component), pr.GetValue(version)!)));
+        return command;
+    }
+
+    public static Command Uninstall(CliContext ctx)
+    {
+        var component = new Argument<string>("component") { Description = "apache, php, mysql, mailpit, node ou composer." };
+        var version = new Argument<string>("version") { Description = "Version installée à supprimer (pas la version active)." };
+        var command = new Command("uninstall", "Supprime une version installée qui n'est pas active (service arrêté).") { component, version };
+        command.SetAction(CliApp.Guarded(ctx, (pr, _) => UninstallAsync(ctx, pr.GetValue(component), pr.GetValue(version)!)));
         return command;
     }
 
@@ -187,6 +196,46 @@ internal static class ComponentCommands
         var result = await engine.UseAsync(kind, version).ConfigureAwait(false);
         ctx.PrintWarnings(result);
         ctx.Out.WriteLine($"{name} {version} est maintenant la version active.");
+        return ExitCodes.Ok;
+    }
+
+    private static async Task<int> UninstallAsync(CliContext ctx, string? componentText, string version)
+    {
+        if (!Names.TryParseComponent(componentText, out var kind))
+        {
+            ctx.Out.WriteLine(Names.UnknownComponent(componentText));
+            return ExitCodes.Error;
+        }
+
+        var engine = ctx.Engine;
+        var name = StackREngine.DisplayName(kind);
+        bool installed;
+        try
+        {
+            installed = engine.Store.IsInstalled(kind, version);
+        }
+        catch (ArgumentException)
+        {
+            installed = false;
+        }
+
+        if (!installed)
+        {
+            ctx.Out.WriteLine($"{name} {CliContext.Sanitize(version)} n'est pas installé.");
+            return ExitCodes.Error;
+        }
+
+        try
+        {
+            await engine.UninstallAsync(kind, version).ConfigureAwait(false);
+        }
+        catch (InvalidOperationException ex)
+        {
+            ctx.Out.WriteLine(ex.Message);
+            return ExitCodes.Error;
+        }
+
+        ctx.Out.WriteLine($"{name} {version} désinstallé.");
         return ExitCodes.Ok;
     }
 

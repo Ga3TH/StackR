@@ -88,16 +88,23 @@ internal static class ServiceCommands
             return ExitCodes.Error;
         }
 
+        // Une seule logique pour le CLI et l'application : le moteur applique la configuration (vhosts,
+        // certificats, hosts avec UAC si nécessaire), ignore les services non installés et applique la
+        // règle « tout ou rien » sur les ports.
         var engine = ctx.Engine;
-        engine.EnsureReconciled();
-        var installed = targets.Where(s => engine.ActiveDirectory(Names.ComponentOf(s.Id)) is not null).ToList();
-        foreach (var skipped in targets.Except(installed))
+        var report = id is null
+            ? await engine.StartAllAsync(ct).ConfigureAwait(false)
+            : await engine.StartAsync(targets[0].Id, ct).ConfigureAwait(false);
+
+        var skipped = targets.Where(s => report.NotInstalled.Contains(s.Id)).ToList();
+        foreach (var service in skipped)
         {
             ctx.Out.WriteLine(id is null
-                ? $"{skipped.DisplayName} : ignoré (non installé)."
-                : $"{skipped.DisplayName} n'est pas installé (stackr install {skipped.Id}).");
+                ? $"{service.DisplayName} : ignoré (non installé)."
+                : $"{service.DisplayName} n'est pas installé (stackr install {service.Id}).");
         }
 
+        var installed = targets.Except(skipped).ToList();
         if (installed.Count == 0)
         {
             if (id is null)
@@ -108,35 +115,17 @@ internal static class ServiceCommands
             return ExitCodes.Error;
         }
 
-        // Vhosts et certificats des nouveaux sites, hosts (UAC si nécessaire) avant le démarrage.
-        ctx.PrintWarnings(await engine.ApplyConfigurationAsync().ConfigureAwait(false));
+        ctx.PrintWarnings(report.Warnings);
 
-        List<string> errors;
-        if (installed.Count == engine.Services.Services.Count)
-        {
-            errors = [.. (await engine.Services.StartAllAsync(ct).ConfigureAwait(false)).Errors];
-        }
-        else
-        {
-            // Même règle que StartAllAsync : si un port est pris, aucun service n'est démarré.
-            var toStart = installed.Where(s => s.Status is not (ServiceStatus.Running or ServiceStatus.Starting)).ToList();
-            errors = [.. toStart.SelectMany(s => s.Ports).Distinct().Select(PortProbe.DescribeConflict).OfType<string>()];
-            if (errors.Count == 0)
-            {
-                foreach (var service in toStart)
-                {
-                    await service.StartAsync(ct).ConfigureAwait(false);
-                }
-            }
-        }
-
-        foreach (var error in errors)
+        // Les échecs propres à un service sont affichés avec son état (PrintLines).
+        var serviceErrors = installed.Select(s => s.LastError).OfType<string>().ToHashSet(StringComparer.Ordinal);
+        foreach (var error in report.Errors.Where(e => !serviceErrors.Contains(e)))
         {
             ctx.Out.WriteLine("Erreur : " + error);
         }
 
         PrintLines(ctx, installed);
-        return errors.Count == 0 && installed.All(s => s.Status == ServiceStatus.Running) ? ExitCodes.Ok : ExitCodes.Error;
+        return report.Success && installed.All(s => s.Status == ServiceStatus.Running) ? ExitCodes.Ok : ExitCodes.Error;
     }
 
     private static async Task<int> StopAsync(CliContext ctx, string? id, CancellationToken ct)
@@ -147,14 +136,13 @@ internal static class ServiceCommands
         }
 
         var engine = ctx.Engine;
-        engine.EnsureReconciled();
         if (id is null)
         {
-            await engine.Services.StopAllAsync(ct).ConfigureAwait(false);
+            await engine.StopAllAsync(ct).ConfigureAwait(false);
         }
         else
         {
-            await targets[0].StopAsync(ct).ConfigureAwait(false);
+            await engine.StopAsync(targets[0].Id, ct).ConfigureAwait(false);
         }
 
         PrintLines(ctx, targets);

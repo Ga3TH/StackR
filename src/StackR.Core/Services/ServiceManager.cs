@@ -10,8 +10,17 @@ using StackR.Core.Settings;
 
 namespace StackR.Core.Services;
 
-/// <summary>Résultat de <see cref="ServiceManager.StartAllAsync"/>.</summary>
-public sealed record StartReport(bool Success, IReadOnlyList<string> Errors);
+/// <summary>Résultat de <see cref="ServiceManager.StartAllAsync"/> et des démarrages du moteur.</summary>
+/// <param name="Success">Tous les services visés et installés tournent.</param>
+/// <param name="Errors">Ports occupés ou en double, échecs de démarrage (en français).</param>
+public sealed record StartReport(bool Success, IReadOnlyList<string> Errors)
+{
+    /// <summary>Avertissements non bloquants de l'application de la configuration (moteur).</summary>
+    public IReadOnlyList<string> Warnings { get; init; } = [];
+
+    /// <summary>Identifiants des services visés mais ignorés parce que leur composant n'est pas installé (moteur).</summary>
+    public IReadOnlyList<string> NotInstalled { get; init; } = [];
+}
 
 /// <summary>
 /// Pilote l'ensemble des services et tient à jour <c>tmp\state.json</c> (<c>{id: pid}</c>) pour
@@ -49,7 +58,7 @@ public sealed class ServiceManager
         ArgumentNullException.ThrowIfNull(settings);
         ArgumentNullException.ThrowIfNull(store);
 
-        Func<string?> ActiveDir(ComponentKind kind) => () =>
+        string? ActiveDir(ComponentKind kind)
         {
             var folder = ComponentStore.FolderName(kind);
             if (!settings.ActiveVersions.TryGetValue(folder, out var version))
@@ -65,13 +74,33 @@ public sealed class ServiceManager
             {
                 return null;
             }
-        };
+        }
 
+        return CreateDefault(paths, settings, () => settings, ActiveDir, secrets, runner);
+    }
+
+    /// <summary>
+    /// Variante du moteur : paramètres relus à chaque usage (<paramref name="current"/>) et dossier
+    /// de la version active fourni par <paramref name="activeDirectory"/> (lecture sous verrou).
+    /// </summary>
+    internal static ServiceManager CreateDefault(
+        StackRPaths paths,
+        StackRSettings initial,
+        Func<StackRSettings> current,
+        Func<ComponentKind, string?> activeDirectory,
+        SecretStore secrets,
+        IProcessRunner runner)
+    {
+        ArgumentNullException.ThrowIfNull(current);
+        ArgumentNullException.ThrowIfNull(activeDirectory);
         return new ServiceManager(paths, runner,
         [
-            new MySqlService(paths, settings, runner, ActiveDir(ComponentKind.MySql), secrets),
-            new ApacheService(paths, settings, runner, ActiveDir(ComponentKind.Apache), ActiveDir(ComponentKind.Php)),
-            new MailpitService(paths, settings, runner, ActiveDir(ComponentKind.Mailpit)),
+            new MySqlService(paths, initial, runner, () => activeDirectory(ComponentKind.MySql), secrets) { SettingsProvider = current },
+            new ApacheService(paths, initial, runner, () => activeDirectory(ComponentKind.Apache), () => activeDirectory(ComponentKind.Php))
+            {
+                SettingsProvider = current,
+            },
+            new MailpitService(paths, initial, runner, () => activeDirectory(ComponentKind.Mailpit)) { SettingsProvider = current },
         ]);
     }
 
@@ -79,19 +108,31 @@ public sealed class ServiceManager
     /// Vérifie d'abord TOUS les ports : si l'un est pris, rien n'est démarré.
     /// Démarre ensuite chaque service arrêté.
     /// </summary>
-    public async Task<StartReport> StartAllAsync(CancellationToken cancellationToken)
+    public Task<StartReport> StartAllAsync(CancellationToken cancellationToken) => StartServicesAsync(_services, cancellationToken);
+
+    /// <summary>
+    /// Même règle « tout ou rien » que <see cref="StartAllAsync"/>, limitée à <paramref name="targets"/> :
+    /// ports en double (parmi les cibles et les services déjà actifs) ou occupés → aucun démarrage.
+    /// </summary>
+    internal async Task<StartReport> StartServicesAsync(IReadOnlyCollection<ManagedService> targets, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(targets);
         if (!_reconciled)
         {
             Reconcile();
         }
 
-        var toStart = _services
+        var toStart = targets
             .Where(s => s.Status is not (ServiceStatus.Running or ServiceStatus.Starting or ServiceStatus.Stopping))
             .ToList();
 
+        // Ports réclamés : ceux des cibles et ceux des services déjà en marche (ou en transition).
+        var claimants = _services
+            .Where(s => targets.Contains(s) || s.Status is ServiceStatus.Running or ServiceStatus.Starting or ServiceStatus.Stopping)
+            .ToList();
+
         var errors = new List<string>();
-        foreach (var group in _services.SelectMany(s => s.Ports.Distinct().Select(p => (Port: p, Service: s))).GroupBy(x => x.Port))
+        foreach (var group in claimants.SelectMany(s => s.Ports.Distinct().Select(p => (Port: p, Service: s))).GroupBy(x => x.Port))
         {
             if (group.Count() > 1)
             {

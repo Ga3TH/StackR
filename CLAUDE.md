@@ -47,6 +47,21 @@ $env:STACKR_E2E = "1"; dotnet test -c Release --filter "Category=Integration"   
 
 Tâches 1–14 et 17 terminées, relues et corrigées. En cours : tâche 15 (tableau de bord et sites),
 tâche 16 (versions, base de données, journaux, paramètres, assistant), test de bout en bout réel.
-Reste ensuite : sérialiser les opérations de `StackREngine` (relecture de la tâche 13), mettre à jour
-le README (politique d'exécution PowerShell, prérequis Git, nom de la CA, désinstallation),
-`AppMutex` dans `installer/StackR.iss`, puis la revue finale (tâche 18).
+
+Fait (branche moteur/docs) :
+- `StackREngine` : porte d'opérations asynchrone unique (installer — téléchargement hors porte —,
+  activer, désinstaller, démarrer, arrêter, appliquer). Variantes internes `*CoreAsync` déjà sous verrou :
+  une opération ne reprend jamais la porte. Nouvelles API : `StartAsync(serviceId, ct)`,
+  `StopAsync(serviceId, ct)`, `UninstallAsync(kind, version)` (refuse version active / service en marche),
+  `EffectiveSettings`. `StartAllAsync` applique la configuration puis ne démarre que les services
+  installés (« tout ou rien » sur les ports) ; `StartReport.Warnings` / `NotInstalled`. Le CLI
+  (`start`/`stop`, nouvelle commande `uninstall`) passe par ces façades.
+- Paramètres : racine, www et ports gardent leur valeur du lancement jusqu'au redémarrage
+  (`EffectiveSettings`, utilisé pour les configs et les services) ; HTTPS s'applique tout de suite.
+- Installation : dossier restant sans marqueur remplacé, installation concurrente de la même version
+  tolérée, erreurs de téléchargement en français. Review Focus 1–5 vérifiés (tests ajoutés : port occupé
+  au niveau moteur, annulation/coupure d'installation).
+- README (PowerShell `ExecutionPolicy`, Git + SDK via winget, CA `StackR Local CA (<NOM-DU-PC>)`,
+  désinstallation complète, migration Laragon sans `--all-databases`), `AppMutex=StackR.App` dans l'installeur.
+
+Reste ensuite : la revue finale (tâche 18).

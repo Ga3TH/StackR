@@ -20,6 +20,12 @@ SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\StackR.App.exe
 DisableProgramGroupPage=yes
+; L'application crée le mutex « Local\StackR.App » (SingleInstanceGuard.MutexName). Setup et Uninstall
+; cherchent le nom tel quel (sensible à la casse) ; un nom sans préfixe est résolu dans l'espace de noms
+; de la session courante, c'est-à-dire « Local\ » : « StackR.App » désigne donc exactement ce mutex.
+; Le préfixe n'est pas écrit : dans cette directive, la barre oblique inverse sert d'échappement (virgule).
+; Installation par utilisateur (PrivilegesRequired=lowest) : Setup tourne dans la même session que l'app.
+AppMutex=StackR.App
 
 [Languages]
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"

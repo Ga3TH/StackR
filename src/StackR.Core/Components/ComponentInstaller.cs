@@ -68,7 +68,12 @@ public sealed class ComponentInstaller(SecureDownloader downloader, StackRPaths 
             p?.Report(new InstallProgress("Extraction", 100));
 
             Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
-            await MoveWithRetryAsync(stage, dest, ct).ConfigureAwait(false);
+            if (!PublishedMeanwhile(dest))
+            {
+                RemoveLeftover(dest);
+                await MoveWithRetryAsync(stage, dest, ct).ConfigureAwait(false);
+            }
+
             p?.Report(new InstallProgress("Terminé", 100));
         }
         finally
@@ -92,6 +97,30 @@ public sealed class ComponentInstaller(SecureDownloader downloader, StackRPaths 
         public void Report(T value) => handler(value);
     }
 
+    // Le renommage publie un dossier qui contient déjà le marqueur : un dossier sans marqueur n'est jamais
+    // une installation en cours, seulement un reste (désinstallation interrompue par un fichier verrouillé).
+    private static bool PublishedMeanwhile(string dest) => File.Exists(Path.Combine(dest, ComponentStore.MarkerFileName));
+
+    private static void RemoveLeftover(string dest)
+    {
+        if (!Directory.Exists(dest))
+        {
+            return;
+        }
+
+        try
+        {
+            Directory.Delete(dest, recursive: true);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            throw new IOException(
+                $"Le dossier « {dest} » existe déjà (reste d'une désinstallation inachevée) et n'a pas pu être supprimé : "
+                + $"fermez les programmes qui l'utilisent puis réessayez ({e.Message}).",
+                e);
+        }
+    }
+
     private static async Task MoveWithRetryAsync(string from, string to, CancellationToken ct)
     {
         for (var attempt = 1; ; attempt++)
@@ -99,6 +128,11 @@ public sealed class ComponentInstaller(SecureDownloader downloader, StackRPaths 
             try
             {
                 Directory.Move(from, to);
+                return;
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException && PublishedMeanwhile(to))
+            {
+                // Une installation concurrente de la même version a publié le dossier la première.
                 return;
             }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException && attempt < RenameAttempts)

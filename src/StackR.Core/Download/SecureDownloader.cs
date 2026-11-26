@@ -61,9 +61,20 @@ public sealed class SecureDownloader(HttpClient http, TimeSpan? inactivityTimeou
         // En-tête posé sur la requête, pas sur le HttpClient partagé.
         request.Headers.UserAgent.Add(UserAgent);
 
-        using var response = await _http
-            .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct)
-            .ConfigureAwait(false);
+        HttpResponseMessage sent;
+        try
+        {
+            sent = await _http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new HttpRequestException(
+                $"Téléchargement impossible : « {url} » est injoignable ({ex.Message}). Vérifiez la connexion Internet.",
+                ex,
+                ex.StatusCode);
+        }
+
+        using var response = sent;
 
         // Défense en profondeur : une redirection ne doit jamais aboutir hors HTTPS.
         var finalUri = response.RequestMessage?.RequestUri ?? url;
@@ -73,7 +84,13 @@ public sealed class SecureDownloader(HttpClient http, TimeSpan? inactivityTimeou
                 $"Téléchargement refusé : « {url} » a été redirigé vers une URL non HTTPS (« {finalUri} »).");
         }
 
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new HttpRequestException(
+                string.Create(CultureInfo.InvariantCulture, $"Téléchargement impossible : « {url} » a répondu HTTP {(int)response.StatusCode} ({response.ReasonPhrase})."),
+                null,
+                response.StatusCode);
+        }
 
         if (maxBytes is { } cap && response.Content.Headers.ContentLength is { } declared && declared > cap)
         {
@@ -109,6 +126,13 @@ public sealed class SecureDownloader(HttpClient http, TimeSpan? inactivityTimeou
                         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
                         {
                             throw new TimeoutException($"Aucune donnée reçue depuis {_inactivityTimeout.TotalSeconds:0.###} s pour « {url} ».");
+                        }
+                        catch (Exception ex) when (ex is IOException or HttpRequestException)
+                        {
+                            // Connexion coupée en cours de route : message clair, fichier partiel supprimé plus bas.
+                            throw new IOException(
+                                string.Create(CultureInfo.InvariantCulture, $"Téléchargement interrompu après {received} octets pour « {url} » ({ex.Message}). Réessayez."),
+                                ex);
                         }
 
                         if (read <= 0)

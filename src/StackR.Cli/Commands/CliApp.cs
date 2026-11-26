@@ -56,6 +56,7 @@ internal static class CliApp
         ComponentCommands.Versions(ctx),
         ComponentCommands.Install(ctx),
         ComponentCommands.Use(ctx),
+        ComponentCommands.Uninstall(ctx),
         SiteCommands.Hosts(ctx),
         SecurityCommands.Database(ctx),
         SecurityCommands.CertificateAuthority(ctx),

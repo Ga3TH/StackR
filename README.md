@@ -43,17 +43,28 @@ automatiques. Une alternative moderne à Laragon et XAMPP.
 
 ### B. Depuis les sources
 
-1. Installez le SDK .NET 10 :
+1. Installez le SDK .NET 10 et Git (puis ouvrez un **nouveau** terminal pour qu'ils soient dans le PATH) :
    ```powershell
    winget install Microsoft.DotNet.SDK.10
+   winget install Git.Git
    ```
+   Vérifiez avec `dotnet --version` (10.x) et `git --version`.
 2. Clonez le dépôt et construisez :
    ```powershell
    git clone https://github.com/Ga3TH/StackR.git
    cd StackR
    .\build.ps1
    ```
-   `build.ps1` exécute les tests puis publie `StackR.App.exe` et `stackr.exe` côte à côte dans `publish\StackR\`. Si [Inno Setup 6](https://jrsoftware.org/isinfo.php) est installé, l'installeur `publish\StackR-Setup.exe` est aussi généré.
+   `build.ps1` exécute les tests puis publie `StackR.App.exe` et `stackr.exe` côte à côte dans `publish\StackR\` (`.\build.ps1 -SkipTests` pour aller plus vite). Si [Inno Setup 6](https://jrsoftware.org/isinfo.php) est installé, l'installeur `publish\StackR-Setup.exe` est aussi généré.
+
+   Si PowerShell refuse le script (« l'exécution de scripts est désactivée sur ce système »), autorisez les scripts locaux pour votre utilisateur, une fois pour toutes :
+   ```powershell
+   Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+   ```
+   ou lancez-le ponctuellement sans rien changer :
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File .\build.ps1
+   ```
 3. Lancez `publish\StackR\StackR.App.exe`.
 
 > Gardez `StackR.App.exe` et `stackr.exe` dans le même dossier : l'application relance `stackr.exe` en mode élevé pour synchroniser le fichier hosts.
@@ -84,16 +95,17 @@ Fermer la fenêtre la réduit dans la zone de notification.
 
 StackR ne touche pas à votre installation Laragon.
 
-1. **Arrêtez Laragon** (quittez-le complètement) pour libérer les ports 80, 443 et 3306.
-2. **Exportez vos bases** depuis Laragon, avant de l'arrêter si possible :
+1. **Exportez vos bases** pendant que le MySQL de Laragon tourne encore. Listez-les, puis exportez **vos** bases (pas les bases système `mysql`, `sys`, `information_schema`, `performance_schema`) :
    ```powershell
-   C:\laragon\bin\mysql\<version>\bin\mysqldump.exe -u root --all-databases --routines --events > sauvegarde.sql
+   C:\laragon\bin\mysql\<version>\bin\mysql.exe -u root -e "SHOW DATABASES"
+   C:\laragon\bin\mysql\<version>\bin\mysqldump.exe -u root --databases base1 base2 --routines --events --result-file=sauvegarde.sql
    ```
-   (ou une base précise : `mysqldump -u root ma_base > ma_base.sql`).
-3. **Pointez `www` vers vos projets** : dans StackR, *Paramètres → Dossier www* → `C:\laragon\www` (vos projets sont réutilisés sur place), ou copiez-les dans `C:\StackR\www`.
-4. **Importez** dans StackR (le mot de passe root est dans la page *Base de données*) :
+   N'utilisez pas `--all-databases` : il exporte aussi la base système `mysql`, dont l'import remplacerait le mot de passe root de StackR. `--result-file` évite la redirection `>` de PowerShell, qui écrit le fichier en UTF-16 illisible par `mysql`.
+2. **Arrêtez Laragon** (quittez-le complètement) pour libérer les ports 80, 443 et 3306.
+3. **Pointez `www` vers vos projets** : dans StackR, *Paramètres → Dossier www* → `C:\laragon\www` (vos projets sont réutilisés sur place), puis redémarrez StackR ; ou copiez-les dans `C:\StackR\www`.
+4. **Démarrez MySQL dans StackR, puis importez** (le mot de passe root est dans la page *Base de données*, ou `stackr db password`). PowerShell ne connaît pas la redirection `<` : passez par `cmd` :
    ```powershell
-   mysql -u root -p < sauvegarde.sql
+   cmd /c "mysql -u root -p < sauvegarde.sql"
    ```
 5. **Mettez à jour vos fichiers `.env`** : `DB_HOST=127.0.0.1`, `DB_PORT=3306`, `DB_USERNAME=root` et `DB_PASSWORD=` avec le **nouveau mot de passe root** affiché dans la page *Base de données* (Laragon utilisait un mot de passe vide ; StackR en impose un). Créez de préférence un utilisateur dédié par projet.
 6. Vérifiez la version de PHP dans la page *Versions* (par exemple 8.3 comme sous Laragon).
@@ -101,16 +113,22 @@ StackR ne touche pas à votre installation Laragon.
 ## Utilisation en ligne de commande
 
 ```text
-stackr status               état des services
-stackr start [service]      démarre tout, ou apache | mysql | mailpit
-stackr stop [service]       arrête tout, ou un service
-stackr sites                liste les sites .test
-stackr versions             versions installées et disponibles
-stackr install <composant> <version>    ex. stackr install php 8.4.28
-stackr use php <version>    active une version de PHP
-stackr hosts sync           synchronise le fichier hosts (relancé élevé, UAC)
-stackr db password          affiche le mot de passe root MySQL
+stackr status                          état des services, PHP actif, dossier www
+stackr start [service]                 applique la configuration puis démarre tout (services installés), ou apache | mysql | mailpit
+stackr stop [service]                  arrête tout, ou un service
+stackr restart [service]               arrête puis redémarre
+stackr sites                           liste les sites .test
+stackr versions [composant]            versions du catalogue : installée, active, recommandée
+stackr install <composant> [version]   ex. stackr install php 8.4.28 (sans version : la recommandée)
+stackr use <composant> <version>       active une version installée, ex. stackr use php 8.3.37
+stackr uninstall <composant> <version> supprime une version installée (ni active, ni service en marche)
+stackr db password [--copy]            affiche (ou copie) le mot de passe root MySQL
+stackr ca trust                        approuve la CA locale (confirmation Windows)
 ```
+
+Composants : `apache`, `php`, `mysql`, `mailpit`, `node`, `composer`. `stackr start` met aussi à jour le fichier hosts : si de nouveaux sites `.test` sont apparus, Windows demande une confirmation (UAC). `stackr hosts sync --names … | --clear` est la commande que StackR relance lui-même en administrateur pour cela ; vous n'avez pas à l'utiliser.
+
+Codes de sortie : 0 succès, 1 erreur, 2 arguments invalides, 5 droits administrateur requis.
 
 ## Sécurité
 
@@ -125,12 +143,14 @@ Voir aussi [SECURITY.md](SECURITY.md).
 
 ## Désinstallation propre
 
-1. Dans StackR, arrêtez les services, puis désactivez le démarrage avec Windows (*Paramètres*).
-2. Désinstallez StackR (*Paramètres Windows → Applications*), ou supprimez le dossier de l'application.
-3. Retirez le **PATH** : supprimez l'entrée `C:\StackR\bin\shims` de vos variables d'environnement utilisateur.
-4. Retirez la **CA** : `certmgr.msc` → *Autorités de certification racines de confiance → Certificats*, supprimez « StackR Local CA ».
-5. Retirez le **bloc hosts** : éditez `C:\Windows\System32\drivers\etc\hosts` en administrateur et supprimez les lignes entre `# >>> StackR` et `# <<< StackR`.
-6. Supprimez le dossier de données (`C:\StackR`) après avoir sauvegardé vos bases et projets.
+StackR ne modifie que des éléments de votre profil, listés ci-dessous. Sauvegardez d'abord vos bases (`mysqldump`) et vos projets de `www`.
+
+1. **Services et démarrage automatique** : dans StackR, cliquez sur **Tout arrêter** (ou `stackr stop`), désactivez *Démarrer avec Windows* (*Paramètres*), puis quittez StackR depuis la zone de notification. Si l'application n'est plus disponible, supprimez la valeur `StackR` de la clé `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` (`regedit`).
+2. **Application** : désinstallez StackR (*Paramètres Windows → Applications → StackR*), ou supprimez le dossier `%LOCALAPPDATA%\Programs\StackR` si vous l'avez construit depuis les sources.
+3. **PATH** : *Paramètres Windows → Système → Informations système → Paramètres avancés du système → Variables d'environnement*, puis dans les variables **utilisateur**, modifiez `Path` et supprimez les entrées `<racine>\bin\shims` (`C:\StackR\bin\shims` par défaut) et le dossier de l'application (`%LOCALAPPDATA%\Programs\StackR`).
+4. **CA** : `Win + R` → `certmgr.msc` → *Autorités de certification racines de confiance → Certificats*. Supprimez le ou les certificats nommés **`StackR Local CA (<NOM-DU-PC>)`** (par exemple `StackR Local CA (BUREAU-PC)`, le nom de votre ordinateur entre parenthèses). Ne touchez à aucun autre certificat.
+5. **Bloc hosts** : ouvrez le Bloc-notes **en administrateur**, puis `C:\Windows\System32\drivers\etc\hosts`, supprimez les lignes de `# >>> StackR` à `# <<< StackR` incluses, enregistrez.
+6. **Données** : supprimez le dossier racine (`C:\StackR` par défaut : composants, configurations, bases MySQL, certificats, journaux, et `www` s'il n'a pas été déplacé) et le dossier des paramètres `%LOCALAPPDATA%\StackR` (`stackr.json`).
 
 ## FAQ
 
@@ -142,13 +162,15 @@ Voir aussi [SECURITY.md](SECURITY.md).
 
 **Le navigateur affiche un avertissement de certificat.** La CA n'est pas approuvée : ouvrez *Paramètres* dans StackR et cliquez sur **Faire confiance** (confirmez la boîte de dialogue Windows), puis redémarrez le navigateur.
 
-**Un site `.test` ne s'ouvre pas.** Vérifiez que la demande UAC du fichier hosts a été acceptée (`stackr hosts sync`).
+**Un site `.test` ne s'ouvre pas.** Vérifiez que la demande UAC du fichier hosts a été acceptée : relancez `stackr start` (ou **Tout démarrer**) et acceptez la confirmation Windows.
+
+**`.\build.ps1` est refusé par PowerShell.** Voir l'installation B : `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, ou `powershell -ExecutionPolicy Bypass -File .\build.ps1`.
 
 ## Contribuer
 
 ```powershell
 dotnet build -c Release
-dotnet test -c Release
+dotnet test -c Release --filter "Category!=Integration"
 ```
 
 - `tools\update-manifest.ps1` : script mainteneur qui récupère les dernières versions stables et leurs SHA-256 pour `manifest/components.json`.

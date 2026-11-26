@@ -114,6 +114,144 @@ public sealed class ComponentInstallerTests : IDisposable
         Assert.True(File.Exists(Path.Combine(dir, ".stackr-installed")));
     }
 
+    [Theory]
+    [InlineData("Téléchargement")]
+    [InlineData("Vérification")]
+    [InlineData("Extraction")]
+    public async Task Install_Cancelled_LeavesNothingInBinOrTmp(string stage)
+    {
+        var payload = MakeZip("php-8.4.1");
+        var r = Release(ComponentKind.Php, "8.4.1", payload);
+        using var cts = new CancellationTokenSource();
+        var progress = new ActionProgress(p =>
+        {
+            if (p.Stage == stage)
+            {
+                cts.Cancel();
+            }
+        });
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Installer(payload).InstallAsync(r, progress, cts.Token));
+
+        AssertNothingLeft("php", "8.4.1");
+    }
+
+    [Fact]
+    public async Task Install_InterruptedDownload_LeavesNothing_AndExplainsInFrench()
+    {
+        var payload = MakeZip("php-8.4.1");
+        var r = Release(ComponentKind.Php, "8.4.1", payload);
+        var installer = new ComponentInstaller(new SecureDownloader(new HttpClient(new BrokenStreamHandler(payload.Length))), _paths);
+
+        var ex = await Assert.ThrowsAsync<IOException>(() => installer.InstallAsync(r, null, CancellationToken.None));
+
+        Assert.Contains("Téléchargement interrompu", ex.Message, StringComparison.Ordinal);
+        AssertNothingLeft("php", "8.4.1");
+    }
+
+    [Fact]
+    public async Task Install_LeftoverFolderWithoutMarker_IsReplaced()
+    {
+        // Reste d'une désinstallation interrompue : dossier sans marqueur, fichier verrouillé à l'époque.
+        var dir = _paths.ComponentDir("php", "8.4.1");
+        Directory.CreateDirectory(dir);
+        File.WriteAllText(Path.Combine(dir, "reste.dll"), "ancien");
+        var payload = MakeZip("php-8.4.1");
+
+        await Installer(payload).InstallAsync(Release(ComponentKind.Php, "8.4.1", payload), null, CancellationToken.None);
+
+        Assert.True(File.Exists(Path.Combine(dir, "php.exe")));
+        Assert.False(File.Exists(Path.Combine(dir, "reste.dll")));
+        Assert.True(File.Exists(Path.Combine(dir, ".stackr-installed")));
+    }
+
+    [Fact]
+    public async Task Install_PublishedMeanwhileByConcurrentInstall_Succeeds()
+    {
+        var payload = MakeZip("php-8.4.1");
+        var dir = _paths.ComponentDir("php", "8.4.1");
+        // Juste avant la publication, une autre installation de la même version publie son dossier.
+        var progress = new ActionProgress(p =>
+        {
+            if (p is { Stage: "Extraction", Percent: 100 })
+            {
+                Directory.CreateDirectory(dir);
+                File.WriteAllText(Path.Combine(dir, "php.exe"), "gagnant");
+                File.WriteAllText(Path.Combine(dir, ".stackr-installed"), "{}");
+            }
+        });
+
+        await Installer(payload).InstallAsync(Release(ComponentKind.Php, "8.4.1", payload), progress, CancellationToken.None);
+
+        Assert.Equal("gagnant", File.ReadAllText(Path.Combine(dir, "php.exe")));
+        Assert.Empty(Directory.GetFileSystemEntries(_paths.Tmp));
+    }
+
+    private void AssertNothingLeft(string folder, string version)
+    {
+        var dir = _paths.ComponentDir(folder, version);
+        Assert.False(Directory.Exists(dir));
+        Assert.False(Directory.Exists(dir + ".partial"));
+        if (Directory.Exists(_paths.Tmp))
+        {
+            Assert.Empty(Directory.GetFileSystemEntries(_paths.Tmp));
+        }
+    }
+
+    private sealed class ActionProgress(Action<InstallProgress> report) : IProgress<InstallProgress>
+    {
+        public void Report(InstallProgress value) => report(value);
+    }
+
+    // Le serveur annonce la taille complète mais coupe la connexion à mi-chemin.
+    private sealed class BrokenStreamHandler(int length) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var content = new StreamContent(new BrokenStream(length / 2));
+            content.Headers.ContentLength = length;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = content, RequestMessage = request });
+        }
+    }
+
+    private sealed class BrokenStream(int bytesBeforeFailure) : Stream
+    {
+        private int _sent;
+
+        public override bool CanRead => true;
+
+        public override bool CanSeek => false;
+
+        public override bool CanWrite => false;
+
+        public override long Length => throw new NotSupportedException();
+
+        public override long Position { get => _sent; set => throw new NotSupportedException(); }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            if (_sent >= bytesBeforeFailure)
+            {
+                throw new IOException("connection reset");
+            }
+
+            var n = Math.Min(count, bytesBeforeFailure - _sent);
+            Array.Fill(buffer, (byte)1, offset, n);
+            _sent += n;
+            return n;
+        }
+
+        public override void Flush()
+        {
+        }
+
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+
+        public override void SetLength(long value) => throw new NotSupportedException();
+
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+    }
+
     private sealed class SyncProgress(List<string> steps) : IProgress<InstallProgress>
     {
         public void Report(InstallProgress value)
