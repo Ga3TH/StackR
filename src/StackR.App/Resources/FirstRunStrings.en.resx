@@ -23,4 +23,177 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="FrWindowTitle" xml:space="preserve"><value>StackR setup</value></data>
+  <data name="FrSidebarCaption" xml:space="preserve"><value>First run</value></data>
+  <data name="FrStepCounter" xml:space="preserve"><value>Step {0} of {1}</value></data>
+  <data name="FrStepFolders" xml:space="preserve"><value>Folders</value></data>
+  <data name="FrStepChecks" xml:space="preserve"><value>Checks</value></data>
+  <data name="FrStepComponents" xml:space="preserve"><value>Components</value></data>
+  <data name="FrStepInstall" xml:space="preserve"><value>Verified download</value></data>
+  <data name="FrStepHttps" xml:space="preserve"><value>Local HTTPS</value></data>
+  <data name="FrStepTerminal" xml:space="preserve"><value>Terminal</value></data>
+  <data name="FrStepSummary" xml:space="preserve"><value>Summary</value></data>
+  <data name="FrFoldersSubtitle" xml:space="preserve"><value>Choose where to install StackR and where your web projects live.</value></data>
+  <data name="FrChecksSubtitle" xml:space="preserve"><value>A few checks before installing anything. Nothing on your system is changed.</value></data>
+  <data name="FrComponentsSubtitle" xml:space="preserve"><value>Recommended stable versions, downloaded from their official sources.</value></data>
+  <data name="FrInstallSubtitle" xml:space="preserve"><value>Each component is downloaded over HTTPS and checked against its SHA-256 hash before extraction.</value></data>
+  <data name="FrHttpsSubtitle" xml:space="preserve"><value>https://mysite.test addresses without browser warnings.</value></data>
+  <data name="FrTerminalSubtitle" xml:space="preserve"><value>The php, mysql, composer, node and stackr commands in any terminal.</value></data>
+  <data name="FrSummarySubtitle" xml:space="preserve"><value>Everything is ready. Review the summary, then finish.</value></data>
+  <data name="FrBack" xml:space="preserve"><value>Back</value></data>
+  <data name="FrNext" xml:space="preserve"><value>Next</value></data>
+  <data name="FrFinish" xml:space="preserve"><value>Finish</value></data>
+  <data name="FrOpenStackR" xml:space="preserve"><value>Open StackR</value></data>
+  <data name="FrBrowse" xml:space="preserve"><value>Browse…</value></data>
+  <data name="FrBrowseRootTitle" xml:space="preserve"><value>StackR installation folder</value></data>
+  <data name="FrBrowseWwwTitle" xml:space="preserve"><value>Your web projects folder (www)</value></data>
+  <data name="FrSettingsResetTitle" xml:space="preserve"><value>Settings reset</value></data>
+  <data name="FrSettingsResetMessage" xml:space="preserve"><value>The settings file was unreadable: a copy was kept (stackr.json.bak) and default values are suggested.</value></data>
+  <data name="FrRootLabel" xml:space="preserve"><value>Installation folder</value></data>
+  <data name="FrRootHint" xml:space="preserve"><value>Components, configuration, MySQL data and logs go here. Avoid Program Files: StackR never needs administrator rights.</value></data>
+  <data name="FrWwwLabel" xml:space="preserve"><value>Projects folder (www)</value></data>
+  <data name="FrWwwHint" xml:space="preserve"><value>Each subfolder automatically becomes a https://&lt;name&gt;.test site.</value></data>
+  <data name="FrUseLaragonWww" xml:space="preserve"><value>Use my Laragon projects (C:\laragon\www)</value></data>
+  <data name="FrUseLaragonWwwHint" xml:space="preserve"><value>StackR only reads and serves this folder: your Laragon installation is never modified.</value></data>
+  <data name="FrFoldersFootnote" xml:space="preserve"><value>Spaces and accented characters are allowed in paths.</value></data>
+  <data name="FrFolderEmpty" xml:space="preserve"><value>Enter a folder.</value></data>
+  <data name="FrFolderNotAbsolute" xml:space="preserve"><value>Enter a full path, for example C:\StackR.</value></data>
+  <data name="FrFolderNetwork" xml:space="preserve"><value>Choose a folder on a local drive (not a network share).</value></data>
+  <data name="FrFolderInvalidChars" xml:space="preserve"><value>This path contains characters Windows does not allow (&lt; &gt; : &quot; ? *, or a trailing space or dot).</value></data>
+  <data name="FrFolderDriveRoot" xml:space="preserve"><value>Choose a folder, not the root of a drive (for example C:\StackR).</value></data>
+  <data name="FrFolderProtected" xml:space="preserve"><value>This folder is protected by Windows (Program Files or Windows) and would require administrator rights.</value></data>
+  <data name="FrFolderLaragon" xml:space="preserve"><value>StackR never installs inside the Laragon folder, so that it is never modified.</value></data>
+  <data name="FrFolderIsFile" xml:space="preserve"><value>This path points to an existing file, not a folder.</value></data>
+  <data name="FrFolderNotWritable" xml:space="preserve"><value>Cannot write to this folder.</value></data>
+  <data name="FrFolderNotReadable" xml:space="preserve"><value>Cannot read this folder.</value></data>
+  <data name="FrWwwIsRoot" xml:space="preserve"><value>The www folder cannot be the installation folder itself.</value></data>
+  <data name="FrWwwContainsRoot" xml:space="preserve"><value>The www folder cannot contain the installation folder: everything would be published as a site.</value></data>
+  <data name="FrWwwInternal" xml:space="preserve"><value>The www folder cannot be inside StackR&apos;s bin, etc, data, logs or tmp folders.</value></data>
+  <data name="FrBusyCheckingFolders" xml:space="preserve"><value>Checking folders…</value></data>
+  <data name="FrChecking" xml:space="preserve"><value>Checking…</value></data>
+  <data name="FrRecheck" xml:space="preserve"><value>Check again</value></data>
+  <data name="FrChecksAllGoodTitle" xml:space="preserve"><value>All set</value></data>
+  <data name="FrChecksAllGoodMessage" xml:space="preserve"><value>No conflict found: you can continue.</value></data>
+  <data name="FrLaragonRunningTitle" xml:space="preserve"><value>Laragon is running</value></data>
+  <data name="FrLaragonRunningMessage" xml:space="preserve"><value>Stop Laragon before starting StackR&apos;s services (ports 80/443/3306 in use). StackR will never close it for you.</value></data>
+  <data name="FrLaragonNotRunning" xml:space="preserve"><value>Laragon is not running</value></data>
+  <data name="FrVcMissingTitle" xml:space="preserve"><value>Visual C++ 2015-2022 x64 missing</value></data>
+  <data name="FrVcMissingMessage" xml:space="preserve"><value>Apache and PHP need it to start. Install it from Microsoft&apos;s official website, then click &quot;Check again&quot;.</value></data>
+  <data name="FrVcDownload" xml:space="preserve"><value>Download from Microsoft</value></data>
+  <data name="FrVcPresent" xml:space="preserve"><value>Visual C++ 2015-2022 x64 is installed</value></data>
+  <data name="FrPortsTitle" xml:space="preserve"><value>Network ports</value></data>
+  <data name="FrPortsHint" xml:space="preserve"><value>StackR only listens on 127.0.0.1. A port in use only prevents the matching service from starting.</value></data>
+  <data name="FrPortHttp" xml:space="preserve"><value>Apache (HTTP)</value></data>
+  <data name="FrPortHttps" xml:space="preserve"><value>Apache (HTTPS)</value></data>
+  <data name="FrPortMySql" xml:space="preserve"><value>MySQL</value></data>
+  <data name="FrPortMailpitUi" xml:space="preserve"><value>Mailpit (web interface)</value></data>
+  <data name="FrPortMailpitSmtp" xml:space="preserve"><value>Mailpit (SMTP)</value></data>
+  <data name="FrPortFree" xml:space="preserve"><value>Free</value></data>
+  <data name="FrPortBusy" xml:space="preserve"><value>Used by {0} (PID {1})</value></data>
+  <data name="FrChecksFootnote" xml:space="preserve"><value>Nothing here is blocking: you can continue and fix these later.</value></data>
+  <data name="FrCompApache" xml:space="preserve"><value>Web server: .test sites over HTTP and HTTPS</value></data>
+  <data name="FrCompPhp" xml:space="preserve"><value>Language of your sites (run by Apache)</value></data>
+  <data name="FrCompMySql" xml:space="preserve"><value>Database, with a generated and encrypted root password</value></data>
+  <data name="FrCompMailpit" xml:space="preserve"><value>Catches the e-mails sent by your sites</value></data>
+  <data name="FrCompNode" xml:space="preserve"><value>JavaScript tooling: node, npm, npx</value></data>
+  <data name="FrCompComposer" xml:space="preserve"><value>PHP dependency manager</value></data>
+  <data name="FrComponentsTotal" xml:space="preserve"><value>{0} component(s) selected — about {1} to download.</value></data>
+  <data name="FrSizeMegabytes" xml:space="preserve"><value>{0:0.0} MB</value></data>
+  <data name="FrVcWarningTitle" xml:space="preserve"><value>Visual C++ missing</value></data>
+  <data name="FrVcWarningMessage" xml:space="preserve"><value>Apache and PHP will be installed, but they will not start until Visual C++ 2015-2022 x64 is installed (see the previous step).</value></data>
+  <data name="FrComposerWithoutPhpTitle" xml:space="preserve"><value>Composer needs PHP</value></data>
+  <data name="FrComposerWithoutPhpMessage" xml:space="preserve"><value>The composer command will only work once PHP is installed.</value></data>
+  <data name="FrEngineErrorTitle" xml:space="preserve"><value>Setup failed</value></data>
+  <data name="FrEngineError" xml:space="preserve"><value>Cannot prepare the installation folder: {0}</value></data>
+  <data name="FrBusyPreparing" xml:space="preserve"><value>Preparing the installation folder…</value></data>
+  <data name="FrInstallNothing" xml:space="preserve"><value>No component selected. You can install some at any time from the Versions page.</value></data>
+  <data name="FrInstallPending" xml:space="preserve"><value>Waiting</value></data>
+  <data name="FrStageDownload" xml:space="preserve"><value>Downloading…</value></data>
+  <data name="FrStageDownloadPercent" xml:space="preserve"><value>Downloading… {0}%</value></data>
+  <data name="FrStageVerify" xml:space="preserve"><value>SHA-256 hash verified</value></data>
+  <data name="FrStageExtract" xml:space="preserve"><value>Extracting…</value></data>
+  <data name="FrStageDone" xml:space="preserve"><value>Installed and verified</value></data>
+  <data name="FrInstallFailed" xml:space="preserve"><value>Installation failed</value></data>
+  <data name="FrInstallCancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="FrRetry" xml:space="preserve"><value>Retry</value></data>
+  <data name="FrRetryAll" xml:space="preserve"><value>Retry all</value></data>
+  <data name="FrCancelInstall" xml:space="preserve"><value>Cancel</value></data>
+  <data name="FrInstallDoneTitle" xml:space="preserve"><value>Installation complete</value></data>
+  <data name="FrInstallAllDone" xml:space="preserve"><value>All components are installed and their hashes were verified.</value></data>
+  <data name="FrInstallProblemsTitle" xml:space="preserve"><value>Installation incomplete</value></data>
+  <data name="FrInstallSomeFailed" xml:space="preserve"><value>{0} component(s) not installed. Retry, or continue without them: you can install them later from the Versions page.</value></data>
+  <data name="FrInstallSecurityNote" xml:space="preserve"><value>A file whose hash does not match is deleted without ever being run.</value></data>
+  <data name="FrErrorIntegrity" xml:space="preserve"><value>File rejected: its SHA-256 hash does not match, so it was deleted. {0}</value></data>
+  <data name="FrErrorNetwork" xml:space="preserve"><value>Download failed: check your Internet connection. {0}</value></data>
+  <data name="FrErrorTimeout" xml:space="preserve"><value>The server stopped responding. {0}</value></data>
+  <data name="FrErrorDisk" xml:space="preserve"><value>Cannot write to the disk. {0}</value></data>
+  <data name="FrErrorOther" xml:space="preserve"><value>Error: {0}</value></data>
+  <data name="FrHttpsWhatTitle" xml:space="preserve"><value>A certificate authority unique to this computer</value></data>
+  <data name="FrHttpsWhat" xml:space="preserve"><value>StackR creates its own certificate authority (CA). It is restricted to .test names and localhost: it cannot sign any other site.</value></data>
+  <data name="FrHttpsWhy" xml:space="preserve"><value>For your browser to trust https://mysite.test, add it to the trusted certificates of your Windows account. Windows will ask you to confirm.</value></data>
+  <data name="FrHttpsKey" xml:space="preserve"><value>Its private key is encrypted (DPAPI) and never leaves your account. No administrator rights are needed.</value></data>
+  <data name="FrCaTrusted" xml:space="preserve"><value>The local CA is trusted by Windows</value></data>
+  <data name="FrCaNotTrusted" xml:space="preserve"><value>The local CA is not trusted yet</value></data>
+  <data name="FrCaConfirmHint" xml:space="preserve"><value>Click &quot;Trust&quot;, then &quot;Yes&quot; in the Windows security window.</value></data>
+  <data name="FrTrust" xml:space="preserve"><value>Trust</value></data>
+  <data name="FrBusyTrust" xml:space="preserve"><value>Waiting for Windows confirmation…</value></data>
+  <data name="FrCaDeclinedTitle" xml:space="preserve"><value>Trust declined</value></data>
+  <data name="FrCaDeclinedMessage" xml:space="preserve"><value>You can continue: sites will work, but the browser will show an HTTPS warning. You can try again from Settings.</value></data>
+  <data name="FrCaErrorTitle" xml:space="preserve"><value>CA unavailable</value></data>
+  <data name="FrCaError" xml:space="preserve"><value>The local CA could not be prepared: {0}</value></data>
+  <data name="FrPathTitle" xml:space="preserve"><value>Added to the user PATH</value></data>
+  <data name="FrPathExplain" xml:space="preserve"><value>StackR adds this folder to your user PATH, without administrator rights. It contains the php, mysql, mysqldump, composer, node, npm and npx shortcuts.</value></data>
+  <data name="FrBusyPath" xml:space="preserve"><value>Updating the user PATH…</value></data>
+  <data name="FrPathAddedTitle" xml:space="preserve"><value>User PATH up to date</value></data>
+  <data name="FrPathAddedMessage" xml:space="preserve"><value>StackR&apos;s commands will be available in new terminals.</value></data>
+  <data name="FrPathError" xml:space="preserve"><value>The user PATH could not be changed: {0}</value></data>
+  <data name="FrNewTerminalTitle" xml:space="preserve"><value>Open a NEW terminal</value></data>
+  <data name="FrNewTerminalMessage" xml:space="preserve"><value>Terminals that are already open do not see the new PATH. Open a new one, then type:</value></data>
+  <data name="FrSummaryInstalled" xml:space="preserve"><value>Installed components</value></data>
+  <data name="FrSummaryNothingInstalled" xml:space="preserve"><value>No component installed during this wizard.</value></data>
+  <data name="FrSummaryMissingHint" xml:space="preserve"><value>Not installed: you can install them from the Versions page.</value></data>
+  <data name="FrSummaryHttpsTrusted" xml:space="preserve"><value>HTTPS: local CA trusted by Windows</value></data>
+  <data name="FrSummaryHttpsNotTrusted" xml:space="preserve"><value>HTTPS: local CA not trusted (browser warnings)</value></data>
+  <data name="FrSummaryPathAdded" xml:space="preserve"><value>Terminal: commands added to the user PATH</value></data>
+  <data name="FrSummaryPathMissing" xml:space="preserve"><value>Terminal: user PATH not changed</value></data>
+  <data name="FrSummaryFirstSite" xml:space="preserve"><value>Your first site</value></data>
+  <data name="FrSummaryExample" xml:space="preserve"><value>Create a folder here: {0} — it will be served automatically at:</value></data>
+  <data name="FrStartNow" xml:space="preserve"><value>Start the services now</value></data>
+  <data name="FrStartNowHint" xml:space="preserve"><value>Windows may ask for permission (UAC) to add your .test sites to the hosts file: it is the only action that needs it.</value></data>
+  <data name="FrBusySaving" xml:space="preserve"><value>Saving settings…</value></data>
+  <data name="FrBusyApplying" xml:space="preserve"><value>Generating configuration files and certificates…</value></data>
+  <data name="FrBusyStarting" xml:space="preserve"><value>Starting services…</value></data>
+  <data name="FrFinishProblemsTitle" xml:space="preserve"><value>Done, with a few warnings</value></data>
+  <data name="FrApplyError" xml:space="preserve"><value>The configuration could not be applied: {0}</value></data>
+  <data name="FrStartError" xml:space="preserve"><value>The services could not start: {0}</value></data>
+  <data name="FrSaveError" xml:space="preserve"><value>The settings could not be saved: {0}</value></data>
+  <data name="FrQuitTitle" xml:space="preserve"><value>Quit setup?</value></data>
+  <data name="FrQuitMessage" xml:space="preserve"><value>StackR will close. The wizard will resume next time you start it.</value></data>
+  <data name="FrQuitMessageInstalling" xml:space="preserve"><value>A download is in progress: it will be cancelled cleanly and StackR will close. The wizard will resume next time you start it.</value></data>
+  <data name="FrQuitConfirm" xml:space="preserve"><value>Quit</value></data>
+  <data name="FrQuitContinue" xml:space="preserve"><value>Continue setup</value></data>
+  <data name="StartupSettingsErrorTitle" xml:space="preserve"><value>Unreadable settings</value></data>
+  <data name="StartupSettingsErrorMessage" xml:space="preserve"><value>The settings file cannot be read:
+{0}
+
+Details: {1}
+
+Make sure it is not open in another program, then restart StackR.
+Log: {2}</value></data>
+  <data name="StartupEngineErrorTitle" xml:space="preserve"><value>StackR cannot start</value></data>
+  <data name="StartupEngineErrorMessage" xml:space="preserve"><value>StackR could not prepare its installation folder ({0}).
+
+Details: {1}
+
+The drive may be missing or the folder inaccessible. You can run the setup wizard again to choose another folder.
+Log: {2}</value></data>
+  <data name="StartupRunWizard" xml:space="preserve"><value>Run the wizard again</value></data>
+  <data name="StartupQuit" xml:space="preserve"><value>Quit</value></data>
+  <data name="StartupRestartErrorTitle" xml:space="preserve"><value>Restart failed</value></data>
+  <data name="StartupRestartErrorMessage" xml:space="preserve"><value>StackR could not restart automatically ({0}). Quit and reopen StackR to apply the changes.</value></data>
+  <data name="StartupUnexpectedTitle" xml:space="preserve"><value>Unexpected error</value></data>
+  <data name="StartupUnexpectedMessage" xml:space="preserve"><value>An unexpected error occurred:
+{0}
+
+Details were saved to {1}. If the problem persists, restart StackR.</value></data>
 </root>
