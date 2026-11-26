@@ -4,32 +4,225 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:res="clr-namespace:StackR.App.Resources"
       Title="{Binding Title}">
-    <Grid Margin="{StaticResource PagePadding}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
 
-        <StackPanel Grid.Row="0">
+        <Style x:Key="SettingsSectionTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SectionTitleTextStyle}">
+            <Setter Property="Margin" Value="0,24,0,8" />
+        </Style>
+        <Style TargetType="ui:CardControl">
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <Style x:Key="PathTextStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="MaxWidth" Value="320" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="0,0,12,0" />
+        </Style>
+        <Style x:Key="PortBoxStyle" TargetType="ui:NumberBox">
+            <Setter Property="Minimum" Value="1" />
+            <Setter Property="Maximum" Value="65535" />
+            <Setter Property="MaxDecimalPlaces" Value="0" />
+            <Setter Property="SmallChange" Value="1" />
+            <Setter Property="Width" Value="140" />
+            <Setter Property="ClearButtonEnabled" Value="False" />
+        </Style>
+    </Page.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="{StaticResource PagePadding}" MaxWidth="960" HorizontalAlignment="Stretch">
             <TextBlock Style="{StaticResource PageTitleTextStyle}" Text="{Binding Title}" />
             <Border Style="{StaticResource TitleUnderlineStyle}" Margin="0,8,0,12" />
             <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding Subtitle}" />
-        </StackPanel>
 
-        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}"
-                Margin="0,24,0,0" Padding="{StaticResource PaddingXl}"
-                VerticalAlignment="Top" HorizontalAlignment="Stretch">
-            <StackPanel Orientation="Horizontal">
-                <Border Style="{StaticResource BrandTileBorderStyle}">
-                    <ui:SymbolIcon Symbol="Settings24" FontSize="28" Foreground="White"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.PlaceholderTitle}" />
-                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="0,4,0,0"
-                               Text="{x:Static res:Strings.PlaceholderBody}" />
+            <ui:InfoBar Margin="0,16,0,0" IsClosable="False" Severity="Warning"
+                        IsOpen="{Binding NeedsRestart, Mode=OneWay}"
+                        Title="{x:Static res:Strings.SetRestartTitle}"
+                        Message="{x:Static res:Strings.SetRestartMessage}">
+                <ui:InfoBar.Content>
+                    <ui:Button Command="{Binding RestartNowCommand}" Appearance="Primary"
+                               Content="{x:Static res:Strings.SetRestartNow}" />
+                </ui:InfoBar.Content>
+            </ui:InfoBar>
+
+            <ui:InfoBar Margin="0,8,0,0" IsClosable="True"
+                        IsOpen="{Binding IsMessageOpen, Mode=TwoWay}"
+                        Severity="{Binding MessageSeverity}"
+                        Message="{Binding Message}" />
+
+            <!-- Général -->
+            <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionGeneral}" />
+            <ui:CardControl Icon="{ui:SymbolIcon Power24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetStartWithWindows}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetStartWithWindowsDesc}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding StartWithWindows}"
+                                 AutomationProperties.Name="{x:Static res:Strings.SetStartWithWindows}" />
+            </ui:CardControl>
+            <ui:CardControl Icon="{ui:SymbolIcon Play24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetAutoStart}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetAutoStartDesc}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding AutoStartServices}"
+                                 AutomationProperties.Name="{x:Static res:Strings.SetAutoStart}" />
+            </ui:CardControl>
+
+            <!-- Dossiers -->
+            <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionFolders}" />
+            <ui:CardControl Icon="{ui:SymbolIcon Folder24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetRoot}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetRootDesc}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource PathTextStyle}" Text="{Binding RootPath}" ToolTip="{Binding RootPath}" />
+                    <ui:Button Command="{Binding ChooseRootCommand}" Content="{x:Static res:Strings.SetChange}" />
                 </StackPanel>
-            </StackPanel>
-        </Border>
-    </Grid>
+            </ui:CardControl>
+            <ui:CardControl Icon="{ui:SymbolIcon Globe24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetWww}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetWwwDesc}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource PathTextStyle}" Text="{Binding WwwPath}" ToolTip="{Binding WwwPath}" />
+                    <ui:Button Command="{Binding ResetWwwCommand}" Margin="0,0,8,0" Content="{x:Static res:Strings.SetResetDefault}" />
+                    <ui:Button Command="{Binding ChooseWwwCommand}" Content="{x:Static res:Strings.SetBrowse}" />
+                </StackPanel>
+            </ui:CardControl>
+
+            <!-- HTTPS -->
+            <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionHttps}" />
+            <ui:CardControl Icon="{ui:SymbolIcon LockClosed24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetHttps}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetHttpsDesc}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:ToggleSwitch IsChecked="{Binding HttpsEnabled}"
+                                 AutomationProperties.Name="{x:Static res:Strings.SetHttps}" />
+            </ui:CardControl>
+            <ui:CardControl Icon="{ui:SymbolIcon ShieldCheckmark24}"
+                            Visibility="{Binding HttpsEnabled, Converter={StaticResource BoolToVisibility}}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetCaStatus}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetCaTrustDesc}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource BodyTextStyle}" VerticalAlignment="Center" Margin="0,0,12,0"
+                               FontWeight="SemiBold" Text="{Binding CaStatusText}" />
+                    <ui:Button Command="{Binding TrustCaCommand}" IsEnabled="{Binding CanTrustCa}"
+                               Appearance="Primary" Content="{x:Static res:Strings.SetCaTrust}" />
+                </StackPanel>
+            </ui:CardControl>
+
+            <!-- Ports -->
+            <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionPorts}" />
+            <Border Style="{StaticResource CardBorderStyle}">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="0,0,0,12"
+                               Text="{x:Static res:Strings.SetPortsDesc}" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4" Text="{x:Static res:Strings.SetPortHttp}" />
+                            <ui:NumberBox Style="{StaticResource PortBoxStyle}" Value="{Binding HttpPort, Mode=TwoWay}"
+                                          AutomationProperties.Name="{x:Static res:Strings.SetPortHttp}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="0,0,16,0">
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4" Text="{x:Static res:Strings.SetPortHttps}" />
+                            <ui:NumberBox Style="{StaticResource PortBoxStyle}" Value="{Binding HttpsPort, Mode=TwoWay}"
+                                          AutomationProperties.Name="{x:Static res:Strings.SetPortHttps}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="0,0,16,0">
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4" Text="{x:Static res:Strings.SetPortMySql}" />
+                            <ui:NumberBox Style="{StaticResource PortBoxStyle}" Value="{Binding MySqlPort, Mode=TwoWay}"
+                                          AutomationProperties.Name="{x:Static res:Strings.SetPortMySql}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Margin="0,0,16,0">
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4" Text="{x:Static res:Strings.SetPortMailpitUi}" />
+                            <ui:NumberBox Style="{StaticResource PortBoxStyle}" Value="{Binding MailpitUiPort, Mode=TwoWay}"
+                                          AutomationProperties.Name="{x:Static res:Strings.SetPortMailpitUi}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,4" Text="{x:Static res:Strings.SetPortMailpitSmtp}" />
+                            <ui:NumberBox Style="{StaticResource PortBoxStyle}" Value="{Binding MailpitSmtpPort, Mode=TwoWay}"
+                                          AutomationProperties.Name="{x:Static res:Strings.SetPortMailpitSmtp}" />
+                        </StackPanel>
+                    </Grid>
+                    <ui:Button Margin="0,16,0,0" HorizontalAlignment="Left" Appearance="Primary"
+                               Command="{Binding SavePortsCommand}" Content="{x:Static res:Strings.SetPortsSave}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Apparence -->
+            <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionAppearance}" />
+            <ui:CardControl Icon="{ui:SymbolIcon PaintBrush24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetTheme}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetThemeDesc}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ComboBox MinWidth="160" ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}"
+                          DisplayMemberPath="Name" AutomationProperties.Name="{x:Static res:Strings.SetTheme}" />
+            </ui:CardControl>
+            <ui:CardControl Icon="{ui:SymbolIcon LocalLanguage24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetLanguage}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetLanguageDesc}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ComboBox MinWidth="160" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}"
+                          DisplayMemberPath="Name" AutomationProperties.Name="{x:Static res:Strings.SetLanguage}" />
+            </ui:CardControl>
+
+            <!-- À propos -->
+            <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionAbout}" />
+            <ui:CardControl Icon="{ui:SymbolIcon Info24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="StackR" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}">
+                            <Run Text="{x:Static res:Strings.SetAboutVersion}" /> <Run Text="{Binding VersionText, Mode=OneWay}" />
+                        </TextBlock>
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <ui:Button Command="{Binding OpenGitHubCommand}" Icon="{ui:SymbolIcon Open24}"
+                           Content="{x:Static res:Strings.SetAboutGitHub}" />
+            </ui:CardControl>
+            <ui:CardControl Icon="{ui:SymbolIcon FolderOpen24}">
+                <ui:CardControl.Header>
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{Binding RootPath}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" Text="{Binding LogsPath}" />
+                    </StackPanel>
+                </ui:CardControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <ui:Button Command="{Binding OpenRootCommand}" Margin="0,0,8,0" Content="{x:Static res:Strings.SetAboutRootFolder}" />
+                    <ui:Button Command="{Binding OpenLogsCommand}" Content="{x:Static res:Strings.SetAboutLogsFolder}" />
+                </StackPanel>
+            </ui:CardControl>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

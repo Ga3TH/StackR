@@ -23,4 +23,82 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="LogsFileLabel" xml:space="preserve"><value>Fichier journal</value></data>
+  <data name="LogsFollow" xml:space="preserve"><value>Suivre</value></data>
+  <data name="LogsClear" xml:space="preserve"><value>Effacer l'affichage</value></data>
+  <data name="LogsCopy" xml:space="preserve"><value>Copier</value></data>
+  <data name="LogsOpenFolder" xml:space="preserve"><value>Ouvrir le dossier des journaux</value></data>
+  <data name="LogsEmptyTitle" xml:space="preserve"><value>Aucun journal pour l'instant</value></data>
+  <data name="LogsEmptyBody" xml:space="preserve"><value>Les journaux apparaîtront ici dès que les services auront démarré.</value></data>
+  <data name="LogsEmptyFile" xml:space="preserve"><value>Ce journal est vide pour l'instant.</value></data>
+  <data name="LogsApacheError" xml:space="preserve"><value>Apache : erreurs (dont erreurs PHP)</value></data>
+  <data name="LogsApacheAccess" xml:space="preserve"><value>Apache : accès</value></data>
+  <data name="LogsApacheOutput" xml:space="preserve"><value>Apache : sortie du processus</value></data>
+  <data name="LogsMySqlError" xml:space="preserve"><value>MySQL : erreurs</value></data>
+  <data name="LogsMySqlOutput" xml:space="preserve"><value>MySQL : sortie du processus</value></data>
+  <data name="LogsMailpit" xml:space="preserve"><value>Mailpit</value></data>
+  <data name="LogsCopied" xml:space="preserve"><value>Copié dans le presse-papiers.</value></data>
+  <data name="LogsCopyFailed" xml:space="preserve"><value>Copie impossible : le presse-papiers est occupé.</value></data>
+  <data name="LogsOpenFailed" xml:space="preserve"><value>Impossible d'ouvrir le dossier : {0}</value></data>
+  <data name="LogsLineCount" xml:space="preserve"><value>{0} lignes affichées</value></data>
+  <data name="SetSectionGeneral" xml:space="preserve"><value>Général</value></data>
+  <data name="SetSectionFolders" xml:space="preserve"><value>Dossiers</value></data>
+  <data name="SetSectionHttps" xml:space="preserve"><value>HTTPS</value></data>
+  <data name="SetSectionPorts" xml:space="preserve"><value>Ports</value></data>
+  <data name="SetSectionAppearance" xml:space="preserve"><value>Apparence</value></data>
+  <data name="SetSectionAbout" xml:space="preserve"><value>À propos</value></data>
+  <data name="SetRestartTitle" xml:space="preserve"><value>Redémarrage nécessaire</value></data>
+  <data name="SetRestartMessage" xml:space="preserve"><value>Redémarrez StackR pour appliquer les changements (dossiers, ports ou langue).</value></data>
+  <data name="SetRestartNow" xml:space="preserve"><value>Redémarrer maintenant</value></data>
+  <data name="SetRoot" xml:space="preserve"><value>Racine de StackR</value></data>
+  <data name="SetRootDesc" xml:space="preserve"><value>Dossier qui contient les composants, les données et les journaux. Pris en compte au redémarrage.</value></data>
+  <data name="SetWww" xml:space="preserve"><value>Dossier des sites (www)</value></data>
+  <data name="SetWwwDesc" xml:space="preserve"><value>Chaque sous-dossier devient un site en .test. Pris en compte au redémarrage.</value></data>
+  <data name="SetBrowse" xml:space="preserve"><value>Parcourir...</value></data>
+  <data name="SetChange" xml:space="preserve"><value>Changer...</value></data>
+  <data name="SetResetDefault" xml:space="preserve"><value>Par défaut</value></data>
+  <data name="SetPickFolderTitle" xml:space="preserve"><value>Choisir un dossier</value></data>
+  <data name="SetStartWithWindows" xml:space="preserve"><value>Démarrer avec Windows</value></data>
+  <data name="SetStartWithWindowsDesc" xml:space="preserve"><value>Lance StackR réduit dans la zone de notification à l'ouverture de session.</value></data>
+  <data name="SetAutoStart" xml:space="preserve"><value>Démarrer les services automatiquement</value></data>
+  <data name="SetAutoStartDesc" xml:space="preserve"><value>Démarre Apache, MySQL et Mailpit dès que StackR se lance.</value></data>
+  <data name="SetHttps" xml:space="preserve"><value>Activer HTTPS</value></data>
+  <data name="SetHttpsDesc" xml:space="preserve"><value>Sert les sites en https avec un certificat local signé par l'autorité StackR.</value></data>
+  <data name="SetCaStatus" xml:space="preserve"><value>Autorité de certification locale</value></data>
+  <data name="SetCaTrusted" xml:space="preserve"><value>Approuvée</value></data>
+  <data name="SetCaNotTrusted" xml:space="preserve"><value>Non approuvée</value></data>
+  <data name="SetCaChecking" xml:space="preserve"><value>Vérification...</value></data>
+  <data name="SetCaTrust" xml:space="preserve"><value>Faire confiance</value></data>
+  <data name="SetCaTrustDesc" xml:space="preserve"><value>Ajoute l'autorité StackR aux autorités approuvées de votre compte Windows, pour que le navigateur accepte les sites en https.</value></data>
+  <data name="SetCaTrustDeclined" xml:space="preserve"><value>Vous avez refusé : l'autorité n'a pas été approuvée. Les navigateurs afficheront un avertissement tant qu'elle ne l'est pas.</value></data>
+  <data name="SetCaTrustDone" xml:space="preserve"><value>L'autorité est maintenant approuvée.</value></data>
+  <data name="SetHttpsApplied" xml:space="preserve"><value>Configuration HTTPS appliquée.</value></data>
+  <data name="SetPortHttp" xml:space="preserve"><value>Port HTTP</value></data>
+  <data name="SetPortHttps" xml:space="preserve"><value>Port HTTPS</value></data>
+  <data name="SetPortMySql" xml:space="preserve"><value>Port MySQL</value></data>
+  <data name="SetPortMailpitUi" xml:space="preserve"><value>Port de l'interface Mailpit</value></data>
+  <data name="SetPortMailpitSmtp" xml:space="preserve"><value>Port SMTP de Mailpit</value></data>
+  <data name="SetPortsDesc" xml:space="preserve"><value>Entre 1 et 65535, tous différents. Pris en compte au redémarrage.</value></data>
+  <data name="SetPortsSave" xml:space="preserve"><value>Enregistrer les ports</value></data>
+  <data name="SetPortInvalid" xml:space="preserve"><value>Port « {0} » invalide : saisissez un nombre entre 1 et 65535.</value></data>
+  <data name="SetPortDuplicate" xml:space="preserve"><value>Le port {0} est utilisé deux fois : chaque service doit avoir son propre port.</value></data>
+  <data name="SetPortsSaved" xml:space="preserve"><value>Ports enregistrés.</value></data>
+  <data name="SetTheme" xml:space="preserve"><value>Thème</value></data>
+  <data name="SetThemeDesc" xml:space="preserve"><value>Appliqué tout de suite.</value></data>
+  <data name="SetThemeSystem" xml:space="preserve"><value>Système</value></data>
+  <data name="SetThemeLight" xml:space="preserve"><value>Clair</value></data>
+  <data name="SetThemeDark" xml:space="preserve"><value>Sombre</value></data>
+  <data name="SetLanguage" xml:space="preserve"><value>Langue</value></data>
+  <data name="SetLanguageDesc" xml:space="preserve"><value>Prise en compte au redémarrage.</value></data>
+  <data name="SetLanguageFr" xml:space="preserve"><value>Français</value></data>
+  <data name="SetLanguageEn" xml:space="preserve"><value>English</value></data>
+  <data name="SetAboutVersion" xml:space="preserve"><value>Version</value></data>
+  <data name="SetAboutGitHub" xml:space="preserve"><value>Projet sur GitHub</value></data>
+  <data name="SetAboutRootFolder" xml:space="preserve"><value>Ouvrir le dossier racine</value></data>
+  <data name="SetAboutLogsFolder" xml:space="preserve"><value>Ouvrir le dossier des journaux</value></data>
+  <data name="SetOpenFailed" xml:space="preserve"><value>Impossible d'ouvrir « {0} » : {1}</value></data>
+  <data name="SetSaveFailed" xml:space="preserve"><value>Impossible d'enregistrer ce réglage : {0}</value></data>
+  <data name="SetStartWithWindowsFailed" xml:space="preserve"><value>Impossible de modifier le démarrage avec Windows : {0}</value></data>
+  <data name="SetApplyWarning" xml:space="preserve"><value>Configuration appliquée avec avertissement : {0}</value></data>
+  <data name="SetApplyFailed" xml:space="preserve"><value>Impossible d'appliquer la configuration : {0}</value></data>
 </root>
