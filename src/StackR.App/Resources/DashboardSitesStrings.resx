@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -23,4 +23,75 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="DashOpenFailed" xml:space="preserve"><value>Impossible d’ouvrir {0} dans le navigateur.</value></data>
+  <data name="DashStopFailed" xml:space="preserve"><value>Échec de l’arrêt : {0}</value></data>
+  <data name="DashSyncFailed" xml:space="preserve"><value>Échec de la mise à jour de la configuration des sites : {0}</value></data>
+  <data name="DashStartFailed" xml:space="preserve"><value>Échec du démarrage : {0}</value></data>
+  <data name="DashNothingInstalled" xml:space="preserve"><value>Aucun composant à démarrer n’est installé. Installez-les depuis la page Versions.</value></data>
+  <data name="DashSkippedNotInstalled" xml:space="preserve"><value>Ignoré (non installé) : {0}. Installez-le depuis la page Versions.</value></data>
+  <data name="DashPorts" xml:space="preserve"><value>Port(s) : {0}</value></data>
+  <data name="DashStatusRunning" xml:space="preserve"><value>Actif</value></data>
+  <data name="DashStatusStarting" xml:space="preserve"><value>Démarrage…</value></data>
+  <data name="DashStatusStopping" xml:space="preserve"><value>Arrêt en cours…</value></data>
+  <data name="DashStatusError" xml:space="preserve"><value>Erreur</value></data>
+  <data name="DashStatusStopped" xml:space="preserve"><value>Arrêté</value></data>
+  <data name="DashStart" xml:space="preserve"><value>Démarrer</value></data>
+  <data name="DashStop" xml:space="preserve"><value>Arrêter</value></data>
+  <data name="DashRetry" xml:space="preserve"><value>Réessayer</value></data>
+  <data name="DashVersion" xml:space="preserve"><value>Version {0}</value></data>
+  <data name="DashNotInstalled" xml:space="preserve"><value>Non installé</value></data>
+  <data name="DashPhpActivated" xml:space="preserve"><value>PHP {0} est maintenant la version active.</value></data>
+  <data name="DashPhpFailed" xml:space="preserve"><value>Impossible d’activer PHP {0} : {1}</value></data>
+  <data name="DashTerminalFailed" xml:space="preserve"><value>Impossible d’ouvrir un terminal.</value></data>
+  <data name="DashFolderFailed" xml:space="preserve"><value>Impossible d’ouvrir le dossier {0}.</value></data>
+  <data name="DashLastError" xml:space="preserve"><value>Dernière erreur</value></data>
+  <data name="DashNotInstalledHint" xml:space="preserve"><value>Ce composant n’est pas encore installé. Installez-le depuis la page Versions.</value></data>
+  <data name="DashGoToVersions" xml:space="preserve"><value>Ouvrir Versions</value></data>
+  <data name="DashStartAll" xml:space="preserve"><value>Tout démarrer</value></data>
+  <data name="DashStopAll" xml:space="preserve"><value>Tout arrêter</value></data>
+  <data name="DashPhpActive" xml:space="preserve"><value>PHP actif</value></data>
+  <data name="DashPhpHint" xml:space="preserve"><value>Apache redémarre automatiquement s’il tourne.</value></data>
+  <data name="DashShortcuts" xml:space="preserve"><value>Raccourcis</value></data>
+  <data name="DashOpenTerminal" xml:space="preserve"><value>Ouvrir un terminal</value></data>
+  <data name="DashOpenWww" xml:space="preserve"><value>Dossier www</value></data>
+  <data name="DashOpenMailpit" xml:space="preserve"><value>Boîte Mailpit</value></data>
+  <data name="DashWwwFormat" xml:space="preserve"><value>Dossier des sites : {0}</value></data>
+  <data name="DashRecentSites" xml:space="preserve"><value>Sites</value></data>
+  <data name="DashNoSites" xml:space="preserve"><value>Aucun site pour le moment. Créez-en un depuis la page Sites.</value></data>
+  <data name="SitesLoadFailed" xml:space="preserve"><value>Impossible de lire la liste des sites : {0}</value></data>
+  <data name="SitesVsCodeFailed" xml:space="preserve"><value>Impossible d’ouvrir VS Code.</value></data>
+  <data name="SitesNew" xml:space="preserve"><value>Nouveau site</value></data>
+  <data name="SitesRefresh" xml:space="preserve"><value>Actualiser la liste</value></data>
+  <data name="SitesRootFormat" xml:space="preserve"><value>Racine web : {0}</value></data>
+  <data name="SitesOpen" xml:space="preserve"><value>Ouvrir</value></data>
+  <data name="SitesFolder" xml:space="preserve"><value>Dossier</value></data>
+  <data name="SitesVsCode" xml:space="preserve"><value>VS Code</value></data>
+  <data name="SitesEmptyTitle" xml:space="preserve"><value>Aucun site</value></data>
+  <data name="SitesEmptyBody" xml:space="preserve"><value>Chaque sous-dossier du dossier www devient un site en .test. Créez-en un avec « Nouveau site ».</value></data>
+  <data name="SitesSkippedHeader" xml:space="preserve"><value>Dossiers ignorés</value></data>
+  <data name="SitesSkippedHint" xml:space="preserve"><value>Ces dossiers ne sont pas servis comme sites :</value></data>
+  <data name="SitesNewTitle" xml:space="preserve"><value>Nouveau site</value></data>
+  <data name="SitesNameLabel" xml:space="preserve"><value>Nom du site (nom du dossier)</value></data>
+  <data name="SitesNamePlaceholder" xml:space="preserve"><value>mon-projet</value></data>
+  <data name="SitesTemplateLabel" xml:space="preserve"><value>Modèle</value></data>
+  <data name="SitesTemplateEmpty" xml:space="preserve"><value>Site vide</value></data>
+  <data name="SitesTemplateEmptyHint" xml:space="preserve"><value>Crée public/index.php avec une petite page d’accueil.</value></data>
+  <data name="SitesTemplateLaravel" xml:space="preserve"><value>Laravel</value></data>
+  <data name="SitesTemplateLaravelHint" xml:space="preserve"><value>Exécute « composer create-project laravel/laravel » (quelques minutes).</value></data>
+  <data name="SitesLaravelRunning" xml:space="preserve"><value>Création du projet Laravel en cours…</value></data>
+  <data name="SitesCreate" xml:space="preserve"><value>Créer</value></data>
+  <data name="SitesCancelRun" xml:space="preserve"><value>Annuler la création</value></data>
+  <data name="SitesClose" xml:space="preserve"><value>Fermer</value></data>
+  <data name="SitesNameChars" xml:space="preserve"><value>Ce nom contient un caractère interdit dans un nom de dossier ou ([ ]).</value></data>
+  <data name="SitesNameInvalid" xml:space="preserve"><value>Utilisez des lettres, des chiffres et des tirets (ex. mon-projet).</value></data>
+  <data name="SitesNameExists" xml:space="preserve"><value>Le site {0} existe déjà (ou son dossier).</value></data>
+  <data name="SitesLaravelNeedsPhp" xml:space="preserve"><value>Laravel nécessite PHP : installez-le depuis la page Versions.</value></data>
+  <data name="SitesLaravelNeedsComposer" xml:space="preserve"><value>Laravel nécessite Composer : installez-le depuis la page Versions.</value></data>
+  <data name="SitesLaravelIncomplete" xml:space="preserve"><value>L’installation de PHP ou de Composer est incomplète : réinstallez-la depuis la page Versions.</value></data>
+  <data name="SitesLaravelPreparing" xml:space="preserve"><value>Préparation de la configuration de PHP…</value></data>
+  <data name="SitesLaravelFailed" xml:space="preserve"><value>Composer s’est terminé avec une erreur (code {0}). Consultez la sortie ci-dessus.</value></data>
+  <data name="SitesCreated" xml:space="preserve"><value>Le site {0} est prêt.</value></data>
+  <data name="SitesCreatedWarnings" xml:space="preserve"><value>Le site {0} est créé, avec des avertissements :</value></data>
+  <data name="SitesCancelled" xml:space="preserve"><value>Création annulée : le dossier a été supprimé.</value></data>
+  <data name="SitesCreateFailed" xml:space="preserve"><value>La création a échoué : {0}</value></data>
 </root>
