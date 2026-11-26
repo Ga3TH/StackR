@@ -24,6 +24,12 @@ public sealed class LocalCertificateAuthority(StackRPaths paths, SecretStore sec
 {
     internal const string CaKeySecretName = "ca-key";
     internal const string NameConstraintsOid = "2.5.29.30";
+
+    /// <summary>Verrou de session partagé par l'app et le CLI : une seule création/lecture de CA à la fois.</summary>
+    internal const string CaMutexName = @"Local\StackR.CA";
+
+    internal const string CaCommonNamePrefix = "StackR Local CA";
+    private static readonly TimeSpan CaLockTimeout = TimeSpan.FromSeconds(60);
     private const string ServerAuthOid = "1.3.6.1.5.5.7.3.1";
     private const string LocalhostName = "localhost";
     private const int CaValidityYears = 10;
@@ -46,6 +52,7 @@ public sealed class LocalCertificateAuthority(StackRPaths paths, SecretStore sec
     /// <returns>Certificat sans clé privée ; à libérer par l'appelant.</returns>
     public X509Certificate2 EnsureRootCa()
     {
+        using var guard = CaLock.Acquire();
         using var ca = OpenCa();
         return X509CertificateLoader.LoadCertificate(ca.Certificate.RawData);
     }
@@ -65,6 +72,8 @@ public sealed class LocalCertificateAuthority(StackRPaths paths, SecretStore sec
                 nameof(host));
         }
 
+        // Verrou tenu jusqu'à l'écriture du certificat : deux processus ne mélangent jamais clé et certificat.
+        using var guard = CaLock.Acquire();
         using var ca = OpenCa();
         Directory.CreateDirectory(SitesDir);
 
@@ -145,6 +154,88 @@ public sealed class LocalCertificateAuthority(StackRPaths paths, SecretStore sec
         using var store = new X509Store(StoreName.Root, StoreLocation.CurrentUser);
         store.Open(OpenFlags.ReadWrite);
         store.Add(root);
+    }
+
+    /// <summary>Empreinte du certificat <c>ca.crt</c> actuel, ou null s'il est absent ou illisible (aucune génération).</summary>
+    internal string? CurrentCaThumbprint()
+    {
+        try
+        {
+            using var cert = TryLoadCertificatePem(CaCertPath);
+            return cert?.Thumbprint;
+        }
+        catch (IOException)
+        {
+            return null;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Retire du magasin racine de l'utilisateur les anciennes CA StackR (CA régénérée), jamais la CA actuelle.
+    /// Windows demande une confirmation par certificat ; un refus est ignoré.
+    /// </summary>
+    /// <returns>Nombre de certificats retirés.</returns>
+    internal static int RemoveStaleTrustedRoots(X509Certificate2 current)
+    {
+        ArgumentNullException.ThrowIfNull(current);
+        using var store = new X509Store(StoreName.Root, StoreLocation.CurrentUser);
+        store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+        var all = store.Certificates;
+        try
+        {
+            var stale = all.Where(c => IsStaleStackRRoot(c, current)).ToList();
+            if (stale.Count == 0)
+            {
+                return 0;
+            }
+
+            store.Close();
+            store.Open(OpenFlags.ReadWrite);
+            var removed = 0;
+            foreach (var cert in stale)
+            {
+                try
+                {
+                    store.Remove(cert);
+                    removed++;
+                }
+                catch (CryptographicException)
+                {
+                    // Suppression refusée par l'utilisateur : le certificat reste, sans effet sur la CA actuelle.
+                }
+            }
+
+            return removed;
+        }
+        finally
+        {
+            foreach (var cert in all)
+            {
+                cert.Dispose();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Ancienne CA StackR : auto-émise, nom « StackR Local CA… », contraintes de nom critiques, différente de <paramref name="current"/>.
+    /// Ces critères excluent toute autorité étrangère : seule une racine générée par StackR peut être retirée.
+    /// </summary>
+    internal static bool IsStaleStackRRoot(X509Certificate2 candidate, X509Certificate2 current)
+    {
+        ArgumentNullException.ThrowIfNull(candidate);
+        ArgumentNullException.ThrowIfNull(current);
+        if (candidate.RawDataMemory.Span.SequenceEqual(current.RawDataMemory.Span))
+        {
+            return false;
+        }
+
+        return candidate.SubjectName.RawData.AsSpan().SequenceEqual(candidate.IssuerName.RawData)
+            && candidate.GetNameInfo(X509NameType.SimpleName, forIssuer: false).StartsWith(CaCommonNamePrefix, StringComparison.Ordinal)
+            && candidate.Extensions[NameConstraintsOid] is { Critical: true };
     }
 
     /// <summary>Charge la CA (certificat + clé privée), en la régénérant si elle est absente, invalide ou incohérente.</summary>
@@ -279,7 +370,7 @@ public sealed class LocalCertificateAuthority(StackRPaths paths, SecretStore sec
         var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         try
         {
-            var subject = BuildCommonName($"StackR Local CA ({Environment.MachineName})");
+            var subject = BuildCommonName($"{CaCommonNamePrefix} ({Environment.MachineName})");
             var request = new CertificateRequest(subject, key, HashAlgorithmName.SHA256);
             request.CertificateExtensions.Add(new X509BasicConstraintsExtension(true, true, 0, critical: true));
             request.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.KeyCertSign | X509KeyUsageFlags.CrlSign, critical: true));
@@ -542,6 +633,44 @@ public sealed class LocalCertificateAuthority(StackRPaths paths, SecretStore sec
     {
         using var identity = WindowsIdentity.GetCurrent();
         return identity.User ?? throw new InvalidOperationException("Impossible de déterminer l'utilisateur Windows courant.");
+    }
+
+    /// <summary>Mutex nommé <see cref="CaMutexName"/> (synchrone : à libérer sur le thread qui l'a pris).</summary>
+    private sealed class CaLock : IDisposable
+    {
+        private readonly Mutex _mutex;
+
+        private CaLock(Mutex mutex) => _mutex = mutex;
+
+        public static CaLock Acquire()
+        {
+            var mutex = new Mutex(initiallyOwned: false, CaMutexName);
+            try
+            {
+                if (!mutex.WaitOne(CaLockTimeout))
+                {
+                    throw new TimeoutException("La CA locale est verrouillée par un autre processus StackR depuis plus de 60 s.");
+                }
+            }
+            catch (AbandonedMutexException)
+            {
+                // Processus précédent tué en tenant le verrou : nous le possédons désormais ;
+                // les écritures atomiques garantissent que les fichiers ne sont pas à moitié écrits.
+            }
+            catch
+            {
+                mutex.Dispose();
+                throw;
+            }
+
+            return new CaLock(mutex);
+        }
+
+        public void Dispose()
+        {
+            _mutex.ReleaseMutex();
+            _mutex.Dispose();
+        }
     }
 
     /// <summary>Certificat de la CA et sa clé privée (usage interne et tests).</summary>

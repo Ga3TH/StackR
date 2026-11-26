@@ -6,19 +6,27 @@ using StackR.Core.Paths;
 
 namespace StackR.Core.Shell;
 
-// Intégration Windows sans droits admin : shims sur le PATH utilisateur et démarrage avec Windows.
+// Intégration Windows sans droits admin : shims et CLI sur le PATH utilisateur, démarrage avec Windows.
 // userRootOverride remplace HKCU (tests) ; le broadcast WM_SETTINGCHANGE est alors ignoré.
-public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? userRootOverride = null)
+// installDir : dossier de stackr.exe (par défaut celui de l'exécutable courant) ; il n'est ajouté
+// au PATH que s'il contient bien stackr.exe (jamais un dossier de build ou de test).
+public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? userRootOverride = null, string? installDir = null)
 {
     private const string RunSubKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
     private const string RunValueName = "StackR";
+    private const string CliExeName = "stackr.exe";
 
     private static readonly string[] AllShims =
         ["php", "mysql", "mysqldump", "composer", "node", "npm", "npx"];
 
+    private readonly string? _installDir = installDir ?? Path.GetDirectoryName(Environment.ProcessPath);
+
     private RegistryKey UserRoot => userRootOverride ?? Registry.CurrentUser;
 
     // Écrit les shims des composants actifs et supprime ceux des composants devenus inactifs.
+    // cmd.exe lit les .cmd avec la page de code OEM (850…) : les cibles sont donc exprimées relativement
+    // au shim (%~dp0 = bin\shims\) pour que le contenu reste en ASCII, quel que soit le nom de la racine.
+    /// <exception cref="ArgumentException">Un dossier n'est pas sous bin\ ou son nom relatif n'est pas ASCII.</exception>
     public void WriteShims(IReadOnlyDictionary<ComponentKind, string> activeDirs)
     {
         ArgumentNullException.ThrowIfNull(activeDirs);
@@ -27,25 +35,24 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
         var shims = new Dictionary<string, string>();
         if (activeDirs.TryGetValue(ComponentKind.Php, out var php))
         {
-            shims["php"] = Exe(Path.Combine(php, "php.exe"));
+            shims["php"] = Exe(Target(php, "php.exe"));
             if (activeDirs.TryGetValue(ComponentKind.Composer, out var composer))
             {
-                shims["composer"] =
-                    $"\"{Path.Combine(php, "php.exe")}\" \"{Path.Combine(composer, "composer.phar")}\" %*";
+                shims["composer"] = $"\"{Target(php, "php.exe")}\" \"{Target(composer, "composer.phar")}\" %*";
             }
         }
 
         if (activeDirs.TryGetValue(ComponentKind.MySql, out var mysql))
         {
-            shims["mysql"] = Exe(Path.Combine(mysql, "bin", "mysql.exe"));
-            shims["mysqldump"] = Exe(Path.Combine(mysql, "bin", "mysqldump.exe"));
+            shims["mysql"] = Exe(Target(mysql, "bin", "mysql.exe"));
+            shims["mysqldump"] = Exe(Target(mysql, "bin", "mysqldump.exe"));
         }
 
         if (activeDirs.TryGetValue(ComponentKind.Node, out var node))
         {
-            shims["node"] = Exe(Path.Combine(node, "node.exe"));
-            shims["npm"] = "call " + Exe(Path.Combine(node, "npm.cmd"));
-            shims["npx"] = "call " + Exe(Path.Combine(node, "npx.cmd"));
+            shims["node"] = Exe(Target(node, "node.exe"));
+            shims["npm"] = "call " + Exe(Target(node, "npm.cmd"));
+            shims["npx"] = "call " + Exe(Target(node, "npx.cmd"));
         }
 
         foreach (var name in AllShims)
@@ -53,7 +60,7 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
             var file = Path.Combine(paths.Shims, name + ".cmd");
             if (shims.TryGetValue(name, out var command))
             {
-                File.WriteAllText(file, "@echo off\r\n" + command + "\r\n", new UTF8Encoding(false));
+                File.WriteAllText(file, "@echo off\r\n" + command + "\r\n", Encoding.ASCII);
             }
             else if (File.Exists(file))
             {
@@ -62,23 +69,32 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
         }
     }
 
-    // Ajoute bin\shims au PATH utilisateur (sans doublon, type de valeur préservé).
+    // Ajoute bin\shims et le dossier de stackr.exe au PATH utilisateur (sans doublon, type de valeur préservé).
     public void EnsureOnUserPath()
     {
         using var env = UserRoot.CreateSubKey("Environment", writable: true);
         var (current, kind) = ReadPath(env);
         var entries = Split(current);
-        if (entries.Any(IsOurs))
+        var changed = false;
+        foreach (var dir in OurEntries(requireCli: true))
+        {
+            if (!entries.Any(e => SamePath(e, dir)))
+            {
+                entries.Add(dir);
+                changed = true;
+            }
+        }
+
+        if (!changed)
         {
             return;
         }
 
-        entries.Add(paths.Shims);
         env.SetValue("Path", string.Join(';', entries), kind ?? RegistryValueKind.ExpandString);
         Broadcast();
     }
 
-    // Retire uniquement l'entrée bin\shims du PATH utilisateur.
+    // Retire uniquement les entrées de StackR (bin\shims et dossier d'installation) du PATH utilisateur.
     public void RemoveFromUserPath()
     {
         using var env = UserRoot.CreateSubKey("Environment", writable: true);
@@ -89,7 +105,8 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
         }
 
         var entries = Split(current);
-        if (entries.RemoveAll(IsOurs) == 0)
+        var ours = OurEntries(requireCli: false).ToList();
+        if (entries.RemoveAll(e => ours.Any(o => SamePath(e, o))) == 0)
         {
             return;
         }
@@ -114,6 +131,34 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
 
     private static string Exe(string path) => $"\"{path}\" %*";
 
+    // Chemin « %~dp0..\<composant>\<version>\… » ; la cible doit se trouver sous bin\.
+    private string Target(string componentDir, params string[] parts)
+    {
+        var bin = Path.TrimEndingDirectorySeparator(Path.GetFullPath(paths.Bin)) + Path.DirectorySeparatorChar;
+        var full = Path.GetFullPath(Path.Combine([componentDir, .. parts]));
+        if (!full.StartsWith(bin, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ArgumentException($"Le composant « {componentDir} » n'est pas sous {paths.Bin} : shim impossible.", nameof(componentDir));
+        }
+
+        var relative = Path.GetRelativePath(paths.Shims, full);
+        if (relative.Any(c => c is < ' ' or > '~' or '%' or '!' or '"'))
+        {
+            throw new ArgumentException($"Chemin de composant non pris en charge dans un shim : « {relative} ».", nameof(componentDir));
+        }
+
+        return "%~dp0" + relative;
+    }
+
+    private IEnumerable<string> OurEntries(bool requireCli)
+    {
+        yield return paths.Shims;
+        if (!string.IsNullOrEmpty(_installDir) && (!requireCli || File.Exists(Path.Combine(_installDir, CliExeName))))
+        {
+            yield return _installDir;
+        }
+    }
+
     private static (string? Value, RegistryValueKind? Kind) ReadPath(RegistryKey env)
     {
         var value = env.GetValue("Path", null, RegistryValueOptions.DoNotExpandEnvironmentNames) as string;
@@ -125,8 +170,8 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
             ? []
             : value.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-    private bool IsOurs(string entry) =>
-        string.Equals(Normalize(entry), Normalize(paths.Shims), StringComparison.OrdinalIgnoreCase);
+    private static bool SamePath(string entry, string dir) =>
+        string.Equals(Normalize(entry), Normalize(dir), StringComparison.OrdinalIgnoreCase);
 
     private static string Normalize(string entry) => entry.Trim().TrimEnd('\\');
 

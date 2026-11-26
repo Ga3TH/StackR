@@ -40,7 +40,33 @@ public class ElevationTests
     [Fact]
     public void BuildArguments_TooLongToken_Throws()
     {
-        Assert.Throws<ArgumentException>(() => Elevation.BuildArguments([new string('a', 65)]));
+        Assert.Throws<ArgumentException>(() => Elevation.BuildArguments([new string('a', Elevation.MaxTokenLength + 1)]));
+    }
+
+    [Fact]
+    public void BuildArguments_CommaSeparatedHostList_IsAccepted()
+    {
+        Assert.Equal(
+            "hosts sync --names a.test,b-2.test",
+            Elevation.BuildArguments(["hosts", "sync", "--names", "a.test,b-2.test"]));
+    }
+
+    [Fact]
+    public void BuildArguments_LongHostList_UpTo8K_IsAccepted()
+    {
+        var names = string.Join(',', Enumerable.Range(0, 700).Select(i => $"s{i}.test"));
+        Assert.True(names.Length <= Elevation.MaxTokenLength);
+        Assert.Equal(8192, Elevation.MaxTokenLength);
+        Assert.EndsWith(names, Elevation.BuildArguments(["hosts", "sync", "--names", names]));
+    }
+
+    [Theory]
+    [InlineData(",a.test")]
+    [InlineData("a.test, b.test")]
+    [InlineData("a.test;b.test")]
+    public void BuildArguments_MalformedList_Throws(string token)
+    {
+        Assert.Throws<ArgumentException>(() => Elevation.BuildArguments(["hosts", "sync", "--names", token]));
     }
 
     [Fact]
