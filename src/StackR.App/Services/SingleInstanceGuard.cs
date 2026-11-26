@@ -17,21 +17,46 @@ public sealed class SingleInstanceGuard : IDisposable
     private readonly CancellationTokenSource _cts = new();
     private Mutex? _mutex;
     private Task? _listener;
+    private bool _disposed;
 
     public static string PipeName =>
         $"StackR.App.Activate.{WindowsIdentity.GetCurrent().User?.Value ?? Environment.UserName}";
 
-    /// <summary>Tente de devenir l'instance principale.</summary>
-    public bool TryAcquire()
+    /// <summary>Tente de devenir l'instance principale (sans attendre).</summary>
+    public bool TryAcquire() => TryAcquire(TimeSpan.Zero);
+
+    /// <summary>
+    /// Tente de devenir l'instance principale en attendant au plus <paramref name="wait"/> que l'instance
+    /// précédente libère le mutex (relance de StackR : l'ancienne instance est encore en train de se fermer).
+    /// À appeler sur le thread de l'interface : le mutex est libéré par <see cref="Dispose"/> sur ce même thread.
+    /// </summary>
+    public bool TryAcquire(TimeSpan wait)
     {
-        _mutex = new Mutex(initiallyOwned: true, MutexName, out var createdNew);
-        if (!createdNew)
+        if (_mutex is not null)
         {
-            _mutex.Dispose();
-            _mutex = null;
+            return true;
         }
 
-        return createdNew;
+        var mutex = new Mutex(initiallyOwned: false, MutexName);
+        bool owned;
+        try
+        {
+            owned = mutex.WaitOne(wait);
+        }
+        catch (AbandonedMutexException)
+        {
+            // L'instance précédente s'est terminée sans libérer le mutex : il nous revient.
+            owned = true;
+        }
+
+        if (!owned)
+        {
+            mutex.Dispose();
+            return false;
+        }
+
+        _mutex = mutex;
+        return true;
     }
 
     /// <summary>Démarre l'écoute des demandes d'activation envoyées par les instances suivantes.</summary>
@@ -57,8 +82,15 @@ public sealed class SingleInstanceGuard : IDisposable
         }
     }
 
+    /// <summary>Arrête l'écoute et libère le mutex (idempotent) : une nouvelle instance peut alors démarrer.</summary>
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
         _cts.Cancel();
         try
         {
@@ -82,6 +114,7 @@ public sealed class SingleInstanceGuard : IDisposable
             }
 
             _mutex.Dispose();
+            _mutex = null;
         }
     }
 

@@ -1,0 +1,734 @@
+<ui:FluentWindow x:Class="StackR.App.Views.FirstRunWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 xmlns:res="clr-namespace:StackR.App.Resources"
+                 xmlns:vm="clr-namespace:StackR.App.ViewModels"
+                 xmlns:views="clr-namespace:StackR.App.Views"
+                 mc:Ignorable="d"
+                 d:DataContext="{d:DesignInstance Type=vm:FirstRunViewModel, IsDesignTimeCreatable=False}"
+                 Title="{x:Static res:Strings.FrWindowTitle}"
+                 Width="1040" Height="720"
+                 MinWidth="900" MinHeight="620"
+                 ExtendsContentIntoTitleBar="True"
+                 WindowBackdropType="Mica"
+                 WindowCornerPreference="Round"
+                 WindowStartupLocation="CenterScreen"
+                 Icon="pack://application:,,,/StackR.App;component/Assets/stackr.ico">
+
+    <ui:FluentWindow.Resources>
+        <views:StepVisibilityConverter x:Key="StepVisibility" />
+        <views:TruthyVisibilityConverter x:Key="Truthy" />
+        <views:InverseBooleanConverter x:Key="Inverse" />
+
+        <FontFamily x:Key="MonoFont">Cascadia Mono, Consolas, Courier New</FontFamily>
+
+        <Style x:Key="FrCard" TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
+            <Setter Property="Margin" Value="0,0,0,12" />
+            <Setter Property="Padding" Value="20,16" />
+        </Style>
+
+        <Style x:Key="FrLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeSubtitle}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="FrHint" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="LineHeight" Value="20" />
+        </Style>
+
+        <Style x:Key="FrError" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,8,0,0" />
+        </Style>
+
+        <Style x:Key="FrCode" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
+            <Setter Property="Padding" Value="12,8" />
+        </Style>
+
+        <Style x:Key="FrCodeText" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource MonoFont}" />
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <!-- Icône d'état : succès (vert), attention (orange), erreur (rouge) -->
+        <Style x:Key="FrOkIcon" TargetType="ui:SymbolIcon">
+            <Setter Property="Symbol" Value="CheckmarkCircle24" />
+            <Setter Property="Filled" Value="True" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+        <Style x:Key="FrWarnIcon" TargetType="ui:SymbolIcon">
+            <Setter Property="Symbol" Value="Warning24" />
+            <Setter Property="Filled" Value="True" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+        <Style x:Key="FrErrorIcon" TargetType="ui:SymbolIcon">
+            <Setter Property="Symbol" Value="ErrorCircle24" />
+            <Setter Property="Filled" Value="True" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+
+        <Style x:Key="FrTile" TargetType="Border" BasedOn="{StaticResource BrandTileBorderStyle}">
+            <Setter Property="Width" Value="48" />
+            <Setter Property="Height" Value="48" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+    </ui:FluentWindow.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0" Title="{x:Static res:Strings.FrWindowTitle}" ShowMaximize="False">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="{StaticResource StackRLogo}" />
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
+
+        <Border Grid.Row="1" Style="{StaticResource AccentLineStyle}" Opacity="0.85" />
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="264" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ===== Colonne de progression ===== -->
+            <Border Grid.Column="0"
+                    Background="{DynamicResource LayerFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}"
+                    BorderThickness="0,0,1,0">
+                <DockPanel Margin="20,24,20,20" LastChildFill="True">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,28">
+                        <Image Source="{StaticResource StackRLogo}" Width="44" Height="44" />
+                        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{x:Static res:Strings.AppName}" FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                            <TextBlock Text="{x:Static res:Strings.FrSidebarCaption}" Style="{StaticResource CaptionTextStyle}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock DockPanel.Dock="Bottom" Text="{Binding StepCounter}" Style="{StaticResource CaptionTextStyle}" />
+
+                    <ItemsControl ItemsSource="{Binding Steps}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:FirstRunStepItem}">
+                                <Grid Margin="0,0,0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border x:Name="Highlight" Grid.ColumnSpan="2" CornerRadius="{StaticResource RadiusMd}"
+                                            Background="Transparent" Margin="-8,0" />
+                                    <Grid Grid.Column="0" Width="28" Height="28" Margin="0,6">
+                                        <Border x:Name="Dot" CornerRadius="14" BorderThickness="1.5"
+                                                BorderBrush="{DynamicResource ControlStrongStrokeColorDefaultBrush}"
+                                                Background="Transparent" />
+                                        <TextBlock x:Name="Num" Text="{Binding Number}" FontSize="13" FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        <ui:SymbolIcon x:Name="Check" Symbol="Checkmark16" FontSize="14" Visibility="Collapsed"
+                                                       Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Grid>
+                                    <TextBlock x:Name="Label" Grid.Column="1" Text="{Binding Title}" Margin="12,0,0,0"
+                                               VerticalAlignment="Center" TextWrapping="Wrap"
+                                               FontSize="{StaticResource FontSizeBody}"
+                                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsDone}" Value="True">
+                                        <Setter TargetName="Dot" Property="Background" Value="{StaticResource BrandGradientBrush}" />
+                                        <Setter TargetName="Dot" Property="BorderThickness" Value="0" />
+                                        <Setter TargetName="Num" Property="Visibility" Value="Collapsed" />
+                                        <Setter TargetName="Check" Property="Visibility" Value="Visible" />
+                                        <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                        <Setter TargetName="Highlight" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                                        <Setter TargetName="Dot" Property="BorderBrush" Value="{StaticResource BrandVioletBrush}" />
+                                        <Setter TargetName="Dot" Property="BorderThickness" Value="2" />
+                                        <Setter TargetName="Num" Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <Setter TargetName="Label" Property="FontWeight" Value="SemiBold" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </DockPanel>
+            </Border>
+
+            <!-- ===== Contenu de l'étape ===== -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="40,28,40,16">
+                    <TextBlock Style="{StaticResource PageTitleTextStyle}" Text="{Binding StepTitle}" />
+                    <Border Style="{StaticResource TitleUnderlineStyle}" Margin="0,8,0,12" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding StepSubtitle}" />
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="1" x:Name="ContentScroll" VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled" Padding="40,4,40,16">
+                    <Grid>
+
+                        <!-- ========== 1. Dossiers ========== -->
+                        <StackPanel Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=0}">
+                            <ui:InfoBar Title="{x:Static res:Strings.FrSettingsResetTitle}"
+                                        Message="{x:Static res:Strings.FrSettingsResetMessage}"
+                                        Severity="Warning" IsClosable="False" Margin="0,0,0,12"
+                                        IsOpen="{Binding SettingsWereReset, Mode=OneWay}" />
+
+                            <Border Style="{StaticResource FrCard}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrRootLabel}" />
+                                    <TextBlock Style="{StaticResource FrHint}" Margin="0,4,0,12" Text="{x:Static res:Strings.FrRootHint}" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <ui:TextBox Grid.Column="0" Text="{Binding RootPath, UpdateSourceTrigger=PropertyChanged}"
+                                                    PlaceholderText="C:\StackR" ClearButtonEnabled="False"
+                                                    Icon="{ui:SymbolIcon Folder24}"
+                                                    AutomationProperties.Name="{x:Static res:Strings.FrRootLabel}" />
+                                        <ui:Button Grid.Column="1" Margin="8,0,0,0" Content="{x:Static res:Strings.FrBrowse}"
+                                                   Icon="{ui:SymbolIcon FolderOpen24}" Command="{Binding BrowseRootCommand}"
+                                                   VerticalAlignment="Stretch" />
+                                    </Grid>
+                                    <TextBlock Style="{StaticResource FrError}" Text="{Binding RootError}"
+                                               Visibility="{Binding RootError, Converter={StaticResource Truthy}}" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource FrCard}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrWwwLabel}" />
+                                    <TextBlock Style="{StaticResource FrHint}" Margin="0,4,0,12" Text="{x:Static res:Strings.FrWwwHint}" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <ui:TextBox Grid.Column="0" Text="{Binding WwwPath, UpdateSourceTrigger=PropertyChanged}"
+                                                    IsReadOnly="{Binding IsWwwEditable, Converter={StaticResource Inverse}}"
+                                                    PlaceholderText="C:\StackR\www" ClearButtonEnabled="False"
+                                                    Icon="{ui:SymbolIcon Globe24}"
+                                                    AutomationProperties.Name="{x:Static res:Strings.FrWwwLabel}" />
+                                        <ui:Button Grid.Column="1" Margin="8,0,0,0" Content="{x:Static res:Strings.FrBrowse}"
+                                                   Icon="{ui:SymbolIcon FolderOpen24}" Command="{Binding BrowseWwwCommand}"
+                                                   IsEnabled="{Binding IsWwwEditable}" VerticalAlignment="Stretch" />
+                                    </Grid>
+                                    <TextBlock Style="{StaticResource FrError}" Text="{Binding WwwError}"
+                                               Visibility="{Binding WwwError, Converter={StaticResource Truthy}}" />
+
+                                    <Border Margin="0,14,0,0" Padding="14,12" CornerRadius="{StaticResource RadiusMd}"
+                                            Background="{DynamicResource SubtleFillColorSecondaryBrush}"
+                                            Visibility="{Binding LaragonWwwAvailable, Converter={StaticResource Truthy}}">
+                                        <StackPanel>
+                                            <CheckBox IsChecked="{Binding UseLaragonWww}">
+                                                <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Static res:Strings.FrUseLaragonWww}" />
+                                            </CheckBox>
+                                            <TextBlock Style="{StaticResource FrHint}" Margin="28,4,0,0" Text="{x:Static res:Strings.FrUseLaragonWwwHint}" />
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <StackPanel Orientation="Horizontal" Margin="2,4,0,0">
+                                <ui:SymbolIcon Symbol="Info16" FontSize="14" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                <TextBlock Margin="6,0,0,0" Style="{StaticResource CaptionTextStyle}" Text="{x:Static res:Strings.FrFoldersFootnote}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- ========== 2. Vérifications ========== -->
+                        <StackPanel Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=1}">
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                            Visibility="{Binding IsChecking, Converter={StaticResource Truthy}}">
+                                    <ui:ProgressRing IsIndeterminate="True" Width="18" Height="18" />
+                                    <TextBlock Margin="10,0,0,0" Style="{StaticResource FrHint}" Text="{x:Static res:Strings.FrChecking}" />
+                                </StackPanel>
+                                <ui:Button Grid.Column="1" Content="{x:Static res:Strings.FrRecheck}" Icon="{ui:SymbolIcon ArrowSync24}"
+                                           Command="{Binding RefreshChecksCommand}" />
+                            </Grid>
+
+                            <ui:InfoBar Title="{x:Static res:Strings.FrChecksAllGoodTitle}" Message="{x:Static res:Strings.FrChecksAllGoodMessage}"
+                                        Severity="Success" IsClosable="False" Margin="0,0,0,12"
+                                        IsOpen="{Binding AllChecksPassed, Mode=OneWay}" />
+
+                            <!-- Laragon -->
+                            <Border Style="{StaticResource FrCard}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid>
+                                        <ui:SymbolIcon Style="{StaticResource FrWarnIcon}" Visibility="{Binding LaragonRunning, Converter={StaticResource Truthy}}" />
+                                        <ui:SymbolIcon Style="{StaticResource FrOkIcon}" Visibility="{Binding LaragonRunning, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                        <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrLaragonRunningTitle}"
+                                                   Visibility="{Binding LaragonRunning, Converter={StaticResource Truthy}}" />
+                                        <TextBlock Style="{StaticResource FrHint}" Margin="0,4,0,0" Text="{x:Static res:Strings.FrLaragonRunningMessage}"
+                                                   Visibility="{Binding LaragonRunning, Converter={StaticResource Truthy}}" />
+                                        <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrLaragonNotRunning}"
+                                                   Visibility="{Binding LaragonRunning, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Visual C++ -->
+                            <Border Style="{StaticResource FrCard}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid>
+                                        <ui:SymbolIcon Style="{StaticResource FrWarnIcon}" Visibility="{Binding VcRedistMissing, Converter={StaticResource Truthy}}" />
+                                        <ui:SymbolIcon Style="{StaticResource FrOkIcon}" Visibility="{Binding VcRedistMissing, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" Margin="12,0,0,0">
+                                        <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrVcMissingTitle}"
+                                                   Visibility="{Binding VcRedistMissing, Converter={StaticResource Truthy}}" />
+                                        <TextBlock Style="{StaticResource FrHint}" Margin="0,4,0,0" Text="{x:Static res:Strings.FrVcMissingMessage}"
+                                                   Visibility="{Binding VcRedistMissing, Converter={StaticResource Truthy}}" />
+                                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
+                                                    Visibility="{Binding VcRedistMissing, Converter={StaticResource Truthy}}">
+                                            <ui:Button Appearance="Primary" Content="{x:Static res:Strings.FrVcDownload}"
+                                                       Icon="{ui:SymbolIcon Open24}" Command="{Binding OpenVcRedistCommand}" />
+                                            <ui:Button Margin="8,0,0,0" Content="{x:Static res:Strings.FrRecheck}"
+                                                       Icon="{ui:SymbolIcon ArrowSync24}" Command="{Binding RefreshChecksCommand}" />
+                                        </StackPanel>
+                                        <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrVcPresent}"
+                                                   Visibility="{Binding VcRedistMissing, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Ports -->
+                            <Border Style="{StaticResource FrCard}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrPortsTitle}" />
+                                    <TextBlock Style="{StaticResource FrHint}" Margin="0,4,0,8" Text="{x:Static res:Strings.FrPortsHint}" />
+                                    <ItemsControl ItemsSource="{Binding Ports}" Focusable="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type vm:PortCheckItem}">
+                                                <Grid Margin="0,6">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="28" />
+                                                        <ColumnDefinition Width="72" />
+                                                        <ColumnDefinition Width="180" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid>
+                                                        <ui:SymbolIcon Style="{StaticResource FrOkIcon}" FontSize="18"
+                                                                       Visibility="{Binding IsFree, Converter={StaticResource Truthy}}" />
+                                                        <ui:SymbolIcon Style="{StaticResource FrWarnIcon}" FontSize="18"
+                                                                       Visibility="{Binding IsFree, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                                    </Grid>
+                                                    <TextBlock Grid.Column="1" Style="{StaticResource FrCodeText}" FontWeight="SemiBold"
+                                                               VerticalAlignment="Center" Text="{Binding PortText}" />
+                                                    <TextBlock Grid.Column="2" Style="{StaticResource BodyTextStyle}" VerticalAlignment="Center"
+                                                               Text="{Binding Usage}" />
+                                                    <TextBlock Grid.Column="3" Style="{StaticResource FrHint}" VerticalAlignment="Center"
+                                                               Text="{Binding Status}" />
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="2,0,0,0"
+                                       Text="{x:Static res:Strings.FrChecksFootnote}" />
+                        </StackPanel>
+
+                        <!-- ========== 3. Composants ========== -->
+                        <StackPanel Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=2}">
+                            <ui:InfoBar Title="{x:Static res:Strings.FrEngineErrorTitle}" Message="{Binding EngineError}"
+                                        Severity="Error" IsClosable="False" Margin="0,0,0,12"
+                                        IsOpen="{Binding HasEngineError, Mode=OneWay}" />
+                            <ui:InfoBar Title="{x:Static res:Strings.FrVcWarningTitle}" Message="{x:Static res:Strings.FrVcWarningMessage}"
+                                        Severity="Warning" IsClosable="False" Margin="0,0,0,12"
+                                        IsOpen="{Binding ShowVcWarning, Mode=OneWay}" />
+                            <ui:InfoBar Title="{x:Static res:Strings.FrComposerWithoutPhpTitle}" Message="{x:Static res:Strings.FrComposerWithoutPhpMessage}"
+                                        Severity="Informational" IsClosable="False" Margin="0,0,0,12"
+                                        IsOpen="{Binding ComposerWithoutPhp, Mode=OneWay}" />
+
+                            <ItemsControl ItemsSource="{Binding Components}" Focusable="False">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:ComponentChoice}">
+                                        <Border Style="{StaticResource InteractiveCardBorderStyle}" Margin="0,0,0,8" Padding="16,12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalContentAlignment="Center"
+                                                          AutomationProperties.Name="{Binding Name}">
+                                                    <StackPanel Margin="4,0,0,0">
+                                                        <TextBlock Style="{StaticResource FrLabel}" Text="{Binding Name}" />
+                                                        <TextBlock Style="{StaticResource FrHint}" Text="{Binding Description}" />
+                                                    </StackPanel>
+                                                </CheckBox>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                                    <Border Style="{StaticResource BadgeBorderStyle}" HorizontalAlignment="Right">
+                                                        <TextBlock Style="{StaticResource FrCodeText}" FontSize="12" Text="{Binding Version}" />
+                                                    </Border>
+                                                    <TextBlock Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Right" Margin="0,4,2,0"
+                                                               Text="{Binding SizeText}" />
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <StackPanel Orientation="Horizontal" Margin="2,8,0,0">
+                                <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="16" Foreground="{StaticResource BrandVioletBrush}" />
+                                <TextBlock Margin="8,0,0,0" Style="{StaticResource FrHint}" VerticalAlignment="Center" Text="{Binding TotalSizeText}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- ========== 4. Téléchargement vérifié ========== -->
+                        <StackPanel Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=3}">
+                            <Border Style="{StaticResource FrCard}" Visibility="{Binding NothingToInstall, Converter={StaticResource Truthy}}">
+                                <TextBlock Style="{StaticResource FrHint}" Text="{x:Static res:Strings.FrInstallNothing}" />
+                            </Border>
+
+                            <ItemsControl ItemsSource="{Binding InstallItems}" Focusable="False">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:InstallItem}">
+                                        <Border Style="{StaticResource FrCard}" Margin="0,0,0,8" Padding="16,12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Grid Width="24" VerticalAlignment="Top" Margin="0,2,0,0">
+                                                    <ui:ProgressRing IsIndeterminate="True" Width="20" Height="20"
+                                                                     Visibility="{Binding IsRunning, Converter={StaticResource Truthy}}" />
+                                                    <ui:SymbolIcon Style="{StaticResource FrOkIcon}"
+                                                                   Visibility="{Binding IsDone, Converter={StaticResource Truthy}}" />
+                                                    <ui:SymbolIcon Style="{StaticResource FrErrorIcon}"
+                                                                   Visibility="{Binding IsFailed, Converter={StaticResource Truthy}}" />
+                                                    <ui:SymbolIcon Symbol="Clock24" FontSize="20" VerticalAlignment="Top"
+                                                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}"
+                                                                   Visibility="{Binding IsWaiting, Converter={StaticResource Truthy}}" />
+                                                </Grid>
+                                                <StackPanel Grid.Column="1" Margin="12,0,12,0">
+                                                    <Grid>
+                                                        <TextBlock Style="{StaticResource FrLabel}" Text="{Binding Title}" HorizontalAlignment="Left" />
+                                                        <TextBlock Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                                   Text="{Binding Choice.SizeText}" />
+                                                    </Grid>
+                                                    <TextBlock Style="{StaticResource FrHint}" Margin="0,2,0,0" Text="{Binding StageText}" />
+                                                    <ProgressBar Margin="0,8,0,0" Height="4" Minimum="0" Maximum="100" Value="{Binding Percent, Mode=OneWay}"
+                                                                 Visibility="{Binding IsRunning, Converter={StaticResource Truthy}}" />
+                                                    <TextBlock Style="{StaticResource FrError}" Text="{Binding ErrorText}"
+                                                               Visibility="{Binding ErrorText, Converter={StaticResource Truthy}}" />
+                                                </StackPanel>
+                                                <ui:Button Grid.Column="2" VerticalAlignment="Center" Content="{x:Static res:Strings.FrRetry}"
+                                                           Icon="{ui:SymbolIcon ArrowClockwise24}"
+                                                           Visibility="{Binding CanRetry, Converter={StaticResource Truthy}}"
+                                                           Command="{Binding DataContext.RetryInstallCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                           CommandParameter="{Binding}" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <ui:InfoBar Title="{x:Static res:Strings.FrInstallDoneTitle}" Message="{Binding InstallSummary}"
+                                        Severity="Success" IsClosable="False" Margin="0,4,0,12"
+                                        IsOpen="{Binding InstallAllDone, Mode=OneWay}" />
+                            <ui:InfoBar Title="{x:Static res:Strings.FrInstallProblemsTitle}" Message="{Binding InstallSummary}"
+                                        Severity="Warning" IsClosable="False" Margin="0,4,0,12"
+                                        IsOpen="{Binding InstallHasProblems, Mode=OneWay}" />
+
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="16" Foreground="{StaticResource BrandVioletBrush}" />
+                                    <TextBlock Margin="8,0,0,0" Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" MaxWidth="460"
+                                               Text="{x:Static res:Strings.FrInstallSecurityNote}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <ui:Button Content="{x:Static res:Strings.FrRetryAll}" Icon="{ui:SymbolIcon ArrowClockwise24}"
+                                               Command="{Binding RetryAllCommand}"
+                                               Visibility="{Binding InstallHasProblems, Converter={StaticResource Truthy}}" />
+                                    <ui:Button Margin="8,0,0,0" Content="{x:Static res:Strings.FrCancelInstall}" Icon="{ui:SymbolIcon Dismiss24}"
+                                               Command="{Binding CancelInstallCommand}"
+                                               Visibility="{Binding IsInstalling, Converter={StaticResource Truthy}}" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- ========== 5. HTTPS ========== -->
+                        <StackPanel Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=4}">
+                            <Border Style="{StaticResource FrCard}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource FrTile}">
+                                        <ui:SymbolIcon Symbol="ShieldLock24" FontSize="24" Foreground="White"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                                        <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrHttpsWhatTitle}" />
+                                        <TextBlock Style="{StaticResource FrHint}" Margin="0,6,0,0" Text="{x:Static res:Strings.FrHttpsWhat}" />
+                                        <TextBlock Style="{StaticResource FrHint}" Margin="0,8,0,0" Text="{x:Static res:Strings.FrHttpsWhy}" />
+                                        <TextBlock Style="{StaticResource FrHint}" Margin="0,8,0,0" Text="{x:Static res:Strings.FrHttpsKey}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource FrCard}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid VerticalAlignment="Center">
+                                        <ui:SymbolIcon Style="{StaticResource FrOkIcon}" VerticalAlignment="Center"
+                                                       Visibility="{Binding CaTrusted, Converter={StaticResource Truthy}}" />
+                                        <ui:SymbolIcon Style="{StaticResource FrWarnIcon}" VerticalAlignment="Center"
+                                                       Visibility="{Binding CaTrusted, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                    </Grid>
+                                    <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                                        <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrCaTrusted}"
+                                                   Visibility="{Binding CaTrusted, Converter={StaticResource Truthy}}" />
+                                        <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrCaNotTrusted}"
+                                                   Visibility="{Binding CaTrusted, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                        <TextBlock Style="{StaticResource FrHint}" Margin="0,2,0,0" Text="{x:Static res:Strings.FrCaConfirmHint}"
+                                                   Visibility="{Binding CaTrusted, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                    </StackPanel>
+                                    <ui:Button Grid.Column="2" Appearance="Primary" VerticalAlignment="Center"
+                                               Content="{x:Static res:Strings.FrTrust}" Icon="{ui:SymbolIcon ShieldCheckmark24}"
+                                               Command="{Binding TrustCommand}"
+                                               Visibility="{Binding CaTrusted, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                </Grid>
+                            </Border>
+
+                            <ui:InfoBar Title="{x:Static res:Strings.FrCaDeclinedTitle}" Message="{x:Static res:Strings.FrCaDeclinedMessage}"
+                                        Severity="Warning" IsClosable="False" Margin="0,0,0,12"
+                                        IsOpen="{Binding CaDeclined, Mode=OneWay}" />
+                            <ui:InfoBar Title="{x:Static res:Strings.FrCaErrorTitle}" Message="{Binding CaError}"
+                                        Severity="Error" IsClosable="False" Margin="0,0,0,12"
+                                        IsOpen="{Binding HasCaError, Mode=OneWay}" />
+                        </StackPanel>
+
+                        <!-- ========== 6. Terminal ========== -->
+                        <StackPanel Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=5}">
+                            <Border Style="{StaticResource FrCard}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource FrTile}">
+                                        <ui:SymbolIcon Symbol="WindowConsole20" FontSize="24" Foreground="White"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                                        <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrPathTitle}" />
+                                        <TextBlock Style="{StaticResource FrHint}" Margin="0,6,0,10" Text="{x:Static res:Strings.FrPathExplain}" />
+                                        <Border Style="{StaticResource FrCode}">
+                                            <TextBlock Style="{StaticResource FrCodeText}" Text="{Binding ShimsFolder}" />
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <ui:InfoBar Title="{x:Static res:Strings.FrPathAddedTitle}" Message="{x:Static res:Strings.FrPathAddedMessage}"
+                                        Severity="Success" IsClosable="False" Margin="0,0,0,12"
+                                        IsOpen="{Binding PathAdded, Mode=OneWay}" />
+
+                            <Border Style="{StaticResource FrCard}" Visibility="{Binding PathError, Converter={StaticResource Truthy}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <ui:SymbolIcon Style="{StaticResource FrErrorIcon}" />
+                                    <TextBlock Grid.Column="1" Margin="12,0,12,0" Style="{StaticResource FrHint}" Text="{Binding PathError}" />
+                                    <ui:Button Grid.Column="2" VerticalAlignment="Center" Content="{x:Static res:Strings.FrRetry}"
+                                               Icon="{ui:SymbolIcon ArrowClockwise24}" Command="{Binding AddToPathCommand}" />
+                                </Grid>
+                            </Border>
+
+                            <Border Style="{StaticResource FrCard}">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Info24" FontSize="20" Foreground="{StaticResource BrandVioletBrush}" />
+                                        <TextBlock Margin="10,0,0,0" Style="{StaticResource FrLabel}" VerticalAlignment="Center"
+                                                   Text="{x:Static res:Strings.FrNewTerminalTitle}" />
+                                    </StackPanel>
+                                    <TextBlock Style="{StaticResource FrHint}" Margin="0,6,0,10" Text="{x:Static res:Strings.FrNewTerminalMessage}" />
+                                    <Border Style="{StaticResource FrCode}" HorizontalAlignment="Left">
+                                        <TextBlock Style="{StaticResource FrCodeText}" Text="&gt; php -v" />
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- ========== 7. Résumé ========== -->
+                        <StackPanel Visibility="{Binding StepIndex, Converter={StaticResource StepVisibility}, ConverterParameter=6}">
+                            <ui:InfoBar Title="{x:Static res:Strings.FrFinishProblemsTitle}" Message="{Binding FinishProblems}"
+                                        Severity="Warning" IsClosable="False" Margin="0,0,0,12"
+                                        IsOpen="{Binding HasFinishProblems, Mode=OneWay}" />
+
+                            <Border Style="{StaticResource FrCard}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrSummaryInstalled}" />
+                                    <TextBlock Style="{StaticResource FrHint}" Margin="0,6,0,0" Text="{x:Static res:Strings.FrSummaryNothingInstalled}"
+                                               Visibility="{Binding InstalledSummary.Count, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                    <ItemsControl ItemsSource="{Binding InstalledSummary}" Margin="0,6,0,0" Focusable="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                    <ui:SymbolIcon Style="{StaticResource FrOkIcon}" FontSize="16" VerticalAlignment="Center" />
+                                                    <TextBlock Margin="8,0,0,0" Style="{StaticResource BodyTextStyle}" Text="{Binding}" />
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <StackPanel Visibility="{Binding HasMissing, Converter={StaticResource Truthy}}" Margin="0,10,0,0">
+                                        <ItemsControl ItemsSource="{Binding MissingSummary}" Focusable="False">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,3">
+                                                        <ui:SymbolIcon Style="{StaticResource FrWarnIcon}" FontSize="16" VerticalAlignment="Center" />
+                                                        <TextBlock Margin="8,0,0,0" Style="{StaticResource BodyTextStyle}" Text="{Binding}" />
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,0" TextWrapping="Wrap"
+                                                   Text="{x:Static res:Strings.FrSummaryMissingHint}" />
+                                    </StackPanel>
+
+                                    <Separator Margin="0,12" />
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <ui:SymbolIcon Grid.Row="0" Symbol="ShieldLock24" FontSize="18" Margin="0,2,10,6"
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Margin="0,2,0,6"
+                                                   Text="{Binding HttpsSummary}" />
+                                        <ui:SymbolIcon Grid.Row="1" Symbol="WindowConsole20" FontSize="18" Margin="0,2,10,6"
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Margin="0,2,0,6"
+                                                   Text="{Binding PathSummary}" />
+                                        <ui:SymbolIcon Grid.Row="2" Symbol="Folder24" FontSize="18" Margin="0,2,10,0"
+                                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource BodyTextStyle}" Margin="0,2,0,0"
+                                                   Text="{Binding WwwPath}" />
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource FrCard}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrSummaryFirstSite}" />
+                                    <TextBlock Style="{StaticResource FrHint}" Margin="0,6,0,10" Text="{Binding ExampleText}" />
+                                    <Border Style="{StaticResource FrCode}" HorizontalAlignment="Left">
+                                        <TextBlock Style="{StaticResource FrCodeText}" FontWeight="SemiBold"
+                                                   Foreground="{StaticResource BrandVioletBrush}" Text="{Binding ExampleUrl}" />
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Style="{StaticResource FrCard}">
+                                <StackPanel>
+                                    <CheckBox IsChecked="{Binding StartServicesNow}" IsEnabled="{Binding CanStartServices}">
+                                        <TextBlock Style="{StaticResource BodyTextStyle}" Text="{x:Static res:Strings.FrStartNow}" />
+                                    </CheckBox>
+                                    <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="28,4,0,0" TextWrapping="Wrap"
+                                               Text="{x:Static res:Strings.FrStartNowHint}" />
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+
+                <!-- ===== Barre de boutons ===== -->
+                <Border Grid.Row="2" BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}" BorderThickness="0,1,0,0"
+                        Background="{DynamicResource LayerFillColorDefaultBrush}" Padding="40,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                    Visibility="{Binding BusyText, Converter={StaticResource Truthy}}">
+                            <ui:ProgressRing IsIndeterminate="True" Width="18" Height="18" />
+                            <TextBlock Margin="10,0,0,0" Style="{StaticResource FrHint}" VerticalAlignment="Center" Text="{Binding BusyText}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <ui:Button MinWidth="110" Content="{x:Static res:Strings.FrBack}" Icon="{ui:SymbolIcon ArrowLeft24}"
+                                       Command="{Binding BackCommand}" />
+                            <ui:Button MinWidth="130" Margin="8,0,0,0" Appearance="Primary" Content="{x:Static res:Strings.FrNext}"
+                                       Icon="{ui:SymbolIcon ArrowRight24}" Command="{Binding NextCommand}" IsDefault="True"
+                                       Visibility="{Binding IsLastStep, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                            <ui:Button MinWidth="130" Margin="8,0,0,0" Appearance="Primary" Content="{Binding FinishButtonText}"
+                                       Icon="{ui:SymbolIcon Checkmark24}" Command="{Binding FinishCommand}"
+                                       Visibility="{Binding IsLastStep, Converter={StaticResource Truthy}}" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</ui:FluentWindow>
