@@ -13,8 +13,14 @@ public static class SettingsStore
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
-    public static string DefaultPath { get; } = System.IO.Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StackR", "stackr.json");
+    /// <summary>
+    /// <c>%LOCALAPPDATA%\StackR\stackr.json</c>, ou le chemin absolu de la variable d'environnement
+    /// <c>STACKR_SETTINGS</c> (essais de l'application sans toucher à l'installation réelle).
+    /// </summary>
+    public static string DefaultPath { get; } =
+        Environment.GetEnvironmentVariable("STACKR_SETTINGS") is { Length: > 0 } custom && System.IO.Path.IsPathFullyQualified(custom)
+            ? custom
+            : System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StackR", "stackr.json");
 
     // Fichier absent : défauts. JSON invalide : fichier renommé en .bak, défauts.
     public static StackRSettings Load(string path)
