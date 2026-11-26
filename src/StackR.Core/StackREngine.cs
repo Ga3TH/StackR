@@ -68,10 +68,17 @@ public sealed class StackREngine : IDisposable
     public StackRPaths Paths { get; }
 
     /// <summary>
-    /// Paramètres chargés. <see cref="StackRSettings.ActiveVersions"/> est partagé avec les services
-    /// (modifié sur place) ; les autres valeurs sont figées pour la durée de vie du moteur.
+    /// Paramètres courants. <see cref="StackRSettings.ActiveVersions"/> est partagé avec les services
+    /// (modifié sur place). Les autres valeurs se changent par <see cref="UpdateSettings"/> ; racine, dossier www
+    /// et ports ne prennent effet qu'au prochain lancement (voir <see cref="RestartRequired"/>).
     /// </summary>
-    public StackRSettings Settings { get; }
+    public StackRSettings Settings { get; private set; }
+
+    /// <summary>Vrai si des paramètres enregistrés exigent un redémarrage de StackR (racine, www, ports).</summary>
+    public bool RestartRequired { get; private set; }
+
+    /// <summary>Levé après chaque <see cref="UpdateSettings"/> réussi.</summary>
+    public event EventHandler? SettingsChanged;
 
     public Manifest Manifest { get; }
 
@@ -133,6 +140,51 @@ public sealed class StackREngine : IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         SettingsStore.Save(_settingsPath, Settings);
+    }
+
+    /// <summary>
+    /// Applique <paramref name="change"/> aux paramètres et les enregistre. Thème, langue, démarrage avec Windows,
+    /// démarrage auto, HTTPS et fin d'assistant sont pris en compte tout de suite (réappliquer la configuration
+    /// pour HTTPS) ; racine, dossier www et ports au prochain lancement.
+    /// </summary>
+    /// <returns>Vrai si un redémarrage de StackR est nécessaire pour appliquer les changements.</returns>
+    public bool UpdateSettings(Func<StackRSettings, StackRSettings> change)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(change);
+
+        var before = Settings;
+        // Le dictionnaire des versions actives est partagé avec les services : on garde la même instance.
+        var next = change(before) with { ActiveVersions = before.ActiveVersions };
+        SettingsStore.Save(_settingsPath, next);
+        Settings = next;
+
+        var restart = !string.Equals(next.Root, before.Root, StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(next.WwwPath, before.WwwPath, StringComparison.OrdinalIgnoreCase)
+            || next.HttpPort != before.HttpPort
+            || next.HttpsPort != before.HttpsPort
+            || next.MySqlPort != before.MySqlPort
+            || next.MailpitUiPort != before.MailpitUiPort
+            || next.MailpitSmtpPort != before.MailpitSmtpPort;
+        RestartRequired |= restart;
+        SettingsChanged?.Invoke(this, EventArgs.Empty);
+        return restart;
+    }
+
+    /// <summary>Démarre tous les services (règle « tout ou rien » si un port est occupé).</summary>
+    public Task<StartReport> StartAllAsync(CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        EnsureReconciled();
+        return Services.StartAllAsync(cancellationToken);
+    }
+
+    /// <summary>Arrête tous les services lancés par StackR.</summary>
+    public Task StopAllAsync(CancellationToken cancellationToken = default)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        EnsureReconciled();
+        return Services.StopAllAsync(cancellationToken);
     }
 
     /// <summary>Mot de passe root de MySQL (secret DPAPI), ou null si MySQL n'a pas encore été initialisé.</summary>
@@ -236,7 +288,7 @@ public sealed class StackREngine : IDisposable
     }
 
     /// <summary>Relit <c>state.json</c> une seule fois pour reprendre les services lancés par un autre processus StackR.</summary>
-    internal void EnsureReconciled()
+    public void EnsureReconciled()
     {
         lock (_reconcileGate)
         {

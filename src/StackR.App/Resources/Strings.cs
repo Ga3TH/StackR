@@ -6,12 +6,38 @@ namespace StackR.App.Resources;
 /// <summary>
 /// Accès typé aux chaînes localisées (français par défaut, anglais en satellite).
 /// </summary>
-public static class Strings
+public static partial class Strings
 {
-    private static readonly ResourceManager Manager = new("StackR.App.Resources.Strings", typeof(Strings).Assembly);
+    // Une table par zone de l'interface (Strings = coquille ; les autres = pages), cherchées dans l'ordre.
+    private static readonly ResourceManager[] Managers =
+    [
+        new("StackR.App.Resources.Strings", typeof(Strings).Assembly),
+        new("StackR.App.Resources.DashboardSitesStrings", typeof(Strings).Assembly),
+        new("StackR.App.Resources.VersionsDatabaseStrings", typeof(Strings).Assembly),
+        new("StackR.App.Resources.LogsSettingsStrings", typeof(Strings).Assembly),
+        new("StackR.App.Resources.FirstRunStrings", typeof(Strings).Assembly),
+    ];
 
     /// <summary>Retourne la chaîne localisée, ou la clé si elle est absente.</summary>
-    public static string Get(string name) => Manager.GetString(name, CultureInfo.CurrentUICulture) ?? name;
+    public static string Get(string name)
+    {
+        foreach (var manager in Managers)
+        {
+            try
+            {
+                if (manager.GetString(name, CultureInfo.CurrentUICulture) is { } value)
+                {
+                    return value;
+                }
+            }
+            catch (MissingManifestResourceException)
+            {
+                // Table absente : on passe à la suivante.
+            }
+        }
+
+        return name;
+    }
 
     public static string AppName => Get(nameof(AppName));
     public static string AppTagline => Get(nameof(AppTagline));
