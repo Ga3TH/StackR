@@ -26,6 +26,9 @@ public static class Prerequisites
                 return false;
             }
 
+            // Major == 14 (et non >= 14) est voulu : Apache Lounge est compilé avec VS18 (toolset 14.50+),
+            // et le runtime 14.4x installé par l'ancien lien vs/17 ne suffit pas. Un futur Major 15
+            // exigera une revue explicite du manifeste plutôt qu'un succès silencieux.
             return key.GetValue("Installed") is int installed && installed == 1
                 && key.GetValue("Major") is int major && major == 14
                 && key.GetValue("Minor") is int minor && minor >= MinimumMinor;

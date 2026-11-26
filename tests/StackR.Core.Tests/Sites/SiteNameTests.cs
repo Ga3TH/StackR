@@ -29,4 +29,21 @@ public class SiteNameTests
         Assert.False(SiteName.TryFromFolder(new string('a', 70), out _));
         Assert.True(SiteName.TryFromFolder(new string('a', 63), out _));
     }
+
+    [Theory]
+    [InlineData("x y")]
+    [InlineData("")]
+    [InlineData("-a")]
+    [InlineData("a.b")]
+    [InlineData("A")]
+    public void SiteName_Constructor_RejectsInvalid(string value)
+    {
+        Assert.Throws<ArgumentException>(() => new SiteName(value));
+    }
+
+    [Fact]
+    public void SiteName_Constructor_AcceptsValid()
+    {
+        Assert.Equal("mon-app.test", new SiteName("mon-app").Host);
+    }
 }

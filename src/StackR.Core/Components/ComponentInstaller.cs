@@ -79,6 +79,13 @@ public sealed class ComponentInstaller(SecureDownloader downloader, StackRPaths 
         }
     }
 
+    /// <summary>
+    /// Supprime de <c>tmp\</c> les restes d'installations interrompues plus anciens que
+    /// <paramref name="olderThan"/> : <c>install-*</c>, <c>*.download</c>, <c>client-*.cnf</c>, <c>init-*.sql</c>.
+    /// À appeler au démarrage ; au mieux, sans jamais lever pour un fichier verrouillé.
+    /// </summary>
+    public void SweepStaleTemp(TimeSpan olderThan) => TempSweeper.Sweep(_paths.Tmp, olderThan);
+
     // Progress<T> poste sur le thread pool : on veut un ordre de rapports déterministe.
     private sealed class SyncProgress<T>(Action<T> handler) : IProgress<T>
     {

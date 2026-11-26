@@ -128,6 +128,13 @@ internal sealed class FakeProcessRunner : IProcessRunner, IDisposable
         catch (InvalidOperationException)
         {
         }
+        catch (System.Runtime.InteropServices.COMException)
+        {
+            // Poignée déjà libérée par le service.
+        }
+        catch (System.ComponentModel.Win32Exception)
+        {
+        }
     }
 
     public void StopListeners()

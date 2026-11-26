@@ -44,13 +44,17 @@ internal static class MySqlClientFile
             }
             catch (IOException)
             {
-                // Fichier encore ouvert : il reste réservé à l'utilisateur courant.
+                // Fichier encore ouvert : il reste réservé à l'utilisateur courant (balayé plus tard).
+                // Ne jamais masquer l'exception d'origine.
+            }
+            catch (UnauthorizedAccessException)
+            {
             }
         }
     }
 
     // Créé directement avec une ACL protégée (sans héritage) : seul l'utilisateur courant y a accès.
-    private static void WriteUserOnly(string path, string contents)
+    internal static void WriteUserOnly(string path, string contents)
     {
         using var identity = WindowsIdentity.GetCurrent();
         var me = identity.User ?? throw new InvalidOperationException("Utilisateur Windows courant introuvable.");

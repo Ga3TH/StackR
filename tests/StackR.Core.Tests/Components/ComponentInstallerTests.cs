@@ -130,4 +130,38 @@ public sealed class ComponentInstallerTests : IDisposable
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
             Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(body), RequestMessage = request });
     }
+
+    [Fact]
+    public void SweepStaleTemp_RemovesOnlyOldLeftovers()
+    {
+        Directory.CreateDirectory(_paths.Tmp);
+        var oldStage = Directory.CreateDirectory(Path.Combine(_paths.Tmp, "install-old")).FullName;
+        File.WriteAllText(Path.Combine(oldStage, "a.bin"), "x");
+        var oldDownload = Path.Combine(_paths.Tmp, "abc.download");
+        var oldCnf = Path.Combine(_paths.Tmp, "client-abc.cnf");
+        var freshStage = Directory.CreateDirectory(Path.Combine(_paths.Tmp, "install-fresh")).FullName;
+        var other = Path.Combine(_paths.Tmp, "state.json");
+        File.WriteAllText(oldDownload, "x");
+        File.WriteAllText(oldCnf, "x");
+        File.WriteAllText(other, "{}");
+        var past = DateTime.UtcNow.AddHours(-3);
+        Directory.SetLastWriteTimeUtc(oldStage, past);
+        File.SetLastWriteTimeUtc(oldDownload, past);
+        File.SetLastWriteTimeUtc(oldCnf, past);
+        File.SetLastWriteTimeUtc(other, past);
+
+        Installer([]).SweepStaleTemp(TimeSpan.FromHours(1));
+
+        Assert.False(Directory.Exists(oldStage));
+        Assert.False(File.Exists(oldDownload));
+        Assert.False(File.Exists(oldCnf));
+        Assert.True(Directory.Exists(freshStage));
+        Assert.True(File.Exists(other));
+    }
+
+    [Fact]
+    public void SweepStaleTemp_MissingTmp_DoesNothing()
+    {
+        Installer([]).SweepStaleTemp(TimeSpan.Zero);
+    }
 }

@@ -1,6 +1,8 @@
 using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using StackR.Core.Components;
+using StackR.Core.IO;
 using StackR.Core.Manifests;
 using StackR.Core.Paths;
 using StackR.Core.Security;
@@ -220,20 +222,7 @@ public sealed class ServiceManager
                 }
             }
 
-            Directory.CreateDirectory(_paths.Tmp);
-            var tmp = _paths.StateFile + "." + Guid.NewGuid().ToString("N") + ".tmp";
-            try
-            {
-                File.WriteAllText(tmp, JsonSerializer.Serialize(state));
-                File.Move(tmp, _paths.StateFile, overwrite: true);
-            }
-            finally
-            {
-                if (File.Exists(tmp))
-                {
-                    File.Delete(tmp);
-                }
-            }
+            AtomicFile.WriteAllText(_paths.StateFile, JsonSerializer.Serialize(state), new UTF8Encoding(false));
         }
     }
 }

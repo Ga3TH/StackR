@@ -58,4 +58,21 @@ public sealed class ComponentStoreTests : IDisposable
 
         Assert.False(Directory.Exists(_paths.ComponentDir("php", "8.3.0")));
     }
+
+    [Fact]
+    public void Uninstall_PartialFailure_NoLongerLooksInstalled()
+    {
+        Make("php", "8.3.0", marker: true);
+        var dir = _paths.ComponentDir("php", "8.3.0");
+        var store = new ComponentStore(_paths, _ => "8.4.1");
+
+        // Une DLL verrouillée fait échouer la suppression récursive à mi-chemin.
+        using (new FileStream(Path.Combine(dir, "x.txt"), FileMode.Open, FileAccess.Read, FileShare.None))
+        {
+            Assert.ThrowsAny<IOException>(() => store.Uninstall(ComponentKind.Php, "8.3.0"));
+
+            Assert.False(store.IsInstalled(ComponentKind.Php, "8.3.0"));
+            Assert.Empty(store.Installed(ComponentKind.Php));
+        }
+    }
 }

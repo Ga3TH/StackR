@@ -5,9 +5,24 @@ using System.Text.RegularExpressions;
 namespace StackR.Core.Sites;
 
 // Nom de site valide (étiquette DNS) dérivé d'un nom de dossier.
-public readonly partial record struct SiteName(string Value)
+public readonly partial record struct SiteName
 {
+    /// <exception cref="ArgumentException">La valeur n'est pas une étiquette DNS minuscule valide (1 à 63 caractères).</exception>
+    public SiteName(string value)
+    {
+        if (value is null || value.Length is < 1 or > 63 || !ValidRegex().IsMatch(value))
+        {
+            throw new ArgumentException($"Nom de site invalide « {value} ».", nameof(value));
+        }
+
+        Value = value;
+    }
+
+    public string Value { get; }
+
     public string Host => Value + ".test";
+
+    public void Deconstruct(out string value) => value = Value;
 
     public static bool TryFromFolder(string folderName, out SiteName name)
     {
@@ -42,6 +57,6 @@ public readonly partial record struct SiteName(string Value)
     [GeneratedRegex("-{2,}")]
     private static partial Regex MultiDashRegex();
 
-    [GeneratedRegex("^[a-z0-9]([a-z0-9-]*[a-z0-9])?$")]
+    [GeneratedRegex(@"^[a-z0-9]([a-z0-9-]*[a-z0-9])?\z")]
     private static partial Regex ValidRegex();
 }

@@ -13,9 +13,21 @@ internal sealed class TempDirectory : IDisposable
 
     public void Dispose()
     {
-        if (Directory.Exists(Path))
+        // Des écritures asynchrones (événements d'arrêt de processus) peuvent encore tenir un fichier : on réessaie.
+        for (var attempt = 1; Directory.Exists(Path); attempt++)
         {
-            Directory.Delete(Path, recursive: true);
+            try
+            {
+                Directory.Delete(Path, recursive: true);
+            }
+            catch (IOException) when (attempt < 10)
+            {
+                Thread.Sleep(100);
+            }
+            catch (UnauthorizedAccessException) when (attempt < 10)
+            {
+                Thread.Sleep(100);
+            }
         }
     }
 }

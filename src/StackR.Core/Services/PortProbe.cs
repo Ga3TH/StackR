@@ -15,9 +15,11 @@ public static partial class PortProbe
     private const int AfInet = 2;
     private const int TcpTableOwnerPidListener = 3;
     private const uint ErrorInsufficientBuffer = 122;
+    private const int AfInet6 = 23;
     private const int RowSize = 24; // MIB_TCPROW_OWNER_PID : 6 DWORD.
+    private const int RowSize6 = 56; // MIB_TCP6ROW_OWNER_PID : 2 adresses de 16 octets + 6 DWORD.
 
-    /// <summary>Processus en écoute TCP sur 0.0.0.0 ou 127.0.0.1 pour ce port, ou null.</summary>
+    /// <summary>Processus en écoute TCP sur 0.0.0.0, 127.0.0.1, [::] ou [::1] pour ce port, ou null.</summary>
     public static PortOwner? FindOwner(int port)
     {
         var pid = FindListenerPid(port);
@@ -96,8 +98,12 @@ public static partial class PortProbe
         }
     }
 
-    private static int? FindListenerPid(int port)
+    private static int? FindListenerPid(int port) => FindListenerPid(port, AfInet) ?? FindListenerPid(port, AfInet6);
+
+    private static int? FindListenerPid(int port, int family)
     {
+        var v6 = family == AfInet6;
+        var rowSize = v6 ? RowSize6 : RowSize;
         var size = 0;
         var buffer = IntPtr.Zero;
         try
@@ -116,7 +122,7 @@ public static partial class PortProbe
                     buffer = Marshal.AllocHGlobal(size);
                 }
 
-                result = GetExtendedTcpTable(buffer, ref size, false, AfInet, TcpTableOwnerPidListener, 0);
+                result = GetExtendedTcpTable(buffer, ref size, false, family, TcpTableOwnerPidListener, 0);
             }
             while (result == ErrorInsufficientBuffer);
 
@@ -128,19 +134,30 @@ public static partial class PortProbe
             var count = Marshal.ReadInt32(buffer);
             for (var i = 0; i < count; i++)
             {
-                var row = buffer + 4 + (i * RowSize);
-                var localAddr = (uint)Marshal.ReadInt32(row, 4);
-                var localPort = (uint)Marshal.ReadInt32(row, 8);
+                var row = buffer + 4 + (i * rowSize);
+                var localPort = (uint)Marshal.ReadInt32(row, v6 ? 20 : 8);
                 var rowPort = (int)(((localPort & 0xFF) << 8) | ((localPort >> 8) & 0xFF));
                 if (rowPort != port)
                 {
                     continue;
                 }
 
-                var address = new IPAddress(localAddr);
-                if (address.Equals(IPAddress.Any) || address.Equals(IPAddress.Loopback))
+                IPAddress address;
+                if (v6)
                 {
-                    return Marshal.ReadInt32(row, 20);
+                    var bytes = new byte[16];
+                    Marshal.Copy(row, bytes, 0, 16);
+                    address = new IPAddress(bytes);
+                }
+                else
+                {
+                    address = new IPAddress((uint)Marshal.ReadInt32(row, 4));
+                }
+
+                if (address.Equals(v6 ? IPAddress.IPv6Any : IPAddress.Any)
+                    || address.Equals(v6 ? IPAddress.IPv6Loopback : IPAddress.Loopback))
+                {
+                    return Marshal.ReadInt32(row, v6 ? 52 : 20);
                 }
             }
 

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using StackR.Core.Paths;
 using StackR.Core.Security;
@@ -67,7 +68,10 @@ internal sealed class ServiceTestEnvironment : IDisposable
     public string MailpitDir { get; }
 
     public ApacheService Apache(Func<string?>? apacheDir = null) =>
-        new(Paths, Settings, Runner, apacheDir ?? (() => ApacheDir), () => PhpDir);
+        new(Paths, Settings, Runner, apacheDir ?? (() => ApacheDir), () => PhpDir, FakeRoots);
+
+    // Jamais les vrais magasins de certificats dans les tests.
+    internal static IEnumerable<X509Certificate2> FakeRoots() => [];
 
     public MySqlService MySql() => new(Paths, Settings, Runner, () => MySqlDir, Secrets);
 
