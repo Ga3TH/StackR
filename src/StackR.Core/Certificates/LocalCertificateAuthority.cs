@@ -29,6 +29,9 @@ public sealed class LocalCertificateAuthority(StackRPaths paths, SecretStore sec
     internal const string CaMutexName = @"Local\StackR.CA";
 
     internal const string CaCommonNamePrefix = "StackR Local CA";
+
+    // Sujet de la CA de CETTE machine : un profil itinérant peut contenir la racine d'une autre machine, à ne jamais retirer.
+    private static string CurrentCommonName => $"{CaCommonNamePrefix} ({Environment.MachineName})";
     private static readonly TimeSpan CaLockTimeout = TimeSpan.FromSeconds(60);
     private const string ServerAuthOid = "1.3.6.1.5.5.7.3.1";
     private const string LocalhostName = "localhost";
@@ -221,7 +224,7 @@ public sealed class LocalCertificateAuthority(StackRPaths paths, SecretStore sec
     }
 
     /// <summary>
-    /// Ancienne CA StackR : auto-émise, nom « StackR Local CA… », contraintes de nom critiques, différente de <paramref name="current"/>.
+    /// Ancienne CA StackR : auto-émise, nom « StackR Local CA (<cette machine>) », contraintes de nom critiques, différente de <paramref name="current"/>.
     /// Ces critères excluent toute autorité étrangère : seule une racine générée par StackR peut être retirée.
     /// </summary>
     internal static bool IsStaleStackRRoot(X509Certificate2 candidate, X509Certificate2 current)
@@ -234,7 +237,7 @@ public sealed class LocalCertificateAuthority(StackRPaths paths, SecretStore sec
         }
 
         return candidate.SubjectName.RawData.AsSpan().SequenceEqual(candidate.IssuerName.RawData)
-            && candidate.GetNameInfo(X509NameType.SimpleName, forIssuer: false).StartsWith(CaCommonNamePrefix, StringComparison.Ordinal)
+            && candidate.GetNameInfo(X509NameType.SimpleName, forIssuer: false).Equals(CurrentCommonName, StringComparison.Ordinal)
             && candidate.Extensions[NameConstraintsOid] is { Critical: true };
     }
 
@@ -370,7 +373,7 @@ public sealed class LocalCertificateAuthority(StackRPaths paths, SecretStore sec
         var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
         try
         {
-            var subject = BuildCommonName($"{CaCommonNamePrefix} ({Environment.MachineName})");
+            var subject = BuildCommonName(CurrentCommonName);
             var request = new CertificateRequest(subject, key, HashAlgorithmName.SHA256);
             request.CertificateExtensions.Add(new X509BasicConstraintsExtension(true, true, 0, critical: true));
             request.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.KeyCertSign | X509KeyUsageFlags.CrlSign, critical: true));

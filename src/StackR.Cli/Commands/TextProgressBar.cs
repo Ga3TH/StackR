@@ -41,7 +41,7 @@ internal sealed class TextProgressBar(TextWriter output, bool interactive) : IPr
             }
             else if (newStage)
             {
-                output.WriteLine(value.Stage + "…");
+                output.WriteLine(value.Stage + "...");
             }
 
             _stage = value.Stage;

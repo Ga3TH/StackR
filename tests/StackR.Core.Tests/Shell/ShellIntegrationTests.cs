@@ -139,14 +139,14 @@ public sealed class ShellIntegrationTests : IDisposable
         _shell.WriteShims(dirs);
         var composer = File.ReadAllText(Path.Combine(_paths.Shims, "composer.cmd"));
         // Chemins relatifs au shim (%~dp0 = bin\shims\) : contenu ASCII quel que soit le nom de la racine.
-        Assert.Contains(@"""%~dp0..\php\8.3\php.exe"" ""%~dp0..\composer\2\composer.phar"" %*", composer);
+        Assert.Contains(@"""%D%..\php\8.3\php.exe"" ""%D%..\composer\2\composer.phar"" %*", composer);
         Assert.StartsWith("@echo off", composer);
-        Assert.Contains(@"""%~dp0..\php\8.3\php.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "php.cmd")));
-        Assert.Contains(@"""%~dp0..\mysql\8.4\bin\mysql.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "mysql.cmd")));
-        Assert.Contains(@"""%~dp0..\mysql\8.4\bin\mysqldump.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "mysqldump.cmd")));
-        Assert.Contains(@"""%~dp0..\node\22\node.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "node.cmd")));
-        Assert.Contains(@"call ""%~dp0..\node\22\npm.cmd"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "npm.cmd")));
-        Assert.Contains(@"call ""%~dp0..\node\22\npx.cmd"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "npx.cmd")));
+        Assert.Contains(@"""%D%..\php\8.3\php.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "php.cmd")));
+        Assert.Contains(@"""%D%..\mysql\8.4\bin\mysql.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "mysql.cmd")));
+        Assert.Contains(@"""%D%..\mysql\8.4\bin\mysqldump.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "mysqldump.cmd")));
+        Assert.Contains(@"""%D%..\node\22\node.exe"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "node.cmd")));
+        Assert.Contains(@"call ""%D%..\node\22\npm.cmd"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "npm.cmd")));
+        Assert.Contains(@"call ""%D%..\node\22\npx.cmd"" %*", File.ReadAllText(Path.Combine(_paths.Shims, "npx.cmd")));
     }
 
     [Fact]
@@ -185,6 +185,36 @@ public sealed class ShellIntegrationTests : IDisposable
         var output = await stdout;
         Assert.True(process.ExitCode == 0, output + await stderr);
         Assert.Contains("SHIM-OK bonjour", output);
+    }
+
+    [Fact]
+    public async Task WriteShims_ShimInvokedByQuotedNameViaPath_ResolvesItsOwnFolder()
+    {
+        var nodeDir = Path.Combine(_paths.Bin, "node", "22");
+        Directory.CreateDirectory(nodeDir);
+        File.WriteAllText(Path.Combine(nodeDir, "npm.cmd"), "@echo off\r\necho SHIM-OK %*\r\nexit /b 7\r\n", Encoding.ASCII);
+        _shell.WriteShims(new Dictionary<ComponentKind, string> { [ComponentKind.Node] = nodeDir });
+
+        var elsewhere = Path.Combine(_paths.Root, "ailleurs");
+        Directory.CreateDirectory(elsewhere);
+        var psi = new ProcessStartInfo(Path.Combine(Environment.SystemDirectory, "cmd.exe"))
+        {
+            // Nom entre guillemets, résolu par PATH, depuis un autre dossier : %~dp0 serait faux.
+            Arguments = "/d /s /c \"chcp 850 >nul & \"npm\" bonjour\"",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            WorkingDirectory = elsewhere,
+        };
+        psi.Environment["PATH"] = _paths.Shims + ";" + Environment.SystemDirectory;
+        using var process = Process.Start(psi)!;
+        var stdout = process.StandardOutput.ReadToEndAsync();
+        var stderr = process.StandardError.ReadToEndAsync();
+        await process.WaitForExitAsync();
+        var output = await stdout;
+        Assert.Contains("SHIM-OK bonjour", output + await stderr);
+        Assert.Equal(7, process.ExitCode); // le code de sortie de la cible est conservé
     }
 
     [Fact]

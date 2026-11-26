@@ -82,6 +82,70 @@ public sealed class CliTests : IDisposable
         Assert.Equal(2, code);
     }
 
+    private static async Task<(int Code, string Output, int EngineCreations)> RunWithoutEngineAsync(bool elevated, params string[] args)
+    {
+        var creations = 0;
+        using var output = new StringWriter();
+        var context = new CliContext(
+            () =>
+            {
+                creations++;
+                throw new InvalidOperationException("Le moteur ne doit pas être créé.");
+            },
+            output,
+            output)
+        {
+            IsElevated = () => elevated,
+            WriteHosts = _ => { },
+        };
+        var code = await CliApp.RunAsync(args, context);
+        return (code, output.ToString(), creations);
+    }
+
+    [Theory]
+    [InlineData("--names", "alpha.test")]
+    [InlineData("--clear", null)]
+    public async Task Cli_HostsSync_WithOption_NeverCreatesEngine(string option, string? value)
+    {
+        string[] args = value is null ? ["hosts", "sync", option] : ["hosts", "sync", option, value];
+        var (code, output, creations) = await RunWithoutEngineAsync(true, args);
+
+        Assert.Equal(0, code);
+        Assert.Equal(0, creations);
+        Assert.DoesNotContain("Erreur", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Cli_HostsSync_ElevatedWithoutOption_RefusesWithCode2_NeverCreatesEngine()
+    {
+        var (code, output, creations) = await RunWithoutEngineAsync(true, "hosts", "sync");
+
+        Assert.Equal(2, code);
+        Assert.Equal(0, creations);
+        Assert.Contains("--names", output, StringComparison.Ordinal);
+        Assert.Contains("--clear", output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Cli_ResponseFileArgument_IsNotExpanded()
+    {
+        var file = Path.Combine(Path.GetTempPath(), "stackr-rsp-" + Guid.NewGuid().ToString("N") + ".rsp");
+        File.WriteAllText(file, "status");
+        try
+        {
+            var (code, output, creations) = await RunWithoutEngineAsync(true, "@" + file);
+
+            // Sans expansion : « @fichier » est un argument inconnu (erreur d'analyse), jamais la commande « status ».
+            Assert.NotEqual(0, code);
+            Assert.Equal(0, creations);
+            Assert.DoesNotContain("Service", output, StringComparison.Ordinal);
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+    }
+
     [Fact]
     public async Task Cli_Status_PrintsAllServices()
     {

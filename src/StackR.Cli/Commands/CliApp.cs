@@ -40,7 +40,9 @@ internal static class CliApp
         {
             var root = BuildRoot(context);
             var configuration = new InvocationConfiguration { Output = context.Out, Error = context.Error };
-            return await root.Parse(args).InvokeAsync(configuration).ConfigureAwait(false);
+            // Pas de fichiers réponse (« @fichier ») : un stackr élevé ne lit pas un fichier modifiable par l'utilisateur.
+            var parser = new ParserConfiguration { ResponseFileTokenReplacer = null };
+            return await root.Parse(args, parser).InvokeAsync(configuration).ConfigureAwait(false);
         }
     }
 

@@ -24,7 +24,7 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
     private RegistryKey UserRoot => userRootOverride ?? Registry.CurrentUser;
 
     // Écrit les shims des composants actifs et supprime ceux des composants devenus inactifs.
-    // cmd.exe lit les .cmd avec la page de code OEM (850…) : les cibles sont donc exprimées relativement
+    // cmd.exe lit les .cmd avec la page de code OEM (850) : les cibles sont donc exprimées relativement
     // au shim (%~dp0 = bin\shims\) pour que le contenu reste en ASCII, quel que soit le nom de la racine.
     /// <exception cref="ArgumentException">Un dossier n'est pas sous bin\ ou son nom relatif n'est pas ASCII.</exception>
     public void WriteShims(IReadOnlyDictionary<ComponentKind, string> activeDirs)
@@ -60,7 +60,7 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
             var file = Path.Combine(paths.Shims, name + ".cmd");
             if (shims.TryGetValue(name, out var command))
             {
-                File.WriteAllText(file, "@echo off\r\n" + command + "\r\n", Encoding.ASCII);
+                File.WriteAllText(file, ShimHeader + command + ShimFooter, Encoding.ASCII);
             }
             else if (File.Exists(file))
             {
@@ -131,7 +131,13 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
 
     private static string Exe(string path) => $"\"{path}\" %*";
 
-    // Chemin « %~dp0..\<composant>\<version>\… » ; la cible doit se trouver sous bin\.
+    // %~dp0 est faux quand le shim est lancé par son nom entre guillemets via PATH (« "php" -v ») : le dossier
+    // est donc capturé dans une étiquette appelée (%D%, avec « \ » final). Arguments hors du « call » (qui altère « ^ »).
+    private const string ShimHeader = "@echo off\r\nsetlocal\r\ncall :d\r\n";
+
+    private const string ShimFooter = "\r\nexit /b %errorlevel%\r\n:d\r\nset \"D=%~dp0\"\r\nexit /b\r\n";
+
+    // Chemin « %D%..\<composant>\<version>\... » ; la cible doit se trouver sous bin\.
     private string Target(string componentDir, params string[] parts)
     {
         var bin = Path.TrimEndingDirectorySeparator(Path.GetFullPath(paths.Bin)) + Path.DirectorySeparatorChar;
@@ -147,7 +153,7 @@ public sealed partial class ShellIntegration(StackRPaths paths, RegistryKey? use
             throw new ArgumentException($"Chemin de composant non pris en charge dans un shim : « {relative} ».", nameof(componentDir));
         }
 
-        return "%~dp0" + relative;
+        return "%D%" + relative;
     }
 
     private IEnumerable<string> OurEntries(bool requireCli)

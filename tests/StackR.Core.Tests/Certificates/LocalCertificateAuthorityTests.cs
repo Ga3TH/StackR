@@ -590,6 +590,17 @@ public sealed class LocalCertificateAuthorityTests : IDisposable
         Assert.False(LocalCertificateAuthority.IsStaleStackRRoot(unconstrained, current));
     }
 
+    [Fact]
+    public void IsStaleStackRRoot_OtherMachineRoot_IsNeverStale()
+    {
+        using var current = NewCa().EnsureRootCa();
+        using var otherMachine = SelfSigned("CN=StackR Local CA (AUTRE-PC-" + Environment.MachineName + ")", withNameConstraints: true);
+        using var sameMachine = SelfSigned($"CN=StackR Local CA ({Environment.MachineName})", withNameConstraints: true);
+
+        Assert.False(LocalCertificateAuthority.IsStaleStackRRoot(otherMachine, current));
+        Assert.True(LocalCertificateAuthority.IsStaleStackRRoot(sameMachine, current));
+    }
+
     private static X509Certificate2 SelfSigned(string subject, bool withNameConstraints)
     {
         using var key = ECDsa.Create(ECCurve.NamedCurves.nistP256);
