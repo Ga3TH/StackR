@@ -43,25 +43,36 @@ $env:STACKR_E2E = "1"; dotnet test -c Release --filter "Category=Integration"   
   seulement pour `stackr hosts sync`.
 - Commits : `type(portée): sujet` en français, terminés par la ligne `Co-Authored-By` du modèle utilisé.
 
-## État (2026-11-26)
+## État (2026-11-26, soir)
 
-Tâches 1–14 et 17 terminées, relues et corrigées. En cours : tâche 15 (tableau de bord et sites),
-tâche 16 (versions, base de données, journaux, paramètres, assistant), test de bout en bout réel.
+**Toutes les tâches 1–17 sont fusionnées dans `main`.** Build Release : 0 avertissement ; 495 tests
+unitaires verts ; test de bout en bout réel vert (`STACKR_E2E=1`, voir plus bas).
 
-Fait (branche moteur/docs) :
-- `StackREngine` : porte d'opérations asynchrone unique (installer — téléchargement hors porte —,
-  activer, désinstaller, démarrer, arrêter, appliquer). Variantes internes `*CoreAsync` déjà sous verrou :
-  une opération ne reprend jamais la porte. Nouvelles API : `StartAsync(serviceId, ct)`,
-  `StopAsync(serviceId, ct)`, `UninstallAsync(kind, version)` (refuse version active / service en marche),
-  `EffectiveSettings`. `StartAllAsync` applique la configuration puis ne démarre que les services
-  installés (« tout ou rien » sur les ports) ; `StartReport.Warnings` / `NotInstalled`. Le CLI
-  (`start`/`stop`, nouvelle commande `uninstall`) passe par ces façades.
-- Paramètres : racine, www et ports gardent leur valeur du lancement jusqu'au redémarrage
-  (`EffectiveSettings`, utilisé pour les configs et les services) ; HTTPS s'applique tout de suite.
-- Installation : dossier restant sans marqueur remplacé, installation concurrente de la même version
-  tolérée, erreurs de téléchargement en français. Review Focus 1–5 vérifiés (tests ajoutés : port occupé
-  au niveau moteur, annulation/coupure d'installation).
-- README (PowerShell `ExecutionPolicy`, Git + SDK via winget, CA `StackR Local CA (<NOM-DU-PC>)`,
-  désinstallation complète, migration Laragon sans `--all-databases`), `AppMutex=StackR.App` dans l'installeur.
+Vérifié en réel (test `tests/StackR.Core.Tests/Integration/EndToEndTests.cs`, ~350 Mo, ~1 min) :
+installation vérifiée d'Apache, PHP, MySQL, Mailpit dans une racine « Dossier é » ; démarrage ;
+page PHP en HTTP et HTTPS (certificat émis par la CA locale) ; PDO MySQL avec le mot de passe root
+généré ; `mail()` → Mailpit ; shim `php` avec ses extensions ; écoute sur 127.0.0.1 uniquement ; arrêt.
 
-Reste ensuite : la revue finale (tâche 18).
+Bugs trouvés par ce test et corrigés :
+- MySQL lit `my.ini` et ses arguments en **page de code ANSI** (pas UTF-8) → `Config/AnsiPath.cs` :
+  `my.ini` écrit en ANSI, chemins hors ANSI remplacés par leur nom court 8.3.
+- PHP charge ses extensions avec des API ANSI → chemins de `php.ini` et `PHPIniDir` en ASCII (nom court).
+- Shims `php`/`composer` et création Laravel : `PHPRC` vers `etc\` (sinon PHP sans aucune extension).
+- `php.ini` : `sendmail_from` (sinon `mail()` échoue sous Windows).
+
+Fait par les agents (worktrees `C:\.fichier G\StackR-wt\*`, branches `wt/*` locales, jamais poussées) :
+- Moteur : porte d'opérations unique (`*CoreAsync` sous verrou), `StartAsync`/`StopAsync`/`UninstallAsync`,
+  `EffectiveSettings`, `UpdateSettings` (racine/www/ports au redémarrage, HTTPS tout de suite), CLI `uninstall`.
+- App : tableau de bord + Sites + `EngineBridge` (pont zone de notification ↔ moteur) ; Versions + Base de
+  données (`MySqlPasswordChanger`, `MySqlTerminal`) ; Journaux (`IO/LogTail`) + Paramètres (`PortRules`,
+  `ThemeApplier`) ; assistant de premier lancement en 7 étapes (`FirstRunWindow`, `InstallLocationValidator`,
+  `FirstRunInstall`) ; ordre de démarrage : moteur créé seulement après le choix de la racine, relance
+  (`AppShell.RaiseRestart`, `--restarted`), `crash.log`.
+- Textes : une table `.resx` par zone (`Resources/<Zone>Strings*.resx` + `Strings.<Zone>.cs`).
+- `STACKR_SETTINGS=<chemin absolu>` : essayer l'application sans toucher à l'installation réelle.
+
+Reste :
+- Vérification visuelle de l'application lancée (avec `STACKR_SETTINGS` et une racine temporaire) :
+  assistant complet, chaque page, clair/sombre.
+- `MainWindow.xaml.cs` : n'appeler `SystemThemeWatcher.Watch` que si `App.FollowsSystemTheme`.
+- Revue finale (tâche 18).
