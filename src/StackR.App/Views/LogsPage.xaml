@@ -4,10 +4,29 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:res="clr-namespace:StackR.App.Resources"
       Title="{Binding Title}">
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="LogTextBoxStyle" TargetType="TextBox">
+            <Setter Property="FontFamily" Value="Cascadia Mono, Consolas, Courier New" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="IsReadOnlyCaretVisible" Value="False" />
+            <Setter Property="TextWrapping" Value="NoWrap" />
+            <Setter Property="AcceptsReturn" Value="True" />
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        </Style>
+    </Page.Resources>
     <Grid Margin="{StaticResource PagePadding}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
@@ -16,20 +35,63 @@
             <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding Subtitle}" />
         </StackPanel>
 
-        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}"
-                Margin="0,24,0,0" Padding="{StaticResource PaddingXl}"
-                VerticalAlignment="Top" HorizontalAlignment="Stretch">
+        <!-- Barre d'outils -->
+        <Grid Grid.Row="1" Margin="0,20,0,12"
+              Visibility="{Binding HasFiles, Converter={StaticResource BoolToVisibility}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <ComboBox Grid.Column="0" MinWidth="260" VerticalAlignment="Center"
+                      ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}"
+                      DisplayMemberPath="Name"
+                      AutomationProperties.Name="{x:Static res:Strings.LogsFileLabel}" />
+            <ui:ToggleSwitch Grid.Column="1" Margin="20,0,0,0" VerticalAlignment="Center"
+                             IsChecked="{Binding Follow}" Content="{x:Static res:Strings.LogsFollow}" />
+            <StackPanel Grid.Column="3" Orientation="Horizontal">
+                <ui:Button Command="{Binding ClearCommand}" Content="{x:Static res:Strings.LogsClear}"
+                           Icon="{ui:SymbolIcon Eraser24}" Margin="0,0,8,0" />
+                <ui:Button Command="{Binding CopyCommand}" Content="{x:Static res:Strings.LogsCopy}"
+                           Icon="{ui:SymbolIcon Copy24}" Margin="0,0,8,0" />
+                <ui:Button Command="{Binding OpenFolderCommand}" Content="{x:Static res:Strings.LogsOpenFolder}"
+                           Icon="{ui:SymbolIcon FolderOpen24}" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Journal -->
+        <Border Grid.Row="2" Style="{StaticResource CardBorderStyle}" Padding="0"
+                Visibility="{Binding HasFiles, Converter={StaticResource BoolToVisibility}}">
+            <Grid>
+                <TextBox x:Name="LogBox" Style="{StaticResource LogTextBoxStyle}" Text="{Binding LogText, Mode=OneWay}"
+                         AutomationProperties.Name="{x:Static res:Strings.LogsFileLabel}" />
+                <TextBlock Style="{StaticResource PageSubtitleTextStyle}" HorizontalAlignment="Center"
+                           VerticalAlignment="Center" Text="{x:Static res:Strings.LogsEmptyFile}"
+                           IsHitTestVisible="False"
+                           Visibility="{Binding IsLogEmpty, Converter={StaticResource BoolToVisibility}}" />
+            </Grid>
+        </Border>
+
+        <!-- État vide : aucun fichier -->
+        <Border Grid.Row="1" Grid.RowSpan="2" Style="{StaticResource CardBorderStyle}" Margin="0,24,0,0"
+                Padding="{StaticResource PaddingXl}" VerticalAlignment="Top"
+                Visibility="{Binding HasNoFiles, Converter={StaticResource BoolToVisibility}}">
             <StackPanel Orientation="Horizontal">
                 <Border Style="{StaticResource BrandTileBorderStyle}">
                     <ui:SymbolIcon Symbol="TextBulletListSquare24" FontSize="28" Foreground="White"
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                 </Border>
                 <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.PlaceholderTitle}" />
+                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.LogsEmptyTitle}" />
                     <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="0,4,0,0"
-                               Text="{x:Static res:Strings.PlaceholderBody}" />
+                               Text="{x:Static res:Strings.LogsEmptyBody}" />
                 </StackPanel>
             </StackPanel>
         </Border>
+
+        <TextBlock Grid.Row="3" Margin="0,8,0,0" Style="{StaticResource CaptionTextStyle}"
+                   Text="{Binding Status}"
+                   Visibility="{Binding HasFiles, Converter={StaticResource BoolToVisibility}}" />
     </Grid>
 </Page>
