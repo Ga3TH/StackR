@@ -47,7 +47,7 @@ public sealed class StackREngineTests : IDisposable
         var phpIni = File.ReadAllText(Path.Combine(_env.Paths.Etc, "php.ini"));
         Assert.Contains($"extension_dir = \"{TemplateRenderer.ConfPath(newPhp)}/ext\"", phpIni);
 
-        Assert.Contains(@"%~dp0..\php\8.4.28\php.exe", File.ReadAllText(Path.Combine(_env.Paths.Shims, "php.cmd")));
+        Assert.Contains(@"%D%..\php\8.4.28\php.exe", File.ReadAllText(Path.Combine(_env.Paths.Shims, "php.cmd")));
     }
 
     [Fact]

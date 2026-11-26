@@ -24,7 +24,7 @@ internal static class SiteCommands
         var clear = new Option<bool>("--clear") { Description = "Vide le bloc StackR du fichier hosts." };
         var sync = new Command(
             "sync",
-            "Met à jour le bloc StackR du fichier hosts (droits administrateur requis). Sans option : sites du dossier www.")
+            "Met à jour le bloc StackR du fichier hosts (droits administrateur requis). Une des options --names ou --clear est requise.")
         {
             names,
             clear,
@@ -97,8 +97,14 @@ internal static class SiteCommands
             return ExitCodes.NotElevated;
         }
 
-        // Sans option (usage manuel depuis un terminal administrateur) : sites du dossier www de ce compte.
-        hosts ??= [.. ctx.Engine.Sites.Scan().Select(s => s.Name.Host)];
+        if (hosts is null)
+        {
+            // Le moteur lirait stackr.json (modifiable par l'utilisateur) et créerait des dossiers en administrateur.
+            ctx.Out.WriteLine("Précisez --names <noms .test séparés par des virgules> pour définir les sites, ou --clear pour vider le bloc StackR. "
+                + "Sans option, la commande n'agit pas en administrateur (StackR passe toujours l'une de ces options).");
+            return ExitCodes.InvalidArguments;
+        }
+
         ctx.WriteHosts(hosts);
         ctx.Out.WriteLine(string.Create(CultureInfo.InvariantCulture, $"Fichier hosts à jour ({hosts.Distinct().Count()} site(s))."));
         return ExitCodes.Ok;

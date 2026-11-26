@@ -135,7 +135,7 @@ internal static class ComponentCommands
         var already = engine.Store.IsInstalled(kind, release.Version);
         ctx.Out.WriteLine(already
             ? $"{name} {release.Version} est déjà installé."
-            : $"Installation de {name} {release.Version}…");
+            : $"Installation de {name} {release.Version}...");
 
         var bar = new TextProgressBar(ctx.Out, ctx.Interactive);
         ApplyResult result;
