@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\StackR.Core\StackR.Core.csproj" />
+    <ProjectReference Include="..\..\src\StackR.Cli\StackR.Cli.csproj" />
   </ItemGroup>
 
 </Project>
