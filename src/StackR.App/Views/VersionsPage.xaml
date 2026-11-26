@@ -3,7 +3,135 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:res="clr-namespace:StackR.App.Resources"
+      xmlns:vm="clr-namespace:StackR.App.ViewModels"
       Title="{Binding Title}">
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <!-- Pastille discrète (Recommandée, Installée, Hors catalogue) -->
+        <Style x:Key="VerBadgeStyle" TargetType="Border" BasedOn="{StaticResource BadgeBorderStyle}">
+            <Setter Property="Margin" Value="8,0,0,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <!-- Pastille « Active » : aplat violet de la marque -->
+        <Style x:Key="VerActiveBadgeStyle" TargetType="Border" BasedOn="{StaticResource VerBadgeStyle}">
+            <Setter Property="Background" Value="{StaticResource BrandVioletBrush}" />
+        </Style>
+
+        <!-- Pastille « Recommandée » : liseré cyan de la marque -->
+        <Style x:Key="VerRecommendedBadgeStyle" TargetType="Border" BasedOn="{StaticResource VerBadgeStyle}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{StaticResource BrandCyanBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style x:Key="VerBadgeTextStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <DataTemplate x:Key="ReleaseTemplate" DataType="{x:Type vm:ReleaseItemViewModel}">
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8" Padding="16,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource SectionTitleTextStyle}" FontSize="16"
+                                       VerticalAlignment="Center" Text="{Binding Version}" />
+                            <Border Style="{StaticResource VerRecommendedBadgeStyle}"
+                                    Visibility="{Binding IsRecommended, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Style="{StaticResource VerBadgeTextStyle}" Text="{x:Static res:Strings.VerBadgeRecommended}" />
+                            </Border>
+                            <Border Style="{StaticResource VerBadgeStyle}"
+                                    Visibility="{Binding IsInstalled, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Style="{StaticResource VerBadgeTextStyle}" Text="{x:Static res:Strings.VerBadgeInstalled}" />
+                            </Border>
+                            <Border Style="{StaticResource VerActiveBadgeStyle}"
+                                    Visibility="{Binding IsActive, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Style="{StaticResource VerBadgeTextStyle}" Foreground="White"
+                                           Text="{x:Static res:Strings.VerBadgeActive}" />
+                            </Border>
+                            <Border Style="{StaticResource VerBadgeStyle}"
+                                    Visibility="{Binding IsOffCatalog, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Style="{StaticResource VerBadgeTextStyle}" Text="{x:Static res:Strings.VerBadgeOffCatalog}" />
+                            </Border>
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="12,0,0,0" VerticalAlignment="Center"
+                                       Text="{Binding SizeText}" />
+                        </StackPanel>
+
+                        <!-- Progression d'installation : étape en français + pourcentage -->
+                        <StackPanel Margin="0,10,0,0"
+                                    Visibility="{Binding IsInstalling, Converter={StaticResource BoolToVis}}">
+                            <ProgressBar Minimum="0" Maximum="100" Value="{Binding Percent}" />
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,6,0,0"
+                                       Text="{Binding ProgressText}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                        <ui:Button Appearance="Primary" Icon="{ui:SymbolIcon ArrowDownload24}"
+                                   Content="{x:Static res:Strings.VerInstall}" Command="{Binding InstallCommand}"
+                                   Visibility="{Binding ShowInstall, Converter={StaticResource BoolToVis}}" />
+                        <ui:Button Icon="{ui:SymbolIcon Dismiss24}"
+                                   Content="{x:Static res:Strings.VerCancel}" Command="{Binding CancelInstallCommand}"
+                                   Visibility="{Binding IsInstalling, Converter={StaticResource BoolToVis}}" />
+                        <ui:Button Appearance="Primary" Icon="{ui:SymbolIcon Checkmark24}"
+                                   Content="{x:Static res:Strings.VerActivate}" Command="{Binding ActivateCommand}"
+                                   Visibility="{Binding ShowActivate, Converter={StaticResource BoolToVis}}" />
+                        <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon Delete24}"
+                                   Content="{x:Static res:Strings.VerUninstall}" Command="{Binding UninstallCommand}"
+                                   Visibility="{Binding ShowUninstall, Converter={StaticResource BoolToVis}}" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="SectionTemplate" DataType="{x:Type vm:ComponentSectionViewModel}">
+            <ui:CardExpander Margin="0,0,0,12" IsExpanded="True" ContentPadding="16,4,16,8">
+                <ui:CardExpander.Header>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource BrandTileBorderStyle}" Width="40" Height="40">
+                            <ui:SymbolIcon Symbol="{Binding Icon}" FontSize="22" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{Binding Name}" />
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" Text="{Binding Description}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="12,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Right"
+                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" Text="{Binding ActiveText}" />
+                            <TextBlock Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Right"
+                                       Text="{Binding Summary}" />
+                        </StackPanel>
+                    </Grid>
+                </ui:CardExpander.Header>
+
+                <StackPanel>
+                    <ui:InfoBar Margin="0,8,0,12" IsClosable="True"
+                                IsOpen="{Binding HasMessage, Mode=TwoWay}"
+                                Severity="{Binding MessageSeverity}"
+                                Message="{Binding Message}" />
+                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="0,8,0,8"
+                               Text="{x:Static res:Strings.VerEmptySection}"
+                               Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}" />
+                    <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource ReleaseTemplate}"
+                                  Margin="0,4,0,0" />
+                </StackPanel>
+            </ui:CardExpander>
+        </DataTemplate>
+    </Page.Resources>
+
     <Grid Margin="{StaticResource PagePadding}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -16,20 +144,9 @@
             <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding Subtitle}" />
         </StackPanel>
 
-        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}"
-                Margin="0,24,0,0" Padding="{StaticResource PaddingXl}"
-                VerticalAlignment="Top" HorizontalAlignment="Stretch">
-            <StackPanel Orientation="Horizontal">
-                <Border Style="{StaticResource BrandTileBorderStyle}">
-                    <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="28" Foreground="White"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.PlaceholderTitle}" />
-                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="0,4,0,0"
-                               Text="{x:Static res:Strings.PlaceholderBody}" />
-                </StackPanel>
-            </StackPanel>
-        </Border>
+        <ScrollViewer Grid.Row="1" Margin="0,24,0,0" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Sections}" ItemTemplate="{StaticResource SectionTemplate}"
+                          Margin="0,0,12,0" />
+        </ScrollViewer>
     </Grid>
 </Page>

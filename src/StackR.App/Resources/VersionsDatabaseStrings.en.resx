@@ -23,4 +23,74 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="VerBadgeRecommended" xml:space="preserve"><value>Recommended</value></data>
+  <data name="VerBadgeInstalled" xml:space="preserve"><value>Installed</value></data>
+  <data name="VerBadgeActive" xml:space="preserve"><value>Active</value></data>
+  <data name="VerBadgeOffCatalog" xml:space="preserve"><value>Off catalog</value></data>
+  <data name="VerInstall" xml:space="preserve"><value>Install</value></data>
+  <data name="VerActivate" xml:space="preserve"><value>Activate</value></data>
+  <data name="VerUninstall" xml:space="preserve"><value>Uninstall</value></data>
+  <data name="VerCancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="VerDescApache" xml:space="preserve"><value>Web server</value></data>
+  <data name="VerDescPhp" xml:space="preserve"><value>PHP language and interpreter</value></data>
+  <data name="VerDescMySql" xml:space="preserve"><value>MySQL database</value></data>
+  <data name="VerDescMailpit" xml:space="preserve"><value>Test mailbox (local SMTP)</value></data>
+  <data name="VerDescNode" xml:space="preserve"><value>Node.js JavaScript runtime</value></data>
+  <data name="VerDescComposer" xml:space="preserve"><value>PHP dependency manager</value></data>
+  <data name="VerSectionSummary" xml:space="preserve"><value>{0} installed out of {1}</value></data>
+  <data name="VerSectionActive" xml:space="preserve"><value>Active: {0}</value></data>
+  <data name="VerSectionNoActive" xml:space="preserve"><value>No active version</value></data>
+  <data name="VerSize" xml:space="preserve"><value>{0} MB</value></data>
+  <data name="VerEmptySection" xml:space="preserve"><value>No version in the catalog for this component.</value></data>
+  <data name="VerStageDownload" xml:space="preserve"><value>Downloading</value></data>
+  <data name="VerStageVerify" xml:space="preserve"><value>Verifying checksum</value></data>
+  <data name="VerStageExtract" xml:space="preserve"><value>Extracting</value></data>
+  <data name="VerStageDone" xml:space="preserve"><value>Done</value></data>
+  <data name="VerStagePercent" xml:space="preserve"><value>{0}: {1}%</value></data>
+  <data name="VerInstalling" xml:space="preserve"><value>Installing {0} {1}...</value></data>
+  <data name="VerInstalledOk" xml:space="preserve"><value>{0} {1} is installed.</value></data>
+  <data name="VerInstalledOkActive" xml:space="preserve"><value>{0} {1} is installed and is now the active version.</value></data>
+  <data name="VerInstallCancelled" xml:space="preserve"><value>Installation cancelled.</value></data>
+  <data name="VerErrIntegrity" xml:space="preserve"><value>Integrity check failed: the downloaded file does not match the expected checksum. Nothing was installed. ({0})</value></data>
+  <data name="VerErrNetwork" xml:space="preserve"><value>Network error: download failed. Check your connection and try again. ({0})</value></data>
+  <data name="VerErrGeneric" xml:space="preserve"><value>The operation failed: {0}</value></data>
+  <data name="VerActivated" xml:space="preserve"><value>{0} {1} is now the active version.</value></data>
+  <data name="VerUninstalled" xml:space="preserve"><value>{0} {1} has been uninstalled.</value></data>
+  <data name="VerUninstallTitle" xml:space="preserve"><value>Uninstall {0} {1}?</value></data>
+  <data name="VerUninstallBody" xml:space="preserve"><value>This version will be removed from disk. You can reinstall it later.</value></data>
+  <data name="VerUninstallBlocked" xml:space="preserve"><value>Cannot uninstall {0} {1}: the {2} service is running. Stop it first (dashboard).</value></data>
+  <data name="VerVcRedistWarning" xml:space="preserve"><value>{0} requires the Visual C++ x64 runtime (14.50 or newer): {1}</value></data>
+  <data name="VerWarningsTitle" xml:space="preserve"><value>Heads up</value></data>
+  <data name="VerBusyElsewhere" xml:space="preserve"><value>An operation is already in progress for this component.</value></data>
+  <data name="DbCardTitle" xml:space="preserve"><value>MySQL connection</value></data>
+  <data name="DbHost" xml:space="preserve"><value>Host</value></data>
+  <data name="DbPort" xml:space="preserve"><value>Port</value></data>
+  <data name="DbUser" xml:space="preserve"><value>User</value></data>
+  <data name="DbPassword" xml:space="preserve"><value>Password</value></data>
+  <data name="DbShow" xml:space="preserve"><value>Show</value></data>
+  <data name="DbHide" xml:space="preserve"><value>Hide</value></data>
+  <data name="DbCopy" xml:space="preserve"><value>Copy</value></data>
+  <data name="DbCopied" xml:space="preserve"><value>Password copied. The clipboard will be cleared in 30 seconds.</value></data>
+  <data name="DbCopyFailed" xml:space="preserve"><value>Could not access the clipboard.</value></data>
+  <data name="DbCopyValue" xml:space="preserve"><value>Copy value</value></data>
+  <data name="DbChangePassword" xml:space="preserve"><value>Change password</value></data>
+  <data name="DbChangeHelp" xml:space="preserve"><value>Leave the field empty to generate a strong password automatically. Allowed characters: letters, digits and . _ - ! @ $ % ^ &amp; * + ~ (8 characters minimum).</value></data>
+  <data name="DbNewPassword" xml:space="preserve"><value>New password (optional)</value></data>
+  <data name="DbApply" xml:space="preserve"><value>Apply</value></data>
+  <data name="DbCancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="DbPasswordChanged" xml:space="preserve"><value>The root password was changed and saved. Remember to update it in your .env files.</value></data>
+  <data name="DbErrNotRunning" xml:space="preserve"><value>MySQL must be running to change the password. Start it from the dashboard.</value></data>
+  <data name="DbErrGeneric" xml:space="preserve"><value>Could not change the password: {0}</value></data>
+  <data name="DbOpenClient" xml:space="preserve"><value>Open MySQL client</value></data>
+  <data name="DbClientOpened" xml:space="preserve"><value>MySQL client opened in a terminal.</value></data>
+  <data name="DbClientFailed" xml:space="preserve"><value>Could not open the MySQL client: {0}</value></data>
+  <data name="DbClientNotRunning" xml:space="preserve"><value>MySQL must be running to open the client. Start it from the dashboard.</value></data>
+  <data name="DbEmptyTitle" xml:space="preserve"><value>MySQL is not ready yet</value></data>
+  <data name="DbEmptyNotInstalled" xml:space="preserve"><value>MySQL is not installed. Install a version from the Versions page, then start MySQL from the dashboard.</value></data>
+  <data name="DbEmptyNotInitialized" xml:space="preserve"><value>MySQL has not been initialized yet: its root password is created on first start. Start MySQL from the dashboard.</value></data>
+  <data name="DbLaravelTitle" xml:space="preserve"><value>Connecting from Laravel</value></data>
+  <data name="DbLaravelHelp" xml:space="preserve"><value>Copy this block into your project&apos;s .env file, then choose your database name (DB_DATABASE).</value></data>
+  <data name="DbCopyEnv" xml:space="preserve"><value>Copy .env block</value></data>
+  <data name="DbEnvCopied" xml:space="preserve"><value>.env block copied (with the password). The clipboard will be cleared in 30 seconds.</value></data>
+  <data name="DbEnvPlaceholder" xml:space="preserve"><value>DB_DATABASE=my_project</value></data>
 </root>

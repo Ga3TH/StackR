@@ -4,6 +4,20 @@
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:res="clr-namespace:StackR.App.Resources"
       Title="{Binding Title}">
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+
+        <Style x:Key="DbLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="DbValueStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextStyle}">
+            <Setter Property="FontFamily" Value="Cascadia Mono, Consolas" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </Page.Resources>
+
     <Grid Margin="{StaticResource PagePadding}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -16,20 +30,111 @@
             <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding Subtitle}" />
         </StackPanel>
 
-        <Border Grid.Row="1" Style="{StaticResource CardBorderStyle}"
-                Margin="0,24,0,0" Padding="{StaticResource PaddingXl}"
-                VerticalAlignment="Top" HorizontalAlignment="Stretch">
-            <StackPanel Orientation="Horizontal">
-                <Border Style="{StaticResource BrandTileBorderStyle}">
-                    <ui:SymbolIcon Symbol="Database24" FontSize="28" Foreground="White"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <ScrollViewer Grid.Row="1" Margin="0,24,0,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="0,0,12,0">
+
+                <!-- État vide : MySQL absent ou pas encore initialisé -->
+                <Border Style="{StaticResource CardBorderStyle}" Padding="{StaticResource PaddingXl}"
+                        Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource BrandTileBorderStyle}">
+                            <ui:SymbolIcon Symbol="Database24" FontSize="28" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Margin="16,0,0,0" VerticalAlignment="Center" MaxWidth="560">
+                            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.DbEmptyTitle}" />
+                            <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="0,4,0,0"
+                                       Text="{Binding EmptyMessage}" />
+                        </StackPanel>
+                    </StackPanel>
                 </Border>
-                <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.PlaceholderTitle}" />
-                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="0,4,0,0"
-                               Text="{x:Static res:Strings.PlaceholderBody}" />
+
+                <StackPanel Visibility="{Binding IsReady, Converter={StaticResource BoolToVis}}">
+
+                    <ui:InfoBar Margin="0,0,0,16" IsClosable="True"
+                                IsOpen="{Binding HasMessage, Mode=TwoWay}"
+                                Severity="{Binding MessageSeverity}"
+                                Message="{Binding Message}" />
+
+                    <!-- Connexion -->
+                    <Border Style="{StaticResource CardBorderStyle}" Padding="{StaticResource PaddingXl}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.DbCardTitle}" />
+                            <Border Style="{StaticResource AccentLineStyle}" Margin="0,10,0,16" Width="48" HorizontalAlignment="Left" />
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Style="{StaticResource DbLabelStyle}" Margin="0,0,0,12" Text="{x:Static res:Strings.DbHost}" />
+                                <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource DbValueStyle}" Margin="0,0,0,12" Text="{Binding Host}" />
+                                <TextBlock Grid.Row="1" Style="{StaticResource DbLabelStyle}" Margin="0,0,0,12" Text="{x:Static res:Strings.DbPort}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource DbValueStyle}" Margin="0,0,0,12" Text="{Binding Port}" />
+                                <TextBlock Grid.Row="2" Style="{StaticResource DbLabelStyle}" Margin="0,0,0,12" Text="{x:Static res:Strings.DbUser}" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource DbValueStyle}" Margin="0,0,0,12" Text="{Binding User}" />
+
+                                <TextBlock Grid.Row="3" Style="{StaticResource DbLabelStyle}" Text="{x:Static res:Strings.DbPassword}" />
+                                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource DbValueStyle}" MinWidth="220" Margin="0,0,16,0"
+                                               Text="{Binding DisplayedPassword}" />
+                                    <ui:Button Icon="{ui:SymbolIcon Eye24}" Content="{Binding ShowHideLabel}"
+                                               Command="{Binding TogglePasswordCommand}" />
+                                    <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon Copy24}"
+                                               Content="{x:Static res:Strings.DbCopy}" Command="{Binding CopyPasswordCommand}" />
+                                </StackPanel>
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
+                                <ui:Button Appearance="Primary" Icon="{ui:SymbolIcon Key24}"
+                                           Content="{x:Static res:Strings.DbChangePassword}" Command="{Binding ToggleChangeCommand}" />
+                                <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon WindowConsole20}"
+                                           Content="{x:Static res:Strings.DbOpenClient}" Command="{Binding OpenClientCommand}" />
+                            </StackPanel>
+
+                            <!-- Changement de mot de passe -->
+                            <Border Style="{StaticResource CardBorderStyle}" Margin="0,16,0,0"
+                                    Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                    Visibility="{Binding IsChanging, Converter={StaticResource BoolToVis}}">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{x:Static res:Strings.DbChangeHelp}" />
+                                    <ui:PasswordBox Margin="0,12,0,0" MaxWidth="420" HorizontalAlignment="Left"
+                                                    PlaceholderText="{x:Static res:Strings.DbNewPassword}"
+                                                    Password="{Binding NewPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                        <ui:Button Appearance="Primary" Content="{x:Static res:Strings.DbApply}"
+                                                   Command="{Binding ApplyPasswordCommand}" />
+                                        <ui:Button Margin="8,0,0,0" Content="{x:Static res:Strings.DbCancel}"
+                                                   Command="{Binding CancelChangeCommand}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Aide Laravel -->
+                    <Border Style="{StaticResource CardBorderStyle}" Margin="0,16,0,0" Padding="{StaticResource PaddingXl}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="{x:Static res:Strings.DbLaravelTitle}" />
+                            <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="0,6,0,12"
+                                       Text="{x:Static res:Strings.DbLaravelHelp}" />
+                            <Border Background="{DynamicResource ControlFillColorSecondaryBrush}"
+                                    CornerRadius="{StaticResource RadiusMd}" Padding="16,12">
+                                <TextBlock Style="{StaticResource DbValueStyle}" TextWrapping="NoWrap" Text="{Binding EnvPreview}" />
+                            </Border>
+                            <ui:Button Margin="0,12,0,0" Icon="{ui:SymbolIcon Copy24}"
+                                       Content="{x:Static res:Strings.DbCopyEnv}" Command="{Binding CopyEnvCommand}" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </StackPanel>
-        </Border>
+        </ScrollViewer>
     </Grid>
 </Page>

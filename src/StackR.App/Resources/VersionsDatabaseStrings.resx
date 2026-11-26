@@ -23,4 +23,74 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="VerBadgeRecommended" xml:space="preserve"><value>Recommandée</value></data>
+  <data name="VerBadgeInstalled" xml:space="preserve"><value>Installée</value></data>
+  <data name="VerBadgeActive" xml:space="preserve"><value>Active</value></data>
+  <data name="VerBadgeOffCatalog" xml:space="preserve"><value>Hors catalogue</value></data>
+  <data name="VerInstall" xml:space="preserve"><value>Installer</value></data>
+  <data name="VerActivate" xml:space="preserve"><value>Activer</value></data>
+  <data name="VerUninstall" xml:space="preserve"><value>Désinstaller</value></data>
+  <data name="VerCancel" xml:space="preserve"><value>Annuler</value></data>
+  <data name="VerDescApache" xml:space="preserve"><value>Serveur web</value></data>
+  <data name="VerDescPhp" xml:space="preserve"><value>Langage et interpréteur PHP</value></data>
+  <data name="VerDescMySql" xml:space="preserve"><value>Base de données MySQL</value></data>
+  <data name="VerDescMailpit" xml:space="preserve"><value>Boîte mail de test (SMTP local)</value></data>
+  <data name="VerDescNode" xml:space="preserve"><value>Environnement JavaScript Node.js</value></data>
+  <data name="VerDescComposer" xml:space="preserve"><value>Gestionnaire de dépendances PHP</value></data>
+  <data name="VerSectionSummary" xml:space="preserve"><value>{0} installée(s) sur {1}</value></data>
+  <data name="VerSectionActive" xml:space="preserve"><value>Active : {0}</value></data>
+  <data name="VerSectionNoActive" xml:space="preserve"><value>Aucune version active</value></data>
+  <data name="VerSize" xml:space="preserve"><value>{0} Mo</value></data>
+  <data name="VerEmptySection" xml:space="preserve"><value>Aucune version au catalogue pour ce composant.</value></data>
+  <data name="VerStageDownload" xml:space="preserve"><value>Téléchargement</value></data>
+  <data name="VerStageVerify" xml:space="preserve"><value>Vérification de l&apos;empreinte</value></data>
+  <data name="VerStageExtract" xml:space="preserve"><value>Extraction</value></data>
+  <data name="VerStageDone" xml:space="preserve"><value>Terminé</value></data>
+  <data name="VerStagePercent" xml:space="preserve"><value>{0} : {1} %</value></data>
+  <data name="VerInstalling" xml:space="preserve"><value>Installation de {0} {1}…</value></data>
+  <data name="VerInstalledOk" xml:space="preserve"><value>{0} {1} est installé.</value></data>
+  <data name="VerInstalledOkActive" xml:space="preserve"><value>{0} {1} est installé et devient la version active.</value></data>
+  <data name="VerInstallCancelled" xml:space="preserve"><value>Installation annulée.</value></data>
+  <data name="VerErrIntegrity" xml:space="preserve"><value>Vérification d&apos;intégrité échouée : le fichier téléchargé ne correspond pas à l&apos;empreinte attendue. Rien n&apos;a été installé. ({0})</value></data>
+  <data name="VerErrNetwork" xml:space="preserve"><value>Erreur réseau : téléchargement impossible. Vérifiez votre connexion puis réessayez. ({0})</value></data>
+  <data name="VerErrGeneric" xml:space="preserve"><value>L&apos;opération a échoué : {0}</value></data>
+  <data name="VerActivated" xml:space="preserve"><value>{0} {1} est maintenant la version active.</value></data>
+  <data name="VerUninstalled" xml:space="preserve"><value>{0} {1} a été désinstallé.</value></data>
+  <data name="VerUninstallTitle" xml:space="preserve"><value>Désinstaller {0} {1} ?</value></data>
+  <data name="VerUninstallBody" xml:space="preserve"><value>Cette version sera supprimée du disque. Vous pourrez la réinstaller plus tard.</value></data>
+  <data name="VerUninstallBlocked" xml:space="preserve"><value>Impossible de désinstaller {0} {1} : le service {2} est en cours d&apos;exécution. Arrêtez-le d&apos;abord (tableau de bord).</value></data>
+  <data name="VerVcRedistWarning" xml:space="preserve"><value>{0} nécessite le runtime Visual C++ x64 (14.50 ou plus récent) : {1}</value></data>
+  <data name="VerWarningsTitle" xml:space="preserve"><value>À savoir</value></data>
+  <data name="VerBusyElsewhere" xml:space="preserve"><value>Une opération est déjà en cours pour ce composant.</value></data>
+  <data name="DbCardTitle" xml:space="preserve"><value>Connexion MySQL</value></data>
+  <data name="DbHost" xml:space="preserve"><value>Hôte</value></data>
+  <data name="DbPort" xml:space="preserve"><value>Port</value></data>
+  <data name="DbUser" xml:space="preserve"><value>Utilisateur</value></data>
+  <data name="DbPassword" xml:space="preserve"><value>Mot de passe</value></data>
+  <data name="DbShow" xml:space="preserve"><value>Afficher</value></data>
+  <data name="DbHide" xml:space="preserve"><value>Masquer</value></data>
+  <data name="DbCopy" xml:space="preserve"><value>Copier</value></data>
+  <data name="DbCopied" xml:space="preserve"><value>Mot de passe copié. Le presse-papiers sera vidé dans 30 secondes.</value></data>
+  <data name="DbCopyFailed" xml:space="preserve"><value>Impossible d&apos;accéder au presse-papiers.</value></data>
+  <data name="DbCopyValue" xml:space="preserve"><value>Copier la valeur</value></data>
+  <data name="DbChangePassword" xml:space="preserve"><value>Changer le mot de passe</value></data>
+  <data name="DbChangeHelp" xml:space="preserve"><value>Laissez le champ vide pour générer automatiquement un mot de passe fort. Caractères autorisés : lettres, chiffres et . _ - ! @ $ % ^ &amp; * + ~ (8 caractères minimum).</value></data>
+  <data name="DbNewPassword" xml:space="preserve"><value>Nouveau mot de passe (facultatif)</value></data>
+  <data name="DbApply" xml:space="preserve"><value>Appliquer</value></data>
+  <data name="DbCancel" xml:space="preserve"><value>Annuler</value></data>
+  <data name="DbPasswordChanged" xml:space="preserve"><value>Le mot de passe root a été changé et enregistré. Pensez à le mettre à jour dans vos fichiers .env.</value></data>
+  <data name="DbErrNotRunning" xml:space="preserve"><value>MySQL doit être démarré pour changer le mot de passe. Démarrez-le depuis le tableau de bord.</value></data>
+  <data name="DbErrGeneric" xml:space="preserve"><value>Changement impossible : {0}</value></data>
+  <data name="DbOpenClient" xml:space="preserve"><value>Ouvrir le client MySQL</value></data>
+  <data name="DbClientOpened" xml:space="preserve"><value>Client MySQL ouvert dans un terminal.</value></data>
+  <data name="DbClientFailed" xml:space="preserve"><value>Impossible d&apos;ouvrir le client MySQL : {0}</value></data>
+  <data name="DbClientNotRunning" xml:space="preserve"><value>MySQL doit être démarré pour ouvrir le client. Démarrez-le depuis le tableau de bord.</value></data>
+  <data name="DbEmptyTitle" xml:space="preserve"><value>MySQL n&apos;est pas encore prêt</value></data>
+  <data name="DbEmptyNotInstalled" xml:space="preserve"><value>MySQL n&apos;est pas installé. Installez une version depuis la page Versions, puis démarrez MySQL depuis le tableau de bord.</value></data>
+  <data name="DbEmptyNotInitialized" xml:space="preserve"><value>MySQL n&apos;a pas encore été initialisé : son mot de passe root est créé au premier démarrage. Démarrez MySQL depuis le tableau de bord.</value></data>
+  <data name="DbLaravelTitle" xml:space="preserve"><value>Connexion depuis Laravel</value></data>
+  <data name="DbLaravelHelp" xml:space="preserve"><value>Copiez ce bloc dans le fichier .env de votre projet, puis choisissez le nom de votre base (DB_DATABASE).</value></data>
+  <data name="DbCopyEnv" xml:space="preserve"><value>Copier le bloc .env</value></data>
+  <data name="DbEnvCopied" xml:space="preserve"><value>Bloc .env copié (avec le mot de passe). Le presse-papiers sera vidé dans 30 secondes.</value></data>
+  <data name="DbEnvPlaceholder" xml:space="preserve"><value>DB_DATABASE=mon_projet</value></data>
 </root>
