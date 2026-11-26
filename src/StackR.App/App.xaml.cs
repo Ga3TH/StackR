@@ -48,6 +48,7 @@ public partial class App : System.Windows.Application
         shell.QuitRequested += async (_, _) => await QuitAsync();
 
         _host.Services.GetRequiredService<TrayIconService>().Initialize();
+        _host.Services.GetRequiredService<EngineBridge>().Initialize();
         _guard.StartListening(() => Dispatcher.BeginInvoke(ShowMainWindow));
 
         if (!minimized)
@@ -75,6 +76,7 @@ public partial class App : System.Windows.Application
 
         services.AddSingleton<AppShell>();
         services.AddSingleton<TrayIconService>();
+        services.AddSingleton<EngineBridge>();
 
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<MainWindow>();

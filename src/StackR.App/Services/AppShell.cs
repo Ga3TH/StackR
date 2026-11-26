@@ -17,6 +17,9 @@ public sealed class AppShell
 
     public event EventHandler? QuitRequested;
 
+    /// <summary>Levé pour relancer StackR (paramètres qui n'agissent qu'au prochain lancement).</summary>
+    public event EventHandler? RestartRequested;
+
     /// <summary>Levé quand la fenêtre se cache dans la zone de notification.</summary>
     public event EventHandler? HiddenToTray;
 
@@ -50,4 +53,6 @@ public sealed class AppShell
     public void RaiseHiddenToTray() => HiddenToTray?.Invoke(this, EventArgs.Empty);
 
     public void RaiseQuit() => QuitRequested?.Invoke(this, EventArgs.Empty);
+
+    public void RaiseRestart() => RestartRequested?.Invoke(this, EventArgs.Empty);
 }
