@@ -53,6 +53,8 @@ public class ConfigWriterTests
         Assert.Contains("php8apache2_4.dll\"", text);
         Assert.Contains("PHPIniDir", text);
         Assert.Contains("/etc/sites/*.conf\"", text);
+        // Aucun site au premier lancement : un Include strict ferait échouer httpd -t.
+        Assert.Contains("IncludeOptional \"", text);
         Assert.Contains("LoadModule ssl_module", text);
         foreach (var m in new[] { "authz_core", "dir", "mime", "log_config", "rewrite", "headers", "socache_shmcb", "setenvif", "alias", "env" })
         {

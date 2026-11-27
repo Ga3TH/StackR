@@ -49,4 +49,4 @@ DocumentRoot "{{WwwDir}}"
     Require local
 </Directory>
 
-Include "{{EtcDir}}/sites/*.conf"
+IncludeOptional "{{EtcDir}}/sites/*.conf"
