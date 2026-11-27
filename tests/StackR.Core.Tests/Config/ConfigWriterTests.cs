@@ -70,6 +70,35 @@ public class ConfigWriterTests
     }
 
     [Fact]
+    public void Httpd_StackRSqlShipped_AliasQuotedAndRequireLocal()
+    {
+        using var tmp = new TempDirectory();
+        var sqlDir = Path.Combine(tmp.Path, "web", "stackr-sql");
+        Directory.CreateDirectory(sqlDir);
+        File.WriteAllText(Path.Combine(sqlDir, "index.php"), "<?php");
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings(), NoRoots, sqlDir);
+        var text = File.ReadAllText(writer.WriteHttpdConf(Path.Combine(tmp.Path, "apache"), Path.Combine(tmp.Path, "php")));
+
+        var path = TemplateRenderer.ConfPath(sqlDir) + "/";
+        Assert.Contains($"Alias /sql \"{path}\"", text);
+        var dir = text[text.IndexOf($"<Directory \"{path}\">", StringComparison.Ordinal)..];
+        dir = dir[..dir.IndexOf("</Directory>", StringComparison.Ordinal)];
+        Assert.Contains("Require local", dir);
+        Assert.Contains("DirectoryIndex index.php", dir);
+        Assert.Contains("Options -Indexes", dir);
+    }
+
+    [Fact]
+    public void Httpd_StackRSqlMissing_NoAlias()
+    {
+        using var tmp = new TempDirectory();
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings(), NoRoots, Path.Combine(tmp.Path, "absent"));
+        var text = File.ReadAllText(writer.WriteHttpdConf(Path.Combine(tmp.Path, "apache"), Path.Combine(tmp.Path, "php")));
+
+        Assert.DoesNotContain("Alias /sql", text);
+    }
+
+    [Fact]
     public void Httpd_HttpsDisabled_NoSslListenNorModule()
     {
         using var tmp = new TempDirectory();

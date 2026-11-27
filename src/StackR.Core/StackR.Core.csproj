@@ -21,6 +21,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- StackR SQL : application PHP livrée sous web\stackr-sql\ (servie par Apache sur /sql). -->
+    <Content Include="..\..\web\stackr-sql\**\*" Link="web\stackr-sql\%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="Config/Templates/*.tpl" LogicalName="StackR.Core.Templates.%(Filename)%(Extension)" />
   </ItemGroup>
 
