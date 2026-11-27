@@ -10,10 +10,17 @@ namespace StackR.Core.Config;
 /// <param name="paths">Arborescence StackR.</param>
 /// <param name="settings">Paramètres.</param>
 /// <param name="rootCertificates">Source des certificats racines exportés pour PHP (par défaut : magasins Windows Root).</param>
+/// <param name="sqlAppDir">Dossier de StackR SQL (par défaut : web\stackr-sql\ à côté de l'exécutable).</param>
 public sealed class ConfigWriter(
-    StackRPaths paths, StackRSettings settings, Func<IEnumerable<X509Certificate2>>? rootCertificates = null)
+    StackRPaths paths, StackRSettings settings, Func<IEnumerable<X509Certificate2>>? rootCertificates = null,
+    string? sqlAppDir = null)
 {
     private readonly Func<IEnumerable<X509Certificate2>> _rootCertificates = rootCertificates ?? SystemRootCertificates;
+
+    private readonly string _sqlAppDir = sqlAppDir ?? DefaultSqlAppDir;
+
+    /// <summary>Emplacement livré de StackR SQL : web\stackr-sql\ dans le dossier d'installation.</summary>
+    public static string DefaultSqlAppDir => Path.Combine(AppContext.BaseDirectory, "web", "stackr-sql");
 
     private static readonly UTF8Encoding Utf8NoBom = new(false);
 
@@ -42,6 +49,7 @@ public sealed class ConfigWriter(
                 : "# mod_ssl non chargé (HTTPS désactivé)",
         };
         values["AdminerConf"] = AdminerConf(adminerDir);
+        values["StackRSqlConf"] = StackRSqlConf(_sqlAppDir);
         return Write("httpd.conf", "httpd.conf.tpl", values);
     }
 
@@ -75,6 +83,27 @@ public sealed class ConfigWriter(
             "<Location \"/adminer\">",
             "    Require local",
             "</Location>",
+            ]);
+    }
+
+    // Alias /sql vers StackR SQL (application PHP livrée), limité à la machine locale, sans listage.
+    private static string StackRSqlConf(string dir)
+    {
+        if (!File.Exists(Path.Combine(dir, "index.php")))
+        {
+            return "# StackR SQL non livré";
+        }
+
+        var ascii = TemplateRenderer.ConfPath(AnsiPath.ForAscii(dir)).TrimEnd('/') + "/";
+        return string.Join("\n",
+            [
+            $"Alias /sql \"{ascii}\"",
+            $"<Directory \"{ascii}\">",
+            "    Options -Indexes",
+            "    AllowOverride None",
+            "    DirectoryIndex index.php",
+            "    Require local",
+            "</Directory>",
             ]);
     }
 

@@ -51,4 +51,6 @@ DocumentRoot "{{WwwDir}}"
 
 {{AdminerConf}}
 
+{{StackRSqlConf}}
+
 IncludeOptional "{{EtcDir}}/sites/*.conf"

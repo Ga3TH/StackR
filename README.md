@@ -93,6 +93,16 @@ L'assistant vous guide :
 
 Fermer la fenêtre la réduit dans la zone de notification.
 
+## StackR SQL
+
+StackR SQL est un gestionnaire MySQL web, clair/sombre, livré avec StackR (`web\stackr-sql\`, PHP sans
+dépendance externe). Apache le sert sur **http://localhost/sql** (ou `http://localhost:<port>/sql`) ;
+`http://localhost/sql/?db=<nom>` ouvre directement une base. Accès limité à la machine locale
+(`Require local`), connexion MySQL vers 127.0.0.1 uniquement, identifiants gardés dans la session PHP,
+jeton CSRF sur chaque requête, en-têtes CSP stricts. Fonctions : bases (taille, création, suppression
+confirmée), tables (nombre de lignes, pagination, tri, structure et index), console SQL
+(Ctrl+Entrée, durée, lignes affectées) et export d'une table en SQL ou CSV.
+
 ## Mises à jour
 
 StackR cherche une nouvelle version sur GitHub (API publique, sans compte) au lancement puis toutes les 6 heures ; l'option se désactive dans Paramètres (« Rechercher les mises à jour automatiquement »), et « Rechercher maintenant » interroge tout de suite.
