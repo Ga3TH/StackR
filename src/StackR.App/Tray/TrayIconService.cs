@@ -1,3 +1,4 @@
+using System.IO;
 using System.Windows.Controls;
 using H.NotifyIcon;
 using H.NotifyIcon.Core;
@@ -31,13 +32,11 @@ public sealed class TrayIconService : IDisposable
             return;
         }
 
-        var streamInfo = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Assets/stackr.ico"))
-            ?? throw new InvalidOperationException("Icône de l'application introuvable.");
-        using var stream = streamInfo.Stream;
+        var icon = LoadIcon();
 
         _icon = new TaskbarIcon
         {
-            Icon = new System.Drawing.Icon(stream),
+            Icon = icon,
             ToolTipText = Strings.TrayTooltip,
             NoLeftClickDelay = true,
             ContextMenu = BuildMenu(),
@@ -47,6 +46,42 @@ public sealed class TrayIconService : IDisposable
 
         _shell.SitesChanged += (_, _) => RebuildSites();
         _shell.HiddenToTray += (_, _) => ShowBackgroundHint();
+    }
+
+    /// <summary>
+    /// Icône de l'application : ressource intégrée (adresse complète avec l'assembly, qui ne dépend pas de l'assembly
+    /// d'entrée), sinon icône de l'exécutable. Une icône introuvable ne doit jamais empêcher le démarrage.
+    /// </summary>
+    private static System.Drawing.Icon? LoadIcon()
+    {
+        try
+        {
+            var info = System.Windows.Application.GetResourceStream(
+                new Uri("pack://application:,,,/StackR.App;component/Assets/stackr.ico"));
+            if (info is not null)
+            {
+                using var stream = info.Stream;
+                return new System.Drawing.Icon(stream);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException or InvalidOperationException)
+        {
+            CrashLog.Write("Avertissement : icône de la zone de notification (ressource)", ex);
+        }
+
+        try
+        {
+            if (Environment.ProcessPath is { } exe)
+            {
+                return System.Drawing.Icon.ExtractAssociatedIcon(exe);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or ArgumentException or InvalidOperationException or UnauthorizedAccessException)
+        {
+            CrashLog.Write("Avertissement : icône de la zone de notification (exécutable)", ex);
+        }
+
+        return null;
     }
 
     public void Dispose()

@@ -3,6 +3,16 @@
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [0.1.2] - 2026-11-27
+
+### Corrigé
+- Les changements de configuration (httpd.conf, vhosts des sites, php.ini, my.ini) atteignent désormais les services déjà lancés : Apache (validé par `httpd -t` avant, l'ancienne instance reste en place si la nouvelle configuration est invalide) et MySQL sont redémarrés automatiquement. Corrige `http://localhost/adminer` en 404 tant qu'Apache n'était pas relancé.
+- La molette de la souris fonctionne sur toutes les pages et dans l'assistant (défilement transmis à la page quand une zone imbriquée est en butée).
+
+### Ajouté
+- Installation automatique, au lancement, des composants par défaut manquants (Apache, PHP, MySQL, Mailpit, Composer, Adminer ; version recommandée, SHA-256 vérifié, activés puis configurés), avec progression et bilan dans le tableau de bord.
+- Une légende française sous chaque bouton et interrupteur de l'application (reprise en info-bulle), en français et en anglais.
+
 ## [0.1.1] - 2026-11-27
 
 ### Corrigé
