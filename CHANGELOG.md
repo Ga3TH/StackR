@@ -3,6 +3,12 @@
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [0.1.1] - 2026-11-27
+
+### Corrigé
+- Paramètres : les libellés et icônes des options (démarrage avec Windows, démarrage auto des services, mode sombre, HTTPS…) ne s'affichaient pas.
+- Apache : la configuration échouait au premier lancement quand aucun site n'existait (`IncludeOptional`).
+
 ## [0.1.0] - 2026-11-27
 
 ### Ajouté

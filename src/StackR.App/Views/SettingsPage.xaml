@@ -12,9 +12,6 @@
         <Style x:Key="SettingsSectionTextStyle" TargetType="TextBlock" BasedOn="{StaticResource SectionTitleTextStyle}">
             <Setter Property="Margin" Value="0,24,0,8" />
         </Style>
-        <Style TargetType="ui:CardControl">
-            <Setter Property="Margin" Value="0,0,0,8" />
-        </Style>
         <Style x:Key="PathTextStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
             <Setter Property="MaxWidth" Value="320" />
@@ -53,99 +50,140 @@
                         Message="{Binding Message}" />
 
             <!-- Mode sombre -->
-            <ui:CardControl Margin="0,16,0,8" Icon="{ui:SymbolIcon WeatherMoon24}">
-                <ui:CardControl.Header>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,16,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="WeatherMoon24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
                     <StackPanel>
                         <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetDarkMode}" />
                         <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetDarkModeDesc}" />
                     </StackPanel>
-                </ui:CardControl.Header>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <StackPanel Orientation="Horizontal">
                     <CheckBox Margin="0,0,16,0" VerticalAlignment="Center" IsChecked="{Binding FollowSystemTheme}"
                               Content="{x:Static res:Strings.SetFollowWindows}" />
                     <ui:ToggleSwitch IsChecked="{Binding IsDarkMode}" IsEnabled="{Binding FollowSystemTheme, Converter={StaticResource InvertBool}}"
                                      AutomationProperties.Name="{x:Static res:Strings.SetDarkMode}" />
                 </StackPanel>
-            </ui:CardControl>
+            </ContentControl>
+  </Grid>
+</Border>
 
             <!-- Général -->
             <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionGeneral}" />
-            <ui:CardControl Icon="{ui:SymbolIcon Power24}">
-                <ui:CardControl.Header>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="Power24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
                     <StackPanel>
                         <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetStartWithWindows}" />
                         <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetStartWithWindowsDesc}" />
                     </StackPanel>
-                </ui:CardControl.Header>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <ui:ToggleSwitch IsChecked="{Binding StartWithWindows}"
                                  AutomationProperties.Name="{x:Static res:Strings.SetStartWithWindows}" />
-            </ui:CardControl>
-            <ui:CardControl Icon="{ui:SymbolIcon Play24}">
-                <ui:CardControl.Header>
+            </ContentControl>
+  </Grid>
+</Border>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="Play24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
                     <StackPanel>
                         <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetAutoStart}" />
                         <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetAutoStartDesc}" />
                     </StackPanel>
-                </ui:CardControl.Header>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <ui:ToggleSwitch IsChecked="{Binding AutoStartServices}"
                                  AutomationProperties.Name="{x:Static res:Strings.SetAutoStart}" />
-            </ui:CardControl>
+            </ContentControl>
+  </Grid>
+</Border>
 
             <!-- Dossiers -->
             <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionFolders}" />
-            <ui:CardControl Icon="{ui:SymbolIcon Folder24}">
-                <ui:CardControl.Header>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="Folder24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
                     <StackPanel>
                         <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetRoot}" />
                         <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetRootDesc}" />
                     </StackPanel>
-                </ui:CardControl.Header>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource PathTextStyle}" Text="{Binding RootPath}" ToolTip="{Binding RootPath}" />
                     <ui:Button Command="{Binding ChooseRootCommand}" Content="{x:Static res:Strings.SetChange}" />
                 </StackPanel>
-            </ui:CardControl>
-            <ui:CardControl Icon="{ui:SymbolIcon Globe24}">
-                <ui:CardControl.Header>
+            </ContentControl>
+  </Grid>
+</Border>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="Globe24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
                     <StackPanel>
                         <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetWww}" />
                         <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetWwwDesc}" />
                     </StackPanel>
-                </ui:CardControl.Header>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource PathTextStyle}" Text="{Binding WwwPath}" ToolTip="{Binding WwwPath}" />
                     <ui:Button Command="{Binding ResetWwwCommand}" Margin="0,0,8,0" Content="{x:Static res:Strings.SetResetDefault}" />
                     <ui:Button Command="{Binding ChooseWwwCommand}" Content="{x:Static res:Strings.SetBrowse}" />
                 </StackPanel>
-            </ui:CardControl>
+            </ContentControl>
+  </Grid>
+</Border>
 
             <!-- HTTPS -->
             <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionHttps}" />
-            <ui:CardControl Icon="{ui:SymbolIcon LockClosed24}">
-                <ui:CardControl.Header>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="LockClosed24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
                     <StackPanel>
                         <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetHttps}" />
                         <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetHttpsDesc}" />
                     </StackPanel>
-                </ui:CardControl.Header>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <ui:ToggleSwitch IsChecked="{Binding HttpsEnabled}"
                                  AutomationProperties.Name="{x:Static res:Strings.SetHttps}" />
-            </ui:CardControl>
-            <ui:CardControl Icon="{ui:SymbolIcon ShieldCheckmark24}"
-                            Visibility="{Binding HttpsEnabled, Converter={StaticResource BoolToVisibility}}">
-                <ui:CardControl.Header>
+            </ContentControl>
+  </Grid>
+</Border>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
                     <StackPanel>
                         <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetCaStatus}" />
                         <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetCaTrustDesc}" />
                     </StackPanel>
-                </ui:CardControl.Header>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource BodyTextStyle}" VerticalAlignment="Center" Margin="0,0,12,0"
                                FontWeight="SemiBold" Text="{Binding CaStatusText}" />
                     <ui:Button Command="{Binding TrustCaCommand}" IsEnabled="{Binding CanTrustCa}"
                                Appearance="Primary" Content="{x:Static res:Strings.SetCaTrust}" />
                 </StackPanel>
-            </ui:CardControl>
+            </ContentControl>
+  </Grid>
+</Border>
 
             <!-- Ports -->
             <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionPorts}" />
@@ -194,43 +232,61 @@
 
             <!-- Apparence -->
             <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionAppearance}" />
-            <ui:CardControl Icon="{ui:SymbolIcon LocalLanguage24}">
-                <ui:CardControl.Header>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="LocalLanguage24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
                     <StackPanel>
                         <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetLanguage}" />
                         <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetLanguageDesc}" />
                     </StackPanel>
-                </ui:CardControl.Header>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <ComboBox MinWidth="160" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}"
                           DisplayMemberPath="Name" AutomationProperties.Name="{x:Static res:Strings.SetLanguage}" />
-            </ui:CardControl>
+            </ContentControl>
+  </Grid>
+</Border>
 
             <!-- À propos -->
             <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionAbout}" />
-            <ui:CardControl Icon="{ui:SymbolIcon Info24}">
-                <ui:CardControl.Header>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="Info24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
                     <StackPanel>
                         <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="StackR" />
                         <TextBlock Style="{StaticResource CaptionTextStyle}">
                             <Run Text="{x:Static res:Strings.SetAboutVersion}" /> <Run Text="{Binding VersionText, Mode=OneWay}" />
                         </TextBlock>
                     </StackPanel>
-                </ui:CardControl.Header>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <ui:Button Command="{Binding OpenGitHubCommand}" Icon="{ui:SymbolIcon Open24}"
                            Content="{x:Static res:Strings.SetAboutGitHub}" />
-            </ui:CardControl>
-            <ui:CardControl Icon="{ui:SymbolIcon FolderOpen24}">
-                <ui:CardControl.Header>
+            </ContentControl>
+  </Grid>
+</Border>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="FolderOpen24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
                     <StackPanel>
                         <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{Binding RootPath}" />
                         <TextBlock Style="{StaticResource CaptionTextStyle}" Text="{Binding LogsPath}" />
                     </StackPanel>
-                </ui:CardControl.Header>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <StackPanel Orientation="Horizontal">
                     <ui:Button Command="{Binding OpenRootCommand}" Margin="0,0,8,0" Content="{x:Static res:Strings.SetAboutRootFolder}" />
                     <ui:Button Command="{Binding OpenLogsCommand}" Content="{x:Static res:Strings.SetAboutLogsFolder}" />
                 </StackPanel>
-            </ui:CardControl>
+            </ContentControl>
+  </Grid>
+</Border>
         </StackPanel>
     </ScrollViewer>
 </Page>
