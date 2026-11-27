@@ -35,6 +35,7 @@ public sealed class StackREngine : IDisposable
     private readonly EngineOptions _options;
     private readonly string _settingsPath;
     private readonly HttpClient? _ownedHttp;
+    private readonly IProcessRunner _runner;
 
     // Porte des opérations : jamais reprise par une opération qui la détient (variantes « Core » internes).
     // Volontairement jamais libérée : Dispose pendant une opération ne doit pas faire échouer son Release.
@@ -78,8 +79,9 @@ public sealed class StackREngine : IDisposable
         }
 
         Installer = new ComponentInstaller(new SecureDownloader(http), Paths);
+        _runner = options.ProcessRunner ?? new ProcessRunner(Paths.Logs);
         Services = ServiceManager.CreateDefault(
-            Paths, settings, () => _effective, ActiveDirectory, Secrets, options.ProcessRunner ?? new ProcessRunner(Paths.Logs));
+            Paths, settings, () => _effective, ActiveDirectory, Secrets, _runner);
         Sites = new SiteScanner(settings.EffectiveWww(Paths));
         Ca = new LocalCertificateAuthority(Paths, Secrets);
         Shell = new ShellIntegration(Paths, options.UserRegistryRoot, options.InstallDirectory);
@@ -312,6 +314,70 @@ public sealed class StackREngine : IDisposable
                 return await ApplyCoreAsync().ConfigureAwait(false);
             },
             CancellationToken.None).ConfigureAwait(false);
+    }
+
+    /// <summary>Composants installés d'office au lancement : tout ce qu'il faut pour un serveur web PHP/MySQL complet.</summary>
+    public static IReadOnlyList<ComponentKind> DefaultComponents { get; } =
+        [ComponentKind.Apache, ComponentKind.Php, ComponentKind.MySql, ComponentKind.Mailpit, ComponentKind.Composer, ComponentKind.Adminer];
+
+    /// <summary>
+    /// Version recommandée de chaque composant par défaut dont aucune version n'est installée
+    /// (et que le manifeste propose).
+    /// </summary>
+    public IReadOnlyList<ComponentRelease> MissingDefaultComponents() =>
+    [
+        .. DefaultComponents
+            .Where(kind => Store.Installed(kind).Count == 0)
+            .Select(kind => Manifest.Recommended(kind))
+            .OfType<ComponentRelease>(),
+    ];
+
+    /// <summary>
+    /// Installe (empreinte vérifiée) et active la version recommandée de chaque composant par défaut manquant,
+    /// puis applique la configuration une seule fois. L'échec d'un composant n'arrête pas les suivants.
+    /// </summary>
+    /// <exception cref="OperationCanceledException">Annulation demandée : ce qui est déjà installé est conservé.</exception>
+    public async Task<DefaultInstallReport> EnsureDefaultComponentsAsync(IProgress<DefaultInstallProgress>? progress, CancellationToken ct)
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        var missing = MissingDefaultComponents();
+        var installed = new List<ComponentRelease>();
+        var errors = new List<string>();
+        for (var i = 0; i < missing.Count; i++)
+        {
+            var release = missing[i];
+            var index = i + 1;
+            var forwarder = progress is null
+                ? null
+                : new Progress<InstallProgress>(p => progress.Report(new DefaultInstallProgress(release, index, missing.Count, p.Stage, p.Percent)));
+            progress?.Report(new DefaultInstallProgress(release, index, missing.Count, "Téléchargement", 0));
+            try
+            {
+                await Installer.InstallAsync(release, forwarder, ct).ConfigureAwait(false);
+                await ExclusiveAsync(
+                    () =>
+                    {
+                        if (ActiveDirectory(release.Component) is null && Store.IsInstalled(release.Component, release.Version))
+                        {
+                            SetActiveVersion(release.Component, release.Version);
+                        }
+
+                        return Task.CompletedTask;
+                    },
+                    CancellationToken.None).ConfigureAwait(false);
+                installed.Add(release);
+            }
+            catch (Exception ex) when (ex is HttpRequestException or IntegrityException or IOException or UnauthorizedAccessException
+                                           or TimeoutException or InvalidDataException or ArgumentException)
+            {
+                errors.Add($"{DisplayName(release.Component)} {release.Version} : {ex.Message}");
+            }
+        }
+
+        var warnings = installed.Count == 0
+            ? []
+            : (await ExclusiveAsync(ApplyCoreAsync, CancellationToken.None).ConfigureAwait(false)).Warnings;
+        return new DefaultInstallReport(installed, errors, warnings);
     }
 
     /// <summary>
@@ -558,6 +624,8 @@ public sealed class StackREngine : IDisposable
         // Instantané : une modification concurrente des paramètres ne mélange pas deux états dans les fichiers.
         var settings = _effective;
         var warnings = new List<string>();
+        EnsureReconciled();
+        var before = SnapshotConfigs();
         var dirs = ActiveDirectories();
         WriteComponentConfigs(dirs, settings, warnings);
 
@@ -566,7 +634,131 @@ public sealed class StackREngine : IDisposable
         WriteShims(dirs, settings, warnings);
 
         var (updated, declined) = await SyncHostsAsync([.. sites.Select(s => s.Name.Host)], warnings).ConfigureAwait(false);
-        return new ApplyResult(updated, declined, warnings);
+        var restarted = await RestartForChangedConfigsAsync(before, SnapshotConfigs(), dirs, warnings).ConfigureAwait(false);
+        return new ApplyResult(updated, declined, warnings) { RestartedServices = restarted };
+    }
+
+    // Empreinte du contenu de chaque fichier de configuration lu par un service (httpd.conf, vhosts, php.ini, my.ini).
+    private Dictionary<string, string> SnapshotConfigs()
+    {
+        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var files = new List<string> { ApacheConfPath, PhpIniPath, MyIniPath };
+        var sitesDir = Path.Combine(Paths.Etc, "sites");
+        try
+        {
+            if (Directory.Exists(sitesDir))
+            {
+                files.AddRange(Directory.EnumerateFiles(sitesDir, "*.conf"));
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // Dossier illisible : les vhosts sont simplement ignorés de la comparaison.
+        }
+
+        foreach (var file in files)
+        {
+            try
+            {
+                if (File.Exists(file))
+                {
+                    map[file] = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(file)));
+                }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                // Fichier momentanément verrouillé : considéré comme absent.
+            }
+        }
+
+        return map;
+    }
+
+    private string ApacheConfPath => Path.Combine(Paths.Etc, "httpd.conf");
+
+    private string PhpIniPath => Path.Combine(Paths.Etc, "php.ini");
+
+    private string MyIniPath => Path.Combine(Paths.Etc, "my.ini");
+
+    private static bool Differs(Dictionary<string, string> before, Dictionary<string, string> after, Func<string, bool> relevant)
+    {
+        foreach (var key in before.Keys.Union(after.Keys, StringComparer.OrdinalIgnoreCase).Where(relevant))
+        {
+            before.TryGetValue(key, out var a);
+            after.TryGetValue(key, out var b);
+            if (!string.Equals(a, b, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Un service qui tourne ne relit pas ses fichiers : s'ils ont changé, il est redémarré (Apache après
+    // validation par httpd -t, pour ne pas remplacer une instance saine par une configuration invalide).
+    private async Task<IReadOnlyList<string>> RestartForChangedConfigsAsync(
+        Dictionary<string, string> before, Dictionary<string, string> after, Dictionary<ComponentKind, string> dirs, List<string> warnings)
+    {
+        var restarted = new List<string>();
+        var sitesPrefix = Path.Combine(Paths.Etc, "sites") + Path.DirectorySeparatorChar;
+        var apache = Services.Services.FirstOrDefault(s => s.Id == "apache");
+        if (apache?.Status == ServiceStatus.Running && dirs.TryGetValue(ComponentKind.Apache, out var apacheDir)
+            && Differs(before, after, f => f.StartsWith(sitesPrefix, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(f, ApacheConfPath, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(f, PhpIniPath, StringComparison.OrdinalIgnoreCase)))
+        {
+            if (await ValidateApacheAsync(apacheDir, warnings).ConfigureAwait(false)
+                && await RestartAsync(apache, warnings).ConfigureAwait(false))
+            {
+                restarted.Add(apache.DisplayName);
+            }
+        }
+
+        var mysql = Services.Services.FirstOrDefault(s => s.Id == "mysql");
+        if (mysql?.Status == ServiceStatus.Running && dirs.ContainsKey(ComponentKind.MySql)
+            && Differs(before, after, f => string.Equals(f, MyIniPath, StringComparison.OrdinalIgnoreCase))
+            && await RestartAsync(mysql, warnings).ConfigureAwait(false))
+        {
+            restarted.Add(mysql.DisplayName);
+        }
+
+        return restarted;
+    }
+
+    private async Task<bool> ValidateApacheAsync(string apacheDir, List<string> warnings)
+    {
+        var httpd = Path.Combine(apacheDir, "bin", "httpd.exe");
+        try
+        {
+            var code = await _runner.RunAsync(httpd, "-t -f \"" + ApacheConfPath + "\"", CancellationToken.None).ConfigureAwait(false);
+            if (code == 0)
+            {
+                return true;
+            }
+
+            warnings.Add(string.Create(CultureInfo.InvariantCulture,
+                $"La nouvelle configuration d'Apache est invalide (httpd -t, code {code}) : Apache n'a pas été redémarré et garde l'ancienne configuration. Corrigez-la puis réappliquez."));
+        }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException or IOException)
+        {
+            warnings.Add($"Impossible de valider la configuration d'Apache ({ex.Message}) : Apache n'a pas été redémarré.");
+        }
+
+        return false;
+    }
+
+    private static async Task<bool> RestartAsync(ManagedService service, List<string> warnings)
+    {
+        await service.StopAsync(CancellationToken.None).ConfigureAwait(false);
+        await service.StartAsync(CancellationToken.None).ConfigureAwait(false);
+        if (service.Status == ServiceStatus.Running)
+        {
+            return true;
+        }
+
+        warnings.Add($"{service.DisplayName} n'a pas redémarré après le changement de configuration : {service.LastError ?? "raison inconnue"}");
+        return false;
     }
 
     private Dictionary<ComponentKind, string> ActiveDirectories()
