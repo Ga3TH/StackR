@@ -252,6 +252,40 @@
   </Grid>
 </Border>
 
+            <!-- Mises à jour -->
+            <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionUpdates}" />
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="ArrowSync24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetAutoUpdate}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{x:Static res:Strings.SetAutoUpdateDesc}" />
+                    </StackPanel>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
+                <ui:ToggleSwitch IsChecked="{Binding AutoCheckUpdates}" ToolTip="{x:Static res:Strings.SetAutoUpdateDesc}"
+                                 AutomationProperties.Name="{x:Static res:Strings.SetAutoUpdate}" />
+            </ContentControl>
+  </Grid>
+</Border>
+            <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+    <ui:SymbolIcon Symbol="ArrowDownload24" FontSize="20" Margin="0,0,16,0" VerticalAlignment="Center" />
+    <ContentControl Grid.Column="1" VerticalAlignment="Center" Focusable="False">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource BodyTextStyle}" FontWeight="SemiBold" Text="{x:Static res:Strings.SetCheckNow}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Text="{Binding UpdateStatusText}" />
+                    </StackPanel>
+                </ContentControl>
+    <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
+                <views:CaptionedButton Command="{Binding CheckUpdatesNowCommand}" IsEnabled="{Binding CanCheckUpdates}" Label="{x:Static res:Strings.SetCheckNow}" Caption="{x:Static res:Strings.CapSetCheckNow}" />
+            </ContentControl>
+  </Grid>
+</Border>
+
             <!-- À propos -->
             <TextBlock Style="{StaticResource SettingsSectionTextStyle}" Text="{x:Static res:Strings.SetSectionAbout}" />
             <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,8">

@@ -16,6 +16,7 @@ using StackR.App.Views;
 using StackR.Core;
 using StackR.Core.Manifests;
 using StackR.Core.Settings;
+using StackR.Core.Updates;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
@@ -252,6 +253,7 @@ public partial class App : System.Windows.Application
         shell.ShowWindowRequested += (_, _) => ShowMainWindow();
         shell.QuitRequested += async (_, _) => await QuitAsync();
         shell.RestartRequested += async (_, _) => await RestartAsync();
+        shell.ExitForUpdateRequested += (_, _) => ExitNow();
 
         services.GetRequiredService<TrayIconService>().Initialize();
         try
@@ -271,6 +273,9 @@ public partial class App : System.Windows.Application
         {
             ShowMainWindow();
         }
+
+        // Recherche de mise à jour en arrière-plan (aussi quand StackR démarre réduit dans la zone de notification).
+        services.GetRequiredService<UpdateBannerViewModel>().StartBackgroundChecks();
     }
 
     private static IHost BuildHost()
@@ -292,6 +297,17 @@ public partial class App : System.Windows.Application
         services.AddSingleton<TrayIconService>();
         services.AddSingleton<EngineBridge>();
 
+        services.AddSingleton(sp =>
+        {
+            var engine = sp.GetRequiredService<StackREngine>();
+            var checker = new UpdateChecker(UpdateHttp.Client, UpdateChecker.RunningVersion(typeof(App).Assembly));
+            return new UpdateManager(
+                checker.CheckDetailedAsync,
+                () => engine.Settings,
+                change => engine.UpdateSettings(change),
+                UpdateInstallation.IsInstalledCopy(Environment.ProcessPath));
+        });
+        services.AddSingleton<UpdateBannerViewModel>();
         services.AddSingleton<MainWindowViewModel>();
         services.AddSingleton<MainWindow>();
 

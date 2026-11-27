@@ -10,10 +10,14 @@ public sealed partial class MainWindowViewModel : ObservableObject
 {
     private readonly AppShell _shell;
 
-    public MainWindowViewModel(AppShell shell)
+    public MainWindowViewModel(AppShell shell, UpdateBannerViewModel update)
     {
         _shell = shell;
+        Update = update;
     }
+
+    /// <summary>Bandeau de mise à jour.</summary>
+    public UpdateBannerViewModel Update { get; }
 
     public string AppName { get; } = Strings.AppName;
 

@@ -32,4 +32,10 @@ public sealed record StackRSettings
     public string Language { get; init; } = "fr";
 
     public bool FirstRunCompleted { get; init; }
+
+    // Recherche automatique des mises à jour (au lancement puis toutes les 6 h).
+    public bool AutoCheckUpdates { get; init; } = true;
+
+    // Dernière version dont l'utilisateur a masqué le bandeau « Mise à jour disponible ».
+    public string DismissedUpdateVersion { get; init; } = "";
 }

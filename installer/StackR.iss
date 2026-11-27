@@ -49,3 +49,7 @@ Name: "{autodesktop}\StackR"; Filename: "{app}\StackR.App.exe"; Tasks: desktopic
 
 [Run]
 Filename: "{app}\StackR.App.exe"; Description: "{cm:LaunchProgram,StackR}"; Flags: nowait postinstall skipifsilent
+; Mise à jour depuis l'application (installation silencieuse /SILENT) : la case « Lancer » n'existe pas
+; (postinstall + skipifsilent), donc on relance StackR nous-mêmes (skipifnotsilent) avec --restarted
+; (la nouvelle instance attend la sortie de l'ancienne, qui tenait le mutex).
+Filename: "{app}\StackR.App.exe"; Parameters: "--restarted"; Flags: nowait skipifnotsilent

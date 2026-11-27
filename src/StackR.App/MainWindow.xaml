@@ -16,8 +16,13 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid.Resources>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+            <views:InverseBooleanConverter x:Key="InvertBool" />
+        </Grid.Resources>
 
         <ui:TitleBar Grid.Row="0" Title="{x:Static res:Strings.AppName}">
             <ui:TitleBar.Icon>
@@ -27,7 +32,57 @@
 
         <Border Grid.Row="1" Style="{StaticResource AccentLineStyle}" Opacity="0.85" />
 
-        <ui:NavigationView x:Name="RootNavigation" Grid.Row="2"
+        <!-- Bandeau de mise à jour -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource AccentFillColorDefaultBrush}"
+                TextElement.Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}"
+                Padding="16,8"
+                Visibility="{Binding Update.IsVisible, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Symbol="ArrowCircleUp24" FontSize="22" Margin="0,0,12,0" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Update.Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Update.Hint}" TextWrapping="Wrap" FontSize="12"
+                                   Visibility="{Binding Update.HasHint, Converter={StaticResource BoolToVisibility}}" />
+                        <TextBlock Text="{Binding Update.ErrorText}" TextWrapping="Wrap" FontSize="12" FontWeight="SemiBold"
+                                   Visibility="{Binding Update.HasError, Converter={StaticResource BoolToVisibility}}" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center" MinWidth="180"
+                                    Visibility="{Binding Update.IsBusy, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="{Binding Update.ProgressText}" FontSize="12" Margin="0,0,0,4" />
+                            <ProgressBar Height="4" Maximum="100"
+                                         Value="{Binding Update.ProgressPercent, Mode=OneWay}"
+                                         IsIndeterminate="{Binding Update.IsProgressIndeterminate}" />
+                        </StackPanel>
+                        <ui:Button Content="{Binding Update.NotesToggleText}" Appearance="Transparent"
+                                   Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}"
+                                   Command="{Binding Update.ToggleNotesCommand}" Margin="0,0,8,0" />
+                        <ui:Button Content="{Binding Update.ButtonText}" Appearance="Secondary"
+                                   Command="{Binding Update.UpdateCommand}"
+                                   IsEnabled="{Binding Update.IsBusy, Converter={StaticResource InvertBool}}"
+                                   Margin="0,0,4,0" />
+                        <ui:Button Icon="{ui:SymbolIcon Dismiss24}" Appearance="Transparent"
+                                   Foreground="{DynamicResource TextOnAccentFillColorPrimaryBrush}"
+                                   Command="{Binding Update.DismissCommand}"
+                                   ToolTip="{x:Static res:Strings.UpdClose}"
+                                   AutomationProperties.Name="{x:Static res:Strings.UpdClose}" />
+                    </StackPanel>
+                </Grid>
+                <ScrollViewer MaxHeight="160" Margin="34,8,0,0" VerticalScrollBarVisibility="Auto"
+                              Visibility="{Binding Update.ShowNotes, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock Text="{Binding Update.ReleaseNotes}" TextWrapping="Wrap" FontSize="12" />
+                </ScrollViewer>
+            </StackPanel>
+        </Border>
+
+        <ui:NavigationView x:Name="RootNavigation" Grid.Row="3"
                            PaneDisplayMode="Left"
                            IsBackButtonVisible="Collapsed"
                            IsPaneToggleVisible="True"

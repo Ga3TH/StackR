@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="UpdBannerTitle" xml:space="preserve"><value>Update available — StackR {0}</value></data>
+  <data name="UpdBannerPortable" xml:space="preserve"><value>Portable copy: update from the release page.</value></data>
+  <data name="UpdBannerNoInstaller" xml:space="preserve"><value>No verifiable installer for this version: open the release page.</value></data>
+  <data name="UpdButton" xml:space="preserve"><value>Update</value></data>
+  <data name="UpdViewRelease" xml:space="preserve"><value>View release</value></data>
+  <data name="UpdWhatsNew" xml:space="preserve"><value>What's new</value></data>
+  <data name="UpdHideNotes" xml:space="preserve"><value>Hide what's new</value></data>
+  <data name="UpdClose" xml:space="preserve"><value>Hide for this version</value></data>
+  <data name="UpdNoNotes" xml:space="preserve"><value>No release notes.</value></data>
+  <data name="UpdDownloading" xml:space="preserve"><value>Downloading the update… {0}</value></data>
+  <data name="UpdConfirmTitle" xml:space="preserve"><value>Update StackR</value></data>
+  <data name="UpdConfirmMessage" xml:space="preserve"><value>StackR will close to install version {0}. Services will keep running.</value></data>
+  <data name="UpdConfirmYes" xml:space="preserve"><value>Update</value></data>
+  <data name="UpdConfirmNo" xml:space="preserve"><value>Cancel</value></data>
+  <data name="UpdFailed" xml:space="preserve"><value>The update failed: {0}</value></data>
+  <data name="SetSectionUpdates" xml:space="preserve"><value>Updates</value></data>
+  <data name="SetAutoUpdate" xml:space="preserve"><value>Check for updates automatically</value></data>
+  <data name="SetAutoUpdateDesc" xml:space="preserve"><value>At startup then every 6 hours, using GitHub's public API.</value></data>
+  <data name="SetCheckNow" xml:space="preserve"><value>Check now</value></data>
+  <data name="CapSetCheckNow" xml:space="preserve"><value>Looks for a new StackR version on GitHub right now.</value></data>
+  <data name="SetChecking" xml:space="preserve"><value>Checking…</value></data>
+  <data name="SetUpToDate" xml:space="preserve"><value>StackR is up to date ({0}).</value></data>
+  <data name="SetUpdateFound" xml:space="preserve"><value>Version {0} is available: see the banner at the top of the window.</value></data>
+  <data name="SetCheckFailed" xml:space="preserve"><value>Could not check for updates (offline?).</value></data>
+</root>

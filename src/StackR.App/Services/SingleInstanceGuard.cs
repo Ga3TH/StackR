@@ -19,8 +19,11 @@ public sealed class SingleInstanceGuard : IDisposable
     private Task? _listener;
     private bool _disposed;
 
+    // Variable d'environnement STACKR_INSTANCE : instance isolée pour essayer l'application à côté de la vraie.
+    private static string Suffix => Environment.GetEnvironmentVariable("STACKR_INSTANCE") is { Length: > 0 } s ? "." + s : "";
+
     public static string PipeName =>
-        $"StackR.App.Activate.{WindowsIdentity.GetCurrent().User?.Value ?? Environment.UserName}";
+        $"StackR.App.Activate.{WindowsIdentity.GetCurrent().User?.Value ?? Environment.UserName}{Suffix}";
 
     /// <summary>Tente de devenir l'instance principale (sans attendre).</summary>
     public bool TryAcquire() => TryAcquire(TimeSpan.Zero);
@@ -37,7 +40,7 @@ public sealed class SingleInstanceGuard : IDisposable
             return true;
         }
 
-        var mutex = new Mutex(initiallyOwned: false, MutexName);
+        var mutex = new Mutex(initiallyOwned: false, MutexName + Suffix);
         bool owned;
         try
         {

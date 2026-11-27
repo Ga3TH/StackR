@@ -24,7 +24,12 @@ public partial class MainWindow : FluentWindow
         {
             SystemThemeWatcher.Watch(this, WindowBackdropType.Mica, updateAccents: false);
         }
-        Loaded += (_, _) => RootNavigation.Navigate(typeof(DashboardPage));
+        Loaded += (_, _) =>
+        {
+            RootNavigation.Navigate(typeof(DashboardPage));
+            // Après l'affichage de la fenêtre : recherche de mise à jour en arrière-plan.
+            viewModel.Update.StartBackgroundChecks();
+        };
     }
 
     /// <summary>Fermer = cacher dans la zone de notification, sauf sortie explicite.</summary>

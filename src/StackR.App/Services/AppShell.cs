@@ -17,6 +17,9 @@ public sealed class AppShell
 
     public event EventHandler? QuitRequested;
 
+    /// <summary>Levé quand l'installateur d'une mise à jour est lancé : l'application se ferme sans arrêter les services.</summary>
+    public event EventHandler? ExitForUpdateRequested;
+
     /// <summary>Levé pour relancer StackR (paramètres qui n'agissent qu'au prochain lancement).</summary>
     public event EventHandler? RestartRequested;
 
@@ -53,6 +56,8 @@ public sealed class AppShell
     public void RaiseHiddenToTray() => HiddenToTray?.Invoke(this, EventArgs.Empty);
 
     public void RaiseQuit() => QuitRequested?.Invoke(this, EventArgs.Empty);
+
+    public void RaiseExitForUpdate() => ExitForUpdateRequested?.Invoke(this, EventArgs.Empty);
 
     public void RaiseRestart() => RestartRequested?.Invoke(this, EventArgs.Empty);
 }

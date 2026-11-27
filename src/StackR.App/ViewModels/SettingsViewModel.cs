@@ -13,6 +13,7 @@ using StackR.App.Resources;
 using StackR.App.Services;
 using StackR.Core;
 using StackR.Core.Settings;
+using StackR.Core.Updates;
 using Wpf.Ui.Controls;
 
 namespace StackR.App.ViewModels;
@@ -27,15 +28,17 @@ public sealed partial class SettingsViewModel : PageViewModelBase
 
     private readonly StackREngine _engine;
     private readonly AppShell _shell;
+    private readonly UpdateManager _updates;
     private readonly string _initialLanguage;
     private bool _loading = true;
     private bool _syncingTheme;
 
-    public SettingsViewModel(StackREngine engine, AppShell shell)
+    public SettingsViewModel(StackREngine engine, AppShell shell, UpdateManager updates)
         : base(Strings.NavSettings, Strings.SettingsSubtitle)
     {
         _engine = engine;
         _shell = shell;
+        _updates = updates;
 
         Themes =
         [
@@ -55,6 +58,7 @@ public sealed partial class SettingsViewModel : PageViewModelBase
         WwwPath = WwwDisplay(s);
         StartWithWindows = s.StartWithWindows;
         AutoStartServices = s.AutoStartServices;
+        AutoCheckUpdates = s.AutoCheckUpdates;
         HttpsEnabled = s.HttpsEnabled;
         HttpPort = s.HttpPort;
         HttpsPort = s.HttpsPort;
@@ -89,6 +93,17 @@ public sealed partial class SettingsViewModel : PageViewModelBase
 
     [ObservableProperty]
     public partial bool AutoStartServices { get; set; }
+
+    [ObservableProperty]
+    public partial bool AutoCheckUpdates { get; set; }
+
+    [ObservableProperty]
+    public partial string UpdateStatusText { get; set; } = "";
+
+    [ObservableProperty]
+    public partial bool IsCheckingUpdates { get; set; }
+
+    public bool CanCheckUpdates => !IsCheckingUpdates;
 
     [ObservableProperty]
     public partial bool HttpsEnabled { get; set; }
@@ -197,6 +212,37 @@ public sealed partial class SettingsViewModel : PageViewModelBase
         if (!_loading)
         {
             Save(s => s with { AutoStartServices = value });
+        }
+    }
+
+    partial void OnAutoCheckUpdatesChanged(bool value)
+    {
+        if (!_loading)
+        {
+            Save(s => s with { AutoCheckUpdates = value });
+        }
+    }
+
+    partial void OnIsCheckingUpdatesChanged(bool value) => OnPropertyChanged(nameof(CanCheckUpdates));
+
+    [RelayCommand]
+    private async Task CheckUpdatesNowAsync()
+    {
+        IsCheckingUpdates = true;
+        UpdateStatusText = Strings.SetChecking;
+        try
+        {
+            var status = await _updates.CheckAsync(manual: true);
+            UpdateStatusText = status switch
+            {
+                UpdateCheckStatus.Available => Strings.Fill(Strings.SetUpdateFound, _updates.Available?.Version.ToString(3) ?? ""),
+                UpdateCheckStatus.UpToDate => Strings.Fill(Strings.SetUpToDate, VersionText),
+                _ => Strings.SetCheckFailed,
+            };
+        }
+        finally
+        {
+            IsCheckingUpdates = false;
         }
     }
 
