@@ -3,6 +3,13 @@
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [0.1.3] - 2026-11-27
+
+### Ajouté
+- **HeidiSQL** 12.22 (portable 64 bits, téléchargement officiel, SHA-256 vérifié) : composant par défaut, installé par l'assistant et par l'installation automatique. Page Base de données : bouton principal « Ouvrir HeidiSQL », déjà connecté à StackR (session « StackR » ; le mot de passe n'est jamais passé en ligne de commande et est retiré du disque peu après le lancement). Adminer devient un bouton secondaire.
+- **Thème Adminer** moderne : pepa-linha (clair) et dracula (sombre) du dépôt officiel, même version qu'Adminer ; Adminer choisit selon le thème de Windows.
+- **Installateur hors ligne** : l'installateur et l'archive portable embarquent les composants par défaut (`packages\`, ~400 Mo, SHA-256 vérifié à l'installation, repli sur le téléchargement si un fichier est absent ou altéré). L'assistant indique « Tout est inclus : installation hors ligne ». `build.ps1 -WithPackages` et `tools/fetch-packages.ps1`.
+
 ## [0.1.2] - 2026-11-27
 
 ### Corrigé

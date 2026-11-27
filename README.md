@@ -17,12 +17,12 @@ automatiques. Une alternative moderne à Laragon et XAMPP.
 
 ## Fonctionnalités
 
-- **Versions stables uniquement** : Apache 2.4.71, PHP 8.4.28 et 8.3.37, MySQL 8.4.13, Mailpit 1.34.0, Node.js 22 / 24, Composer 2.11.3, Adminer 6.3.1 (le catalogue évolue via `manifest/components.json`). Téléchargement depuis les sources officielles, **empreinte SHA-256 vérifiée** avant extraction.
+- **Versions stables uniquement** : Apache 2.4.71, PHP 8.4.28 et 8.3.37, MySQL 8.4.13, Mailpit 1.34.0, Node.js 22 / 24, Composer 2.11.3, Adminer 6.3.1, HeidiSQL 12.22 (le catalogue évolue via `manifest/components.json`). Téléchargement depuis les sources officielles, **empreinte SHA-256 vérifiée** avant extraction.
 - **Démarrage en un clic** de tous les services, avec état en temps réel et détection des ports occupés.
 - **Sites automatiques** : chaque dossier de `www` devient `https://<nom>.test` (racine `public\` détectée).
 - **HTTPS local** grâce à une autorité de certification propre à la machine, limitée à `.test` et `localhost`.
 - **Changement de version PHP** en un clic.
-- **Interface graphique MySQL** : Adminer est installé avec StackR, ouvert en un clic depuis la page Base de données (`http://localhost/adminer`, accessible uniquement depuis votre machine) : serveur `127.0.0.1`, utilisateur `root`, mot de passe copiable.
+- **Interface graphique MySQL** : **HeidiSQL** (client Windows natif, déjà connecté à StackR en un clic) et Adminer sont installés. Adminer est installé avec StackR, ouvert en un clic depuis la page Base de données (`http://localhost/adminer`, accessible uniquement depuis votre machine) : serveur `127.0.0.1`, utilisateur `root`, mot de passe copiable.
 - **Commandes dans le terminal** : `php`, `mysql`, `composer`, `node` et `stackr`.
 - **Zone de notification**, démarrage avec Windows (optionnel), mode sombre (interrupteur dans les Paramètres, ou suivi de Windows), interface en français (anglais disponible).
 - **Aucun droit administrateur** pour l'usage courant (une seule demande UAC pour le fichier hosts).
@@ -38,7 +38,8 @@ automatiques. Une alternative moderne à Laragon et XAMPP.
 ### A. Depuis une Release (recommandé)
 
 1. Ouvrez la page [dernière Release](https://github.com/Ga3TH/StackR/releases/latest) et téléchargez **`StackR-Setup-<version>.exe`** (ou l'archive portable `StackR-<version>-win-x64.zip`).
-2. Double-cliquez sur le fichier. Si Windows affiche **« Windows a protégé votre ordinateur »** (SmartScreen), c'est normal : l'installeur n'est pas signé numériquement. Cliquez sur **Informations complémentaires**, puis **Exécuter quand même**.
+2. Double-cliquez sur le fichier (**l'installeur inclut tout, ~400 Mo** : Apache, PHP, MySQL, Mailpit, Composer, Adminer et HeidiSQL s'installent sans connexion Internet).
+   Si Windows affiche **« Windows a protégé votre ordinateur »** (SmartScreen), c'est normal : l'installeur n'est pas signé numériquement. Cliquez sur **Informations complémentaires**, puis **Exécuter quand même**.
 3. L'assistant installe StackR pour votre utilisateur dans `%LOCALAPPDATA%\Programs\StackR`, sans droits administrateur. Cochez « Créer un raccourci sur le Bureau » si vous le souhaitez.
 4. Terminez l'assistant et lancez StackR.
 
@@ -86,7 +87,7 @@ L'assistant vous guide :
 - **Tableau de bord** : cartes des services, tout démarrer/arrêter, PHP actif, raccourcis.
 - **Sites** : liste des `.test`, ouverture, dossier / VS Code, « Nouveau site » (vide ou Laravel via Composer).
 - **Versions** : catalogue stable, installation avec progression, activation, désinstallation.
-- **Base de données** : hôte, port, utilisateur, mot de passe root masqué (afficher/copier/changer), bouton « Ouvrir Adminer » (interface graphique), client MySQL en terminal.
+- **Base de données** : hôte, port, utilisateur, mot de passe root masqué (afficher/copier/changer), boutons « Ouvrir HeidiSQL » (principal) et « Ouvrir Adminer », client MySQL en terminal.
 - **Journaux** : Apache, PHP, MySQL, Mailpit en direct.
 - **Paramètres** : dossiers, démarrage avec Windows, démarrage auto des services, mode sombre, langue, confiance envers la CA.
 
