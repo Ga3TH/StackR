@@ -27,6 +27,9 @@ public static partial class Strings
     public static string DashLastError => Get(nameof(DashLastError));
     public static string DashNotInstalledHint => Get(nameof(DashNotInstalledHint));
     public static string DashGoToVersions => Get(nameof(DashGoToVersions));
+    public static string DashAutoInstalling => Get(nameof(DashAutoInstalling));
+    public static string DashAutoInstallDone => Get(nameof(DashAutoInstallDone));
+    public static string DashAutoInstallFailed => Get(nameof(DashAutoInstallFailed));
     public static string DashStartAll => Get(nameof(DashStartAll));
     public static string DashStopAll => Get(nameof(DashStopAll));
     public static string DashPhpActive => Get(nameof(DashPhpActive));

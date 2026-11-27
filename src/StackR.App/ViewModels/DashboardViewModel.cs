@@ -53,6 +53,7 @@ public sealed partial class DashboardViewModel : PageViewModelBase
         }
 
         bridge.NoticeRaised += (_, notice) => ShowNotice(notice);
+        bridge.ComponentsInstalled += (_, _) => Refresh();
         bridge.BusyChanged += (_, _) =>
         {
             StartAllCommand.NotifyCanExecuteChanged();

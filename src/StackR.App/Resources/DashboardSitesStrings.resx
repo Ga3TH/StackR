@@ -94,4 +94,7 @@
   <data name="SitesCreatedWarnings" xml:space="preserve"><value>Le site {0} est créé, avec des avertissements :</value></data>
   <data name="SitesCancelled" xml:space="preserve"><value>Création annulée : le dossier a été supprimé.</value></data>
   <data name="SitesCreateFailed" xml:space="preserve"><value>La création a échoué : {0}</value></data>
+  <data name="DashAutoInstalling" xml:space="preserve"><value>Installation de {0} {1}… ({2}/{3})</value></data>
+  <data name="DashAutoInstallDone" xml:space="preserve"><value>Composants installés et activés : {0}.</value></data>
+  <data name="DashAutoInstallFailed" xml:space="preserve"><value>Installation automatique incomplète : {0}</value></data>
 </root>

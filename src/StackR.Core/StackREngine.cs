@@ -422,7 +422,7 @@ public sealed class StackREngine : IDisposable
     /// <exception cref="ArgumentException">Un nom n'est pas un nom <c>.test</c> valide (rien n'est écrit).</exception>
     internal void WriteHostsFile(IReadOnlyCollection<string> hosts) => HostsFile.Write(hosts, _options.HostsPath);
 
-    internal static string DisplayName(ComponentKind component) => component switch
+    public static string DisplayName(ComponentKind component) => component switch
     {
         ComponentKind.Apache => "Apache",
         ComponentKind.Php => "PHP",

@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Windows;
 using StackR.App.Resources;
 using StackR.Core;
+using StackR.Core.Components;
 using StackR.Core.Manifests;
 using StackR.Core.Services;
 using StackR.Core.Settings;
@@ -44,6 +45,9 @@ public sealed class EngineBridge
 
     /// <summary>Levé (sur le thread de l'interface) quand <see cref="IsBusy"/> change.</summary>
     public event EventHandler? BusyChanged;
+
+    /// <summary>Levé (sur le thread de l'interface) quand des composants par défaut viennent d'être installés.</summary>
+    public event EventHandler? ComponentsInstalled;
 
     /// <summary>Dernier message, pour les pages créées après son émission.</summary>
     public BridgeNotice? LastNotice { get; private set; }
@@ -157,17 +161,7 @@ public sealed class EngineBridge
             var result = await Task.Run(() => _engine.ApplyConfigurationAsync()).ConfigureAwait(true);
             ReportWarnings(result);
 
-            var apache = _engine.Services.Services.FirstOrDefault(s => s.Id == "apache");
-            if (apache is { Status: ServiceStatus.Running })
-            {
-                // Apache ne relit ses vhosts qu'au démarrage.
-                await Task.Run(async () =>
-                {
-                    await _engine.StopAsync(apache.Id).ConfigureAwait(false);
-                    await _engine.StartAsync(apache.Id).ConfigureAwait(false);
-                }).ConfigureAwait(true);
-            }
-
+            // Le moteur redémarre Apache lui-même si la configuration a changé.
             return result;
         }
         catch (Exception ex) when (IsExpected(ex))
@@ -204,6 +198,8 @@ public sealed class EngineBridge
 
             _shell.SetSites(hosts);
 
+            await EnsureDefaultComponentsAsync().ConfigureAwait(true);
+
             var settings = _engine.Settings;
             if (settings.AutoStartServices && settings.FirstRunCompleted)
             {
@@ -213,6 +209,54 @@ public sealed class EngineBridge
         catch (Exception ex) when (IsExpected(ex))
         {
             Notify(InfoBarSeverity.Error, Strings.Format(Strings.DashStartFailed, ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Installe en arrière-plan la version recommandée de chaque composant par défaut manquant, avec la progression
+    /// et le bilan dans le tableau de bord. Au mieux : une erreur est affichée, jamais propagée.
+    /// </summary>
+    public async Task EnsureDefaultComponentsAsync()
+    {
+        try
+        {
+            var missing = await Task.Run(_engine.MissingDefaultComponents).ConfigureAwait(true);
+            if (missing.Count == 0)
+            {
+                return;
+            }
+
+            string? last = null;
+            var progress = new Progress<DefaultInstallProgress>(p =>
+            {
+                var message = Strings.Format(
+                    Strings.DashAutoInstalling, StackREngine.DisplayName(p.Release.Component), p.Release.Version, p.Index, p.Count);
+                if (message != last)
+                {
+                    last = message;
+                    Notify(InfoBarSeverity.Informational, message);
+                }
+            });
+            var report = await Task.Run(() => _engine.EnsureDefaultComponentsAsync(progress, CancellationToken.None)).ConfigureAwait(true);
+            OnUi(() => ComponentsInstalled?.Invoke(this, EventArgs.Empty));
+
+            if (report.Errors.Count > 0)
+            {
+                Notify(InfoBarSeverity.Error, Strings.Format(Strings.DashAutoInstallFailed, string.Join(" | ", report.Errors)));
+            }
+            else if (report.Warnings.Count > 0)
+            {
+                Notify(InfoBarSeverity.Warning, string.Join(Environment.NewLine, report.Warnings));
+            }
+            else
+            {
+                var names = string.Join(", ", report.Installed.Select(r => StackREngine.DisplayName(r.Component) + " " + r.Version));
+                Notify(InfoBarSeverity.Success, Strings.Format(Strings.DashAutoInstallDone, names));
+            }
+        }
+        catch (Exception ex) when (IsExpected(ex))
+        {
+            Notify(InfoBarSeverity.Error, Strings.Format(Strings.DashAutoInstallFailed, ex.Message));
         }
     }
 
