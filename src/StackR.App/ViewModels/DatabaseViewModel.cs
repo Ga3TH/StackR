@@ -30,6 +30,11 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
     {
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
         Refresh();
+        // StatusChanged est levé hors du thread de l'interface.
+        foreach (var service in _engine.Services.Services)
+        {
+            service.StatusChanged += (_, _) => System.Windows.Application.Current?.Dispatcher.BeginInvoke(RefreshAdminer);
+        }
     }
 
     public string Host { get; } = "127.0.0.1";
@@ -69,6 +74,15 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
     [ObservableProperty]
     private InfoBarSeverity _messageSeverity = InfoBarSeverity.Informational;
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(OpenAdminerCommand))]
+    private bool _canOpenAdminer;
+
+    [ObservableProperty]
+    private string _adminerHint = string.Empty;
+
+    public string AdminerLoginHelp => UiFormat.Of(Strings.DbAdminerLogin, Host, User);
+
     public bool IsEmpty => !IsReady;
 
     public string DisplayedPassword => _password is null ? string.Empty : IsPasswordVisible ? _password : Mask;
@@ -95,6 +109,46 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
 
         OnPropertyChanged(nameof(DisplayedPassword));
         OnPropertyChanged(nameof(EnvPreview));
+        RefreshAdminer();
+    }
+
+    /// <summary>Adminer s'ouvre si le composant est installé et actif et si Apache tourne ; sinon on explique pourquoi.</summary>
+    public void RefreshAdminer()
+    {
+        if (_engine.ActiveDirectory(ComponentKind.Adminer) is null)
+        {
+            CanOpenAdminer = false;
+            AdminerHint = Strings.DbAdminerNotInstalled;
+        }
+        else if (!IsApacheRunning())
+        {
+            CanOpenAdminer = false;
+            AdminerHint = Strings.DbAdminerNotRunning;
+        }
+        else
+        {
+            CanOpenAdminer = true;
+            AdminerHint = AdminerLoginHelp;
+        }
+    }
+
+    /// <summary>Adresse d'Adminer : le port 80 est omis.</summary>
+    public static string AdminerUrl(int httpPort) =>
+        httpPort == 80 ? "http://localhost/adminer" : string.Create(CultureInfo.InvariantCulture, $"http://localhost:{httpPort}/adminer");
+
+    [RelayCommand(CanExecute = nameof(CanOpenAdminer))]
+    private void OpenAdminer()
+    {
+        ClearMessage();
+        try
+        {
+            using var process = Process.Start(new ProcessStartInfo(AdminerUrl(_engine.Settings.HttpPort)) { UseShellExecute = true });
+            Show(Strings.DbAdminerOpened, InfoBarSeverity.Success);
+        }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
+        {
+            Show(UiFormat.Of(Strings.DbAdminerFailed, ex.Message), InfoBarSeverity.Error);
+        }
     }
 
     [RelayCommand]
@@ -211,6 +265,9 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
     }
 
     private bool CanRun() => !IsBusy;
+
+    private bool IsApacheRunning() =>
+        _engine.Services.Services.FirstOrDefault(s => s.Id == "apache")?.Status == ServiceStatus.Running;
 
     private bool IsMySqlRunning() =>
         _engine.Services.Services.FirstOrDefault(s => s.Id == "mysql")?.Status == ServiceStatus.Running;

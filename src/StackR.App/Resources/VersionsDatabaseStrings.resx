@@ -93,4 +93,11 @@
   <data name="DbCopyEnv" xml:space="preserve"><value>Copier le bloc .env</value></data>
   <data name="DbEnvCopied" xml:space="preserve"><value>Bloc .env copié (avec le mot de passe). Le presse-papiers sera vidé dans 30 secondes.</value></data>
   <data name="DbEnvPlaceholder" xml:space="preserve"><value>DB_DATABASE=mon_projet</value></data>
+  <data name="DbOpenAdminer" xml:space="preserve"><value>Ouvrir Adminer</value></data>
+  <data name="DbAdminerLogin" xml:space="preserve"><value>Dans Adminer : Serveur {0}, Utilisateur {1}, puis collez le mot de passe (bouton Copier).</value></data>
+  <data name="DbAdminerNotInstalled" xml:space="preserve"><value>Adminer n&apos;est pas installé. Installez-le depuis la page Versions.</value></data>
+  <data name="DbAdminerNotRunning" xml:space="preserve"><value>Apache doit être démarré pour ouvrir Adminer. Démarrez-le depuis le tableau de bord.</value></data>
+  <data name="DbAdminerOpened" xml:space="preserve"><value>Adminer ouvert dans votre navigateur.</value></data>
+  <data name="DbAdminerFailed" xml:space="preserve"><value>Impossible d&apos;ouvrir Adminer : {0}</value></data>
+  <data name="VerDescAdminer" xml:space="preserve"><value>Interface graphique pour MySQL (http://localhost/adminer)</value></data>
 </root>

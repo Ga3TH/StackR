@@ -93,6 +93,17 @@
       "package": "File",
       "requires": [],
       "archiveRoot": null
+    },
+    {
+      "component": "Adminer",
+      "version": "6.3.1",
+      "channel": "stable",
+      "url": "https://github.com/vrana/adminer/releases/download/v6.3.1/adminer-6.3.1-mysql.php",
+      "sha256": "97fdb49c3e941636fe4b0559b2b042de3ac105dff0daafec3c255cd6bd81d4b6",
+      "sizeBytes": 443560,
+      "package": "File",
+      "requires": [],
+      "archiveRoot": null
     }
   ]
 }

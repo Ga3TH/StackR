@@ -84,6 +84,13 @@ try {
     $sha = ((Get-Text "$url.sha256sum") -split '\s+')[0]
     Add-Release 'Composer' $ver $url $sha 'File' @() $null
 
+    # --- Adminer (build MySQL seul ; digest SHA-256 publié par GitHub pour l'asset de la release) ---
+    $ad = (Get-Text 'https://api.github.com/repos/vrana/adminer/releases/latest') | ConvertFrom-Json
+    $adVer = $ad.tag_name.TrimStart('v')
+    $adAsset = $ad.assets | Where-Object { $_.name -eq "adminer-$adVer-mysql.php" }
+    if (-not $adAsset.digest -or $adAsset.digest -notmatch '^sha256:') { throw 'Digest GitHub absent pour Adminer' }
+    Add-Release 'Adminer' $adVer $adAsset.browser_download_url ($adAsset.digest -replace '^sha256:', '') 'File' @() $null
+
     # --- MySQL 8.4 LTS : seul le MD5 est publié, SHA-256 calculé sur le zip officiel ---
     $my = $null
     for ($i = 40; $i -ge 0 -and -not $my; $i--) {
@@ -98,7 +105,7 @@ try {
     if (-not $my) { throw 'Zip MySQL introuvable sur cdn.mysql.com' }
     Add-Release 'MySql' $my.Ver $my.Url $null 'Zip' @() "mysql-$($my.Ver)-winx64"
 
-    $order = 'Apache', 'Php', 'MySql', 'Mailpit', 'Node', 'Composer'
+    $order = 'Apache', 'Php', 'MySql', 'Mailpit', 'Node', 'Composer', 'Adminer'
     $sorted = $releases | Sort-Object { $order.IndexOf($_.component) }, @{ Expression = { [version]$_.version }; Descending = $true }
     $json = [ordered]@{ releases = @($sorted) } | ConvertTo-Json -Depth 5
     [IO.File]::WriteAllText($Output, $json, (New-Object Text.UTF8Encoding($false)))

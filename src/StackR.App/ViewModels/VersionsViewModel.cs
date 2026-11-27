@@ -22,6 +22,7 @@ public sealed class VersionsViewModel : PageViewModelBase
             new(engine, ComponentKind.Mailpit, "Mailpit", Strings.VerDescMailpit, SymbolRegular.Mail24, Confirm),
             new(engine, ComponentKind.Node, "Node.js", Strings.VerDescNode, SymbolRegular.Cube24, Confirm),
             new(engine, ComponentKind.Composer, "Composer", Strings.VerDescComposer, SymbolRegular.Box24, Confirm),
+            new(engine, ComponentKind.Adminer, "Adminer", Strings.VerDescAdminer, SymbolRegular.DatabaseSearch24, Confirm),
         ];
     }
 

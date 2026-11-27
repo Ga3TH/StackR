@@ -364,6 +364,7 @@ public sealed class StackREngine : IDisposable
         ComponentKind.Mailpit => "Mailpit",
         ComponentKind.Node => "Node.js",
         ComponentKind.Composer => "Composer",
+        ComponentKind.Adminer => "Adminer",
         _ => component.ToString(),
     };
 
@@ -381,7 +382,7 @@ public sealed class StackREngine : IDisposable
     {
         var id = component switch
         {
-            ComponentKind.Apache or ComponentKind.Php => "apache",
+            ComponentKind.Apache or ComponentKind.Php or ComponentKind.Adminer => "apache",
             ComponentKind.MySql => "mysql",
             ComponentKind.Mailpit => "mailpit",
             _ => null,
@@ -591,6 +592,7 @@ public sealed class StackREngine : IDisposable
             writer.WritePhpIni(php);
         }
 
+        dirs.TryGetValue(ComponentKind.Adminer, out var adminer);
         if (dirs.TryGetValue(ComponentKind.Apache, out var apache))
         {
             if (php is null)
@@ -599,7 +601,7 @@ public sealed class StackREngine : IDisposable
             }
             else
             {
-                writer.WriteHttpdConf(apache, php);
+                writer.WriteHttpdConf(apache, php, adminer);
             }
         }
 

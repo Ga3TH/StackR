@@ -196,4 +196,5 @@ Journal : {2}</value></data>
 {0}
 
 Les détails ont été enregistrés dans {1}. Si le problème persiste, redémarrez StackR.</value></data>
+  <data name="FrCompAdminer" xml:space="preserve"><value>Interface graphique pour gérer vos bases MySQL</value></data>
 </root>

@@ -14,7 +14,8 @@ public sealed class ApacheService(
     IProcessRunner runner,
     Func<string?> apacheDir,
     Func<string?> phpDir,
-    Func<IEnumerable<X509Certificate2>>? rootCertificates = null) : ManagedService(paths, settings, runner)
+    Func<IEnumerable<X509Certificate2>>? rootCertificates = null,
+    Func<string?>? adminerDir = null) : ManagedService(paths, settings, runner)
 {
     private readonly Func<string?> _apacheDir = apacheDir ?? throw new ArgumentNullException(nameof(apacheDir));
     private readonly Func<string?> _phpDir = phpDir ?? throw new ArgumentNullException(nameof(phpDir));
@@ -43,7 +44,7 @@ public sealed class ApacheService(
 
         var writer = new ConfigWriter(Paths, Settings, rootCertificates);
         writer.WritePhpIni(php);
-        var conf = writer.WriteHttpdConf(dir, php);
+        var conf = writer.WriteHttpdConf(dir, php, adminerDir?.Invoke());
 
         var code = await Runner.RunAsync(httpd, "-t -f " + Quote(conf), ct).ConfigureAwait(false);
         if (code != 0)

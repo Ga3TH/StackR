@@ -24,6 +24,36 @@ public class ConfigWriterTests
     }
 
     [Fact]
+    public void Httpd_AdminerActive_AliasProtectedByRequireLocal()
+    {
+        using var tmp = new TempDirectory();
+        var adminerDir = Path.Combine(tmp.Path, "adminer");
+        Directory.CreateDirectory(adminerDir);
+        File.WriteAllText(Path.Combine(adminerDir, "adminer-6.3.1-mysql.php"), "<?php");
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings(), NoRoots);
+        var text = File.ReadAllText(writer.WriteHttpdConf(Path.Combine(tmp.Path, "apache"), Path.Combine(tmp.Path, "php"), adminerDir));
+
+        Assert.Contains("Alias /adminer \"", text);
+        Assert.Contains("adminer-6.3.1-mysql.php\"", text);
+        var location = text[text.IndexOf("<Location \"/adminer\">", StringComparison.Ordinal)..];
+        Assert.Contains("Require local", location[..location.IndexOf("</Location>", StringComparison.Ordinal)]);
+        var dir = text[text.IndexOf("<Directory \"" + TemplateRenderer.ConfPath(adminerDir), StringComparison.Ordinal)..];
+        Assert.Contains("Require local", dir[..dir.IndexOf("</Directory>", StringComparison.Ordinal)]);
+    }
+
+    [Fact]
+    public void Httpd_AdminerInactiveOrMissing_NoAlias()
+    {
+        using var tmp = new TempDirectory();
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings(), NoRoots);
+        var apache = Path.Combine(tmp.Path, "apache");
+        var php = Path.Combine(tmp.Path, "php");
+
+        Assert.DoesNotContain("/adminer", File.ReadAllText(writer.WriteHttpdConf(apache, php)));
+        Assert.DoesNotContain("/adminer", File.ReadAllText(writer.WriteHttpdConf(apache, php, Path.Combine(tmp.Path, "absent"))));
+    }
+
+    [Fact]
     public void Httpd_HttpsDisabled_NoSslListenNorModule()
     {
         using var tmp = new TempDirectory();

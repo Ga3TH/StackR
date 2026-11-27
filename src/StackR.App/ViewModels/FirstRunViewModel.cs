@@ -40,7 +40,7 @@ public sealed partial class FirstRunViewModel : ObservableObject
     private const string LaragonWww = @"C:\laragon\www";
 
     private static readonly ComponentKind[] ComponentOrder =
-        [ComponentKind.Apache, ComponentKind.Php, ComponentKind.MySql, ComponentKind.Mailpit, ComponentKind.Node, ComponentKind.Composer];
+        [ComponentKind.Apache, ComponentKind.Php, ComponentKind.MySql, ComponentKind.Mailpit, ComponentKind.Node, ComponentKind.Composer, ComponentKind.Adminer];
 
     private readonly Func<StackRSettings, Task<StackREngine>> _startEngine;
     private readonly StackRSettings _initialSettings;
@@ -1078,6 +1078,7 @@ public sealed partial class FirstRunViewModel : ObservableObject
         ComponentKind.Mailpit => "Mailpit",
         ComponentKind.Node => "Node.js",
         ComponentKind.Composer => "Composer",
+        ComponentKind.Adminer => "Adminer",
         _ => kind.ToString(),
     };
 
@@ -1089,6 +1090,7 @@ public sealed partial class FirstRunViewModel : ObservableObject
         ComponentKind.Mailpit => Strings.FrCompMailpit,
         ComponentKind.Node => Strings.FrCompNode,
         ComponentKind.Composer => Strings.FrCompComposer,
+        ComponentKind.Adminer => Strings.FrCompAdminer,
         _ => "",
     };
 }

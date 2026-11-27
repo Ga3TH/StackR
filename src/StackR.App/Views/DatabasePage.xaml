@@ -92,8 +92,17 @@
                                 </StackPanel>
                             </Grid>
 
+                            <!-- Interface graphique : Adminer -->
                             <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
-                                <ui:Button Appearance="Primary" Icon="{ui:SymbolIcon Key24}"
+                                <ui:Button Appearance="Primary" FontSize="16" Padding="24,12"
+                                           Icon="{ui:SymbolIcon Open24}"
+                                           Content="{x:Static res:Strings.DbOpenAdminer}" Command="{Binding OpenAdminerCommand}" />
+                                <TextBlock Style="{StaticResource DbLabelStyle}" Margin="16,0,0,0" MaxWidth="520"
+                                           TextWrapping="Wrap" Text="{Binding AdminerHint}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                <ui:Button Icon="{ui:SymbolIcon Key24}"
                                            Content="{x:Static res:Strings.DbChangePassword}" Command="{Binding ToggleChangeCommand}" />
                                 <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon WindowConsole20}"
                                            Content="{x:Static res:Strings.DbOpenClient}" Command="{Binding OpenClientCommand}" />

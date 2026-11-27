@@ -1,6 +1,6 @@
 namespace StackR.Core.Manifests;
 
-public enum ComponentKind { Apache, Php, MySql, Mailpit, Node, Composer }
+public enum ComponentKind { Apache, Php, MySql, Mailpit, Node, Composer, Adminer }
 
 public enum PackageType { Zip, File }
 

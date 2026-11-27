@@ -96,7 +96,8 @@ public sealed class ServiceManager
         return new ServiceManager(paths, runner,
         [
             new MySqlService(paths, initial, runner, () => activeDirectory(ComponentKind.MySql), secrets) { SettingsProvider = current },
-            new ApacheService(paths, initial, runner, () => activeDirectory(ComponentKind.Apache), () => activeDirectory(ComponentKind.Php))
+            new ApacheService(paths, initial, runner, () => activeDirectory(ComponentKind.Apache), () => activeDirectory(ComponentKind.Php),
+                adminerDir: () => activeDirectory(ComponentKind.Adminer))
             {
                 SettingsProvider = current,
             },

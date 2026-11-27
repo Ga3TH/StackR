@@ -17,7 +17,8 @@ public sealed class ConfigWriter(
 
     private static readonly UTF8Encoding Utf8NoBom = new(false);
 
-    public string WriteHttpdConf(string apacheDir, string phpDir)
+    /// <param name="adminerDir">Dossier de la version active d'Adminer, ou null : l'alias /adminer n'est écrit que s'il contient le script.</param>
+    public string WriteHttpdConf(string apacheDir, string phpDir, string? adminerDir = null)
     {
         var www = settings.EffectiveWww(paths);
         Directory.CreateDirectory(Path.Combine(paths.Etc, "sites"));
@@ -40,7 +41,33 @@ public sealed class ConfigWriter(
                 ? "LoadModule ssl_module modules/mod_ssl.so\nLoadModule socache_shmcb_module modules/mod_socache_shmcb.so"
                 : "# mod_ssl non chargé (HTTPS désactivé)",
         };
+        values["AdminerConf"] = AdminerConf(adminerDir);
         return Write("httpd.conf", "httpd.conf.tpl", values);
+    }
+
+    // Alias /adminer vers le script unique, limité à la machine locale (chemin ASCII : PHP/Apache en API ANSI).
+    private static string AdminerConf(string? adminerDir)
+    {
+        var script = adminerDir is not null && Directory.Exists(adminerDir)
+            ? Directory.EnumerateFiles(adminerDir, "adminer*.php").Order(StringComparer.OrdinalIgnoreCase).FirstOrDefault()
+            : null;
+        if (script is null)
+        {
+            return "# Adminer non installé";
+        }
+
+        var file = TemplateRenderer.ConfPath(AnsiPath.ForAscii(script));
+        var dir = TemplateRenderer.ConfPath(AnsiPath.ForAscii(Path.GetDirectoryName(script)!));
+        return string.Join("\n",
+            $"Alias /adminer \"{file}\"",
+            $"<Directory \"{dir}\">",
+            "    Options None",
+            "    AllowOverride None",
+            "    Require local",
+            "</Directory>",
+            "<Location \"/adminer\">",
+            "    Require local",
+            "</Location>");
     }
 
     public string WritePhpIni(string phpDir)

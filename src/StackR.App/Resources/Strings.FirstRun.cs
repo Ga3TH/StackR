@@ -162,4 +162,5 @@ public static partial class Strings
     public static string StartupRestartErrorMessage => Get(nameof(StartupRestartErrorMessage));
     public static string StartupUnexpectedTitle => Get(nameof(StartupUnexpectedTitle));
     public static string StartupUnexpectedMessage => Get(nameof(StartupUnexpectedMessage));
+    public static string FrCompAdminer => Get(nameof(FrCompAdminer));
 }

@@ -49,4 +49,6 @@ DocumentRoot "{{WwwDir}}"
     Require local
 </Directory>
 
+{{AdminerConf}}
+
 IncludeOptional "{{EtcDir}}/sites/*.conf"
