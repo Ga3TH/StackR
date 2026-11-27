@@ -51,7 +51,7 @@ public partial class App : System.Windows.Application
     private bool _errorDialogOpen;
 
     /// <summary>Vrai si le thème suit celui de Windows (paramètre « System »).</summary>
-    internal static bool FollowsSystemTheme { get; private set; } = true;
+    internal static bool FollowsSystemTheme { get; set; } = true;
 
     protected override void OnStartup(StartupEventArgs e)
     {

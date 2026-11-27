@@ -1,0 +1,68 @@
+namespace StackR.App.Resources;
+
+/// <summary>Chaînes : interface repensée 0.1.5 (valeurs dans UiStrings.resx et UiStrings.en.resx).</summary>
+public static partial class Strings
+{
+    public static string UiHelloMorning => Get(nameof(UiHelloMorning));
+    public static string UiHelloEvening => Get(nameof(UiHelloEvening));
+    public static string UiSummaryServices => Get(nameof(UiSummaryServices));
+    public static string UiSummarySites => Get(nameof(UiSummarySites));
+    public static string UiSummaryNoPhp => Get(nameof(UiSummaryNoPhp));
+    public static string UiPid => Get(nameof(UiPid));
+    public static string UiUptime => Get(nameof(UiUptime));
+    public static string UiMemory => Get(nameof(UiMemory));
+    public static string UiPortsLabel => Get(nameof(UiPortsLabel));
+    public static string UiDash => Get(nameof(UiDash));
+    public static string UiRestart => Get(nameof(UiRestart));
+    public static string UiLogs => Get(nameof(UiLogs));
+    public static string UiMySites => Get(nameof(UiMySites));
+    public static string UiSeeAll => Get(nameof(UiSeeAll));
+    public static string UiQuickTools => Get(nameof(UiQuickTools));
+    public static string UiToolTerminal => Get(nameof(UiToolTerminal));
+    public static string UiToolTerminalHint => Get(nameof(UiToolTerminalHint));
+    public static string UiToolWww => Get(nameof(UiToolWww));
+    public static string UiToolWwwHint => Get(nameof(UiToolWwwHint));
+    public static string UiToolHeidi => Get(nameof(UiToolHeidi));
+    public static string UiToolHeidiHint => Get(nameof(UiToolHeidiHint));
+    public static string UiToolAdminer => Get(nameof(UiToolAdminer));
+    public static string UiToolAdminerHint => Get(nameof(UiToolAdminerHint));
+    public static string UiToolMailpit => Get(nameof(UiToolMailpit));
+    public static string UiToolMailpitHint => Get(nameof(UiToolMailpitHint));
+    public static string UiTipPortTitle => Get(nameof(UiTipPortTitle));
+    public static string UiTipPortBody => Get(nameof(UiTipPortBody));
+    public static string UiTipFirstSiteTitle => Get(nameof(UiTipFirstSiteTitle));
+    public static string UiTipFirstSiteBody => Get(nameof(UiTipFirstSiteBody));
+    public static string UiStatusShortcuts => Get(nameof(UiStatusShortcuts));
+    public static string UiFwLaravel => Get(nameof(UiFwLaravel));
+    public static string UiFwSymfony => Get(nameof(UiFwSymfony));
+    public static string UiFwWordPress => Get(nameof(UiFwWordPress));
+    public static string UiFwPhp => Get(nameof(UiFwPhp));
+    public static string UiFwStatic => Get(nameof(UiFwStatic));
+    public static string UiModified => Get(nameof(UiModified));
+    public static string UiSitesSearch => Get(nameof(UiSitesSearch));
+    public static string UiSitesCount => Get(nameof(UiSitesCount));
+    public static string UiSitesNoMatch => Get(nameof(UiSitesNoMatch));
+    public static string UiTerminalHere => Get(nameof(UiTerminalHere));
+    public static string UiRemove => Get(nameof(UiRemove));
+    public static string UiRemoveTitle => Get(nameof(UiRemoveTitle));
+    public static string UiRemoveBody => Get(nameof(UiRemoveBody));
+    public static string UiRemoveConfirm => Get(nameof(UiRemoveConfirm));
+    public static string UiCancel => Get(nameof(UiCancel));
+    public static string UiRemoved => Get(nameof(UiRemoved));
+    public static string UiRemoveFailed => Get(nameof(UiRemoveFailed));
+    public static string UiLogsFilter => Get(nameof(UiLogsFilter));
+    public static string UiLogsCounts => Get(nameof(UiLogsCounts));
+    public static string UiLogsErrorsOnly => Get(nameof(UiLogsErrorsOnly));
+    public static string UiToastDone => Get(nameof(UiToastDone));
+    public static string UiDbList => Get(nameof(UiDbList));
+    public static string UiDbNew => Get(nameof(UiDbNew));
+    public static string UiDbNewHint => Get(nameof(UiDbNewHint));
+    public static string UiDbCreate => Get(nameof(UiDbCreate));
+    public static string UiDbCreated => Get(nameof(UiDbCreated));
+    public static string UiDbCreateFailed => Get(nameof(UiDbCreateFailed));
+    public static string UiDbListFailed => Get(nameof(UiDbListFailed));
+    public static string UiDbTables => Get(nameof(UiDbTables));
+    public static string UiDbSystem => Get(nameof(UiDbSystem));
+    public static string UiDbNotRunning => Get(nameof(UiDbNotRunning));
+    public static string UiDbRefresh => Get(nameof(UiDbRefresh));
+}

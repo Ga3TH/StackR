@@ -38,6 +38,9 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
         }
     }
 
+    /// <summary>Outil de captures : MySQL et Apache considérés comme démarrés.</summary>
+    internal bool IsPreview { get; set; }
+
     public string Host { get; } = "127.0.0.1";
 
     public string User { get; } = "root";
@@ -123,6 +126,14 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
     /// <summary>Met à jour les deux interfaces graphiques (HeidiSQL, Adminer).</summary>
     public void RefreshTools()
     {
+        if (IsPreview)
+        {
+            CanOpenHeidi = CanOpenAdminer = true;
+            HeidiHint = string.Empty;
+            AdminerHint = AdminerLoginHelp;
+            return;
+        }
+
         RefreshHeidi();
         RefreshAdminer();
     }

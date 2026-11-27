@@ -18,6 +18,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.Resources>
             <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
@@ -87,6 +88,8 @@
                            IsBackButtonVisible="Collapsed"
                            IsPaneToggleVisible="True"
                            OpenPaneLength="248"
+                           Transition="FadeInWithSlide"
+                           TransitionDuration="200"
                            FrameMargin="0">
             <ui:NavigationView.PaneHeader>
                 <StackPanel Orientation="Horizontal" Margin="12,12,12,16">
@@ -123,5 +126,43 @@
                                        TargetPageType="{x:Type views:SettingsPage}" />
             </ui:NavigationView.FooterMenuItems>
         </ui:NavigationView>
+
+        <!-- Notifications de réussite (toasts) -->
+        <ui:SnackbarPresenter x:Name="SnackbarPresenter" Grid.Row="3" VerticalAlignment="Bottom" Margin="0,0,0,8" />
+
+        <!-- Barre d'état : services, PHP actif, dossier www, raccourcis -->
+        <Border Grid.Row="4" Padding="16,6" BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}"
+                Background="{DynamicResource LayerFillColorDefaultBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ItemsControl ItemsSource="{Binding Services}" VerticalAlignment="Center" Focusable="False">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,14,0">
+                                <Ellipse Style="{StaticResource ToneDotStyle}" Tag="{Binding Tone}" Margin="0,0,6,0" />
+                                <TextBlock Style="{StaticResource CaptionTextStyle}" Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{Binding Name}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Grid.Column="1" Style="{StaticResource CaptionTextStyle}" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                           VerticalAlignment="Center" Margin="4,0,14,0" Text="{Binding PhpText, StringFormat='·   {0}'}" />
+                <TextBlock Grid.Column="2" Style="{StaticResource CaptionTextStyle}" VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis" Text="{Binding WwwText, StringFormat='·   {0}'}" ToolTip="{Binding WwwText}" />
+                <TextBlock Grid.Column="3" Style="{StaticResource CaptionTextStyle}" VerticalAlignment="Center" Margin="16,0,0,0"
+                           Text="{x:Static res:Strings.UiStatusShortcuts}" />
+            </Grid>
+        </Border>
     </Grid>
 </ui:FluentWindow>

@@ -32,6 +32,9 @@ public partial class CaptionedButton : UserControl
     public static readonly DependencyProperty IsDefaultProperty = DependencyProperty.Register(
         nameof(IsDefault), typeof(bool), typeof(CaptionedButton));
 
+    public static readonly DependencyProperty ShowCaptionProperty = DependencyProperty.Register(
+        nameof(ShowCaption), typeof(bool), typeof(CaptionedButton), new PropertyMetadata(true));
+
     static CaptionedButton()
     {
         HorizontalAlignmentProperty.OverrideMetadata(typeof(CaptionedButton), new FrameworkPropertyMetadata(HorizontalAlignment.Left));
@@ -75,6 +78,13 @@ public partial class CaptionedButton : UserControl
     {
         get => (string?)GetValue(CaptionProperty);
         set => SetValue(CaptionProperty, value);
+    }
+
+    /// <summary>Légende visible sous le bouton (sinon seulement en info-bulle, pour les actions répétées d'une liste).</summary>
+    public bool ShowCaption
+    {
+        get => (bool)GetValue(ShowCaptionProperty);
+        set => SetValue(ShowCaptionProperty, value);
     }
 
     /// <summary>Bouton activé par la touche Entrée.</summary>

@@ -8,7 +8,7 @@ using Wpf.Ui.Controls;
 namespace StackR.App.ViewModels;
 
 /// <summary>Page « Versions » : une section par composant avec ses versions installables, activables, désinstallables.</summary>
-public sealed class VersionsViewModel : PageViewModelBase
+public sealed class VersionsViewModel : PageViewModelBase, IRefreshable
 {
     public VersionsViewModel(StackREngine engine)
         : base(Strings.NavVersions, Strings.VersionsSubtitle)
@@ -36,6 +36,13 @@ public sealed class VersionsViewModel : PageViewModelBase
         {
             section.Refresh();
         }
+    }
+
+    /// <inheritdoc />
+    public Task RefreshAsync()
+    {
+        Refresh();
+        return Task.CompletedTask;
     }
 
     private static bool Confirm(string title, string body) =>

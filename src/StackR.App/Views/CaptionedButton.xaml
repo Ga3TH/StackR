@@ -5,6 +5,9 @@
              xmlns:local="clr-namespace:StackR.App.Views"
              Focusable="False">
     <!-- Bouton + courte légende en français dessous (la même phrase sert d'info-bulle). -->
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="CapBoolToVis" />
+    </UserControl.Resources>
     <StackPanel>
         <ui:Button HorizontalAlignment="Stretch"
                    IsDefault="{Binding IsDefault, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}"
@@ -18,6 +21,7 @@
         <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="2,4,0,0"
                    MaxWidth="{Binding CaptionWidth, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}"
                    HorizontalAlignment="Left"
+                   Visibility="{Binding ShowCaption, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}, Converter={StaticResource CapBoolToVis}}"
                    Text="{Binding Caption, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}" />
     </StackPanel>
 </UserControl>

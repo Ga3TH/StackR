@@ -111,4 +111,99 @@
         <Setter Property="Background" Value="{StaticResource BrandLineBrush}" />
     </Style>
 
+    <!-- ===== Profondeur : ombre douce (visible en clair, quasi invisible en sombre où le liseré suffit) ===== -->
+    <DropShadowEffect x:Key="SoftShadow" BlurRadius="12" ShadowDepth="2" Direction="270" Opacity="0.07" Color="Black" />
+
+    <!-- Carte surélevée : ombre douce, soulevée au survol (Motion.HoverLift) -->
+    <Style x:Key="ElevatedCardStyle" TargetType="Border" BasedOn="{StaticResource CardBorderStyle}">
+        <Setter Property="Effect" Value="{StaticResource SoftShadow}" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+
+    <!-- Pastille colorée selon Tag : Success, Caution, Critical, Attention, sinon neutre -->
+    <Style x:Key="TonePillStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusPill}" />
+        <Setter Property="Padding" Value="10,3" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Background" Value="{DynamicResource SystemFillColorNeutralBackgroundBrush}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+        <Setter Property="TextElement.FontSize" Value="12" />
+        <Setter Property="TextElement.FontWeight" Value="SemiBold" />
+        <Style.Triggers>
+            <Trigger Property="Tag" Value="Success">
+                <Setter Property="Background" Value="{DynamicResource SystemFillColorSuccessBackgroundBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource SystemFillColorSuccessBrush}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Caution">
+                <Setter Property="Background" Value="{DynamicResource SystemFillColorCautionBackgroundBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource SystemFillColorCautionBrush}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Critical">
+                <Setter Property="Background" Value="{DynamicResource SystemFillColorCriticalBackgroundBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Attention">
+                <Setter Property="Background" Value="{DynamicResource SystemFillColorAttentionBackgroundBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Point d'état (même code couleur que les pastilles) -->
+    <Style x:Key="ToneDotStyle" TargetType="Ellipse">
+        <Setter Property="Width" Value="8" />
+        <Setter Property="Height" Value="8" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Fill" Value="{DynamicResource TextFillColorDisabledBrush}" />
+        <Style.Triggers>
+            <Trigger Property="Tag" Value="Success">
+                <Setter Property="Fill" Value="{DynamicResource SystemFillColorSuccessBrush}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Caution">
+                <Setter Property="Fill" Value="{DynamicResource SystemFillColorCautionBrush}" />
+            </Trigger>
+            <Trigger Property="Tag" Value="Critical">
+                <Setter Property="Fill" Value="{DynamicResource SystemFillColorCriticalBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Puce discrète (port, type de projet, Git…) -->
+    <Style x:Key="ChipBorderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="8,2" />
+        <Setter Property="Margin" Value="0,0,6,6" />
+        <Setter Property="TextElement.FontSize" Value="12" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+    </Style>
+
+    <!-- Petite étiquette de section (MAJUSCULES espacées) -->
+    <Style x:Key="EyebrowTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
+        <Setter Property="Margin" Value="0,0,0,10" />
+    </Style>
+
+    <!-- Valeur chiffrée d'une carte (mémoire, durée…) -->
+    <Style x:Key="MetricValueTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <Style x:Key="MetricLabelTextStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
+        <Setter Property="Margin" Value="0,0,0,2" />
+    </Style>
+
+    <!-- Texte d'accent lisible en clair comme en sombre -->
+    <Style x:Key="AccentTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+    </Style>
+
 </ResourceDictionary>

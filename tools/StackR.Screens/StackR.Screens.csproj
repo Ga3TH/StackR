@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Outil de développement : rend chaque page de StackR avec des données factices (clair et sombre)
+    en PNG 1280×800. Jamais publié (build.ps1 ne publie que l'application et le CLI).
+    Lancement : dotnet run, projet tools/StackR.Screens, argument = dossier de sortie.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+    <!-- Outil interne : textes et formats invariants sans importance. -->
+    <NoWarn>$(NoWarn);CA1305;CA1303;CA1307;CA1310;CA1311;CA1304;CA1309</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\StackR.App\StackR.App.csproj" />
+  </ItemGroup>
+
+</Project>

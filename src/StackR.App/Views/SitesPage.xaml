@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
       xmlns:views="clr-namespace:StackR.App.Views"
+      xmlns:svc="clr-namespace:StackR.App.Services"
       xmlns:res="clr-namespace:StackR.App.Resources"
       Title="{Binding Title}">
     <Page.Resources>
@@ -14,6 +15,9 @@
             <Style.Triggers>
                 <DataTrigger Binding="{Binding HasItems}" Value="False">
                     <Setter Property="Visibility" Value="Visible" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding HasNoMatch}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed" />
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -29,56 +33,120 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0">
+            <Grid Grid.Row="0" svc:Motion.Appear="True">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel>
                     <TextBlock Style="{StaticResource PageTitleTextStyle}" Text="{Binding Title}" />
-                    <Border Style="{StaticResource TitleUnderlineStyle}" Margin="0,8,0,12" />
+                    <Border Style="{StaticResource TitleUnderlineStyle}" Margin="0,8,0,10" />
                     <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding Subtitle}" />
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,4,0,0">
-                    <views:CaptionedButton Appearance="Primary" Icon="{ui:SymbolIcon Add24}" Label="{x:Static res:Strings.SitesNew}" Command="{Binding NewSiteCommand}" Caption="{x:Static res:Strings.CapSitesNew}" />
-                    <views:CaptionedButton Margin="8,0,0,0" Icon="{ui:SymbolIcon Folder24}" Label="{x:Static res:Strings.DashOpenWww}" Command="{Binding OpenWwwCommand}" Caption="{x:Static res:Strings.CapDashOpenWww}" />
-                    <views:CaptionedButton Margin="8,0,0,0" Icon="{ui:SymbolIcon ArrowClockwise24}" Command="{Binding RefreshCommand}" Caption="{x:Static res:Strings.CapRefresh}" CaptionWidth="120" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                    <ui:Button Appearance="Primary" Icon="{ui:SymbolIcon Add24}" Content="{x:Static res:Strings.SitesNew}" Padding="16,8"
+                               Command="{Binding NewSiteCommand}" ToolTip="{x:Static res:Strings.CapSitesNew}" />
+                    <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon Folder24}" Content="{x:Static res:Strings.DashOpenWww}" Padding="16,8"
+                               Command="{Binding OpenWwwCommand}" ToolTip="{x:Static res:Strings.CapDashOpenWww}" />
+                    <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon ArrowClockwise24}" Padding="10,8"
+                               Command="{Binding RefreshCommand}" ToolTip="{x:Static res:Strings.CapRefresh}"
+                               AutomationProperties.Name="{x:Static res:Strings.SitesRefresh}" />
                 </StackPanel>
             </Grid>
 
-            <ui:InfoBar Grid.Row="1" Margin="0,20,0,0"
-                        IsOpen="{Binding IsNoticeOpen, Mode=TwoWay}"
-                        Severity="{Binding NoticeSeverity}"
-                        Message="{Binding NoticeMessage}"
-                        IsClosable="True" />
+            <StackPanel Grid.Row="1">
+                <ui:InfoBar Margin="0,20,0,0"
+                            IsOpen="{Binding IsNoticeOpen, Mode=TwoWay}"
+                            Severity="{Binding NoticeSeverity}"
+                            Message="{Binding NoticeMessage}"
+                            IsClosable="True" />
+                <Grid Margin="0,22,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="320" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBox PlaceholderText="{x:Static res:Strings.UiSitesSearch}" Icon="{ui:SymbolIcon Search24}"
+                                Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}"
+                                AutomationProperties.Name="{x:Static res:Strings.UiSitesSearch}" />
+                    <TextBlock Grid.Column="1" Style="{StaticResource CaptionTextStyle}" Margin="16,0,0,0" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" Text="{Binding CountText}" ToolTip="{Binding WwwPath}" />
+                </Grid>
+                <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Margin="2,16,0,0" Text="{Binding NoMatchText}"
+                           Visibility="{Binding HasNoMatch, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
 
-            <ItemsControl Grid.Row="2" Margin="0,24,0,0" ItemsSource="{Binding Items}">
+            <ItemsControl Grid.Row="2" Margin="0,16,0,0" ItemsSource="{Binding Items}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource CardBorderStyle}" Margin="0,0,0,10" Padding="16,14">
+                        <Border Style="{StaticResource ElevatedCardStyle}" Margin="0,0,0,12" Padding="18,16"
+                                svc:Motion.Appear="True" svc:Motion.HoverLift="True">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <Border Width="40" Height="40" Style="{StaticResource BrandTileBorderStyle}">
-                                    <ui:SymbolIcon Symbol="Globe24" FontSize="20" Foreground="White"
+                                <Border Width="44" Height="44" Style="{StaticResource BrandTileBorderStyle}" CornerRadius="10" VerticalAlignment="Top">
+                                    <ui:SymbolIcon Symbol="Globe24" FontSize="21" Foreground="White"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="14,0,12,0" VerticalAlignment="Center">
-                                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" FontSize="16" Text="{Binding Name}" />
-                                    <ui:HyperlinkButton Padding="0" Margin="0,2,0,0" Content="{Binding Url}"
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Style="{StaticResource SectionTitleTextStyle}" FontSize="16" Text="{Binding Name}" VerticalAlignment="Center" />
+                                        <Border Style="{StaticResource TonePillStyle}" Tag="Attention" Margin="10,0,0,0" Padding="8,1">
+                                            <TextBlock Text="{Binding Framework}" />
+                                        </Border>
+                                        <Border Style="{StaticResource TonePillStyle}" Tag="Success" Margin="6,0,0,0" Padding="8,1"
+                                                Visibility="{Binding IsHttps, Converter={StaticResource BoolToVisibility}}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <ui:SymbolIcon Symbol="LockClosed16" FontSize="11" Margin="0,0,4,0" />
+                                                <TextBlock Text="HTTPS" />
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+                                    <ui:HyperlinkButton Padding="0" Margin="0,4,0,0" Content="{Binding Url}" HorizontalAlignment="Left"
+                                                        Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
                                                         Command="{Binding DataContext.OpenSiteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                         CommandParameter="{Binding}" />
-                                    <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,2,0,0"
-                                               TextTrimming="CharacterEllipsis" ToolTip="{Binding DocumentRoot}"
-                                               Text="{Binding DocumentRoot, StringFormat={x:Static res:Strings.SitesRootFormat}}" />
+                                    <WrapPanel Margin="0,8,0,0">
+                                        <Border Style="{StaticResource ChipBorderStyle}" ToolTip="{Binding DocumentRoot}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <ui:SymbolIcon Symbol="FolderOpen16" FontSize="12" Margin="0,0,4,0" />
+                                                <TextBlock FontFamily="Cascadia Mono, Consolas" Text="{Binding RelativeRoot}" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Style="{StaticResource ChipBorderStyle}">
+                                            <TextBlock Text="{Binding PhpText}" />
+                                        </Border>
+                                        <Border Style="{StaticResource ChipBorderStyle}" Visibility="{Binding HasGit, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock Text="Git" />
+                                        </Border>
+                                        <Border Style="{StaticResource ChipBorderStyle}" Visibility="{Binding HasComposer, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock Text="Composer" />
+                                        </Border>
+                                        <Border Style="{StaticResource ChipBorderStyle}" Visibility="{Binding HasNode, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock Text="Node" />
+                                        </Border>
+                                        <TextBlock Style="{StaticResource CaptionTextStyle}" VerticalAlignment="Center" Margin="4,0,0,6" Text="{Binding ModifiedText}" />
+                                    </WrapPanel>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <views:CaptionedButton Appearance="Primary" Icon="{ui:SymbolIcon Open24}" Label="{x:Static res:Strings.SitesOpen}" Command="{Binding DataContext.OpenSiteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Caption="{x:Static res:Strings.CapSitesOpen}" />
-                                    <views:CaptionedButton Margin="8,0,0,0" Icon="{ui:SymbolIcon Folder24}" Label="{x:Static res:Strings.SitesFolder}" Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Caption="{x:Static res:Strings.CapSitesFolder}" />
-                                    <views:CaptionedButton Margin="8,0,0,0" Icon="{ui:SymbolIcon Code24}" Label="{x:Static res:Strings.SitesVsCode}" Visibility="{Binding DataContext.HasVsCode, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BoolToVisibility}}" Command="{Binding DataContext.OpenVsCodeCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Caption="{x:Static res:Strings.CapSitesVsCode}" />
+                                    <ui:Button Appearance="Primary" Icon="{ui:SymbolIcon Open24}" Content="{x:Static res:Strings.SitesOpen}"
+                                               ToolTip="{x:Static res:Strings.CapSitesOpen}"
+                                               Command="{Binding DataContext.OpenSiteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
+                                    <ui:Button Margin="6,0,0,0" Icon="{ui:SymbolIcon Folder24}" ToolTip="{x:Static res:Strings.CapSitesFolder}"
+                                               AutomationProperties.Name="{x:Static res:Strings.SitesFolder}"
+                                               Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
+                                    <ui:Button Margin="6,0,0,0" Icon="{ui:SymbolIcon Code24}" ToolTip="{x:Static res:Strings.CapSitesVsCode}"
+                                               AutomationProperties.Name="{x:Static res:Strings.SitesVsCode}"
+                                               Visibility="{Binding DataContext.HasVsCode, RelativeSource={RelativeSource AncestorType=ItemsControl}, Converter={StaticResource BoolToVisibility}}"
+                                               Command="{Binding DataContext.OpenVsCodeCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
+                                    <ui:Button Margin="6,0,0,0" Icon="{ui:SymbolIcon WindowConsole20}" ToolTip="{x:Static res:Strings.UiTerminalHere}"
+                                               AutomationProperties.Name="{x:Static res:Strings.UiTerminalHere}"
+                                               Command="{Binding DataContext.OpenTerminalCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
+                                    <ui:Button Margin="6,0,0,0" Icon="{ui:SymbolIcon Delete24}" Appearance="Transparent" ToolTip="{x:Static res:Strings.UiRemove}"
+                                               AutomationProperties.Name="{x:Static res:Strings.UiRemove}"
+                                               Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
                                 </StackPanel>
                             </Grid>
                         </Border>

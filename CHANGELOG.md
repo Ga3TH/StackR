@@ -3,6 +3,20 @@
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [0.1.5] - 2026-11-27
+
+### Modifié
+- **Interface repensée**, plus agréable et plus détaillée :
+  - Tableau de bord : accueil « Bonjour / Bonsoir » avec résumé (services actifs, sites, PHP actif) ; cartes de services avec pastille d'état colorée (pulsation pendant un démarrage ou un arrêt), mémoire, durée de fonctionnement, PID et ports en puces, boutons Démarrer/Arrêter, Redémarrer et Journaux ; « Mes sites » (type de projet, ouverture en un clic) ; outils rapides en tuiles (Terminal, Dossier www, HeidiSQL, Adminer, Mailpit) ; conseil clair quand le port 80 est déjà pris (Laragon resté ouvert…).
+  - Sites : recherche, cartes détaillées (Laravel / Symfony / WordPress / PHP / HTML détecté, badge HTTPS, racine web, PHP, Git, Composer, Node, dernière modification), actions Ouvrir, Dossier, VS Code, Terminal ici et « Mettre à la corbeille » (confirmation, Corbeille de Windows, sous-dossier direct de www seulement).
+  - Barre d'état en bas de la fenêtre (Apache ● MySQL ● Mailpit ● · PHP · dossier www), raccourcis Ctrl+1…6 (pages) et F5 (actualiser), notifications de réussite (toasts).
+  - Animations discrètes : transition entre les pages, apparition en cascade des cartes, élévation au survol ; désactivées si Windows coupe les animations.
+- Légendes des actions répétées d'une liste en info-bulle (moins de texte à l'écran).
+
+### Ajouté (cœur)
+- Lecture de la mémoire et de l'heure de démarrage des services, détection du type de projet, liste et création de bases MySQL en utf8mb4 (fichier d'options temporaire, jamais de mot de passe en ligne de commande), gravité des lignes de journal — avec tests.
+- Outil de développement `tools/StackR.Screens` : captures de chaque page en clair et en sombre avec des données factices.
+
 ## [0.1.4] - 2026-11-27
 
 ### Ajouté

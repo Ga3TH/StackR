@@ -9,11 +9,13 @@ automatiques. Une alternative moderne à Laragon et XAMPP.
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4)
 ![Windows 10/11](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4)
 
-![Tableau de bord](docs/images/dashboard.png)
+![Tableau de bord (sombre)](docs/images/dark-dashboard.png)
 
-| Sites | Versions | Base de données |
-|---|---|---|
-| ![Sites](docs/images/sites.png) | ![Versions](docs/images/versions.png) | ![Base de données](docs/images/database.png) |
+| Clair | Sombre |
+|---|---|
+| ![Tableau de bord](docs/images/light-dashboard.png) | ![Tableau de bord](docs/images/dark-dashboard.png) |
+| ![Sites](docs/images/light-sites.png) | ![Sites](docs/images/dark-sites.png) |
+| ![Base de données](docs/images/light-database.png) | ![Base de données](docs/images/dark-database.png) |
 
 ## Fonctionnalités
 

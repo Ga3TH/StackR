@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="UiHelloMorning" xml:space="preserve"><value>Bonjour</value></data>
+  <data name="UiHelloEvening" xml:space="preserve"><value>Bonsoir</value></data>
+  <data name="UiSummaryServices" xml:space="preserve"><value>{0} sur {1} services actifs</value></data>
+  <data name="UiSummarySites" xml:space="preserve"><value>{0} sites</value></data>
+  <data name="UiSummaryNoPhp" xml:space="preserve"><value>PHP non installé</value></data>
+  <data name="UiPid" xml:space="preserve"><value>PID</value></data>
+  <data name="UiUptime" xml:space="preserve"><value>En marche depuis</value></data>
+  <data name="UiMemory" xml:space="preserve"><value>Mémoire</value></data>
+  <data name="UiPortsLabel" xml:space="preserve"><value>Ports</value></data>
+  <data name="UiDash" xml:space="preserve"><value>—</value></data>
+  <data name="UiRestart" xml:space="preserve"><value>Redémarrer</value></data>
+  <data name="UiLogs" xml:space="preserve"><value>Journaux</value></data>
+  <data name="UiMySites" xml:space="preserve"><value>Mes sites</value></data>
+  <data name="UiSeeAll" xml:space="preserve"><value>Tout voir</value></data>
+  <data name="UiQuickTools" xml:space="preserve"><value>Outils rapides</value></data>
+  <data name="UiToolTerminal" xml:space="preserve"><value>Terminal</value></data>
+  <data name="UiToolTerminalHint" xml:space="preserve"><value>php, composer, mysql</value></data>
+  <data name="UiToolWww" xml:space="preserve"><value>Dossier www</value></data>
+  <data name="UiToolWwwHint" xml:space="preserve"><value>Tous vos projets</value></data>
+  <data name="UiToolHeidi" xml:space="preserve"><value>HeidiSQL</value></data>
+  <data name="UiToolHeidiHint" xml:space="preserve"><value>Gérer vos bases</value></data>
+  <data name="UiToolAdminer" xml:space="preserve"><value>Adminer</value></data>
+  <data name="UiToolAdminerHint" xml:space="preserve"><value>MySQL dans le navigateur</value></data>
+  <data name="UiToolMailpit" xml:space="preserve"><value>Mailpit</value></data>
+  <data name="UiToolMailpitHint" xml:space="preserve"><value>Les mails de test</value></data>
+  <data name="UiTipPortTitle" xml:space="preserve"><value>Le port {0} est déjà utilisé</value></data>
+  <data name="UiTipPortBody" xml:space="preserve"><value>{1} (PID {2}) écoute sur le port {0} : c’est souvent Laragon ou un autre Apache resté ouvert. Quittez-le (clic droit sur son icône → Quitter), puis démarrez Apache ici. Vous pouvez aussi changer le port HTTP dans Paramètres.</value></data>
+  <data name="UiTipFirstSiteTitle" xml:space="preserve"><value>Créez votre premier site</value></data>
+  <data name="UiTipFirstSiteBody" xml:space="preserve"><value>Chaque dossier de www devient https://nom.test. Ouvrez la page Sites et choisissez « Nouveau site ».</value></data>
+  <data name="UiStatusShortcuts" xml:space="preserve"><value>Ctrl+1…6 : pages · F5 : actualiser</value></data>
+  <data name="UiFwLaravel" xml:space="preserve"><value>Laravel</value></data>
+  <data name="UiFwSymfony" xml:space="preserve"><value>Symfony</value></data>
+  <data name="UiFwWordPress" xml:space="preserve"><value>WordPress</value></data>
+  <data name="UiFwPhp" xml:space="preserve"><value>PHP</value></data>
+  <data name="UiFwStatic" xml:space="preserve"><value>HTML</value></data>
+  <data name="UiModified" xml:space="preserve"><value>Modifié {0}</value></data>
+  <data name="UiSitesSearch" xml:space="preserve"><value>Rechercher un site…</value></data>
+  <data name="UiSitesCount" xml:space="preserve"><value>{0} sites dans {1}</value></data>
+  <data name="UiSitesNoMatch" xml:space="preserve"><value>Aucun site ne correspond à « {0} ».</value></data>
+  <data name="UiTerminalHere" xml:space="preserve"><value>Terminal ici</value></data>
+  <data name="UiRemove" xml:space="preserve"><value>Mettre à la corbeille</value></data>
+  <data name="UiRemoveTitle" xml:space="preserve"><value>Mettre « {0} » à la corbeille ?</value></data>
+  <data name="UiRemoveBody" xml:space="preserve"><value>Le dossier {0} part dans la Corbeille de Windows : vous pourrez le restaurer. Les bases de données ne sont pas touchées.</value></data>
+  <data name="UiRemoveConfirm" xml:space="preserve"><value>Mettre à la corbeille</value></data>
+  <data name="UiCancel" xml:space="preserve"><value>Annuler</value></data>
+  <data name="UiRemoved" xml:space="preserve"><value>« {0} » est dans la Corbeille.</value></data>
+  <data name="UiRemoveFailed" xml:space="preserve"><value>Impossible de mettre le site à la corbeille : {0}</value></data>
+  <data name="UiLogsFilter" xml:space="preserve"><value>Filtrer les lignes…</value></data>
+  <data name="UiLogsCounts" xml:space="preserve"><value>{0} lignes · {1} erreurs · {2} avertissements</value></data>
+  <data name="UiLogsErrorsOnly" xml:space="preserve"><value>Erreurs seulement</value></data>
+  <data name="UiToastDone" xml:space="preserve"><value>C’est fait</value></data>
+  <data name="UiDbList" xml:space="preserve"><value>Vos bases</value></data>
+  <data name="UiDbNew" xml:space="preserve"><value>Nouvelle base</value></data>
+  <data name="UiDbNewHint" xml:space="preserve"><value>Nom de la base (lettres, chiffres, _)</value></data>
+  <data name="UiDbCreate" xml:space="preserve"><value>Créer</value></data>
+  <data name="UiDbCreated" xml:space="preserve"><value>Base « {0} » créée (utf8mb4).</value></data>
+  <data name="UiDbCreateFailed" xml:space="preserve"><value>Impossible de créer la base : {0}</value></data>
+  <data name="UiDbListFailed" xml:space="preserve"><value>Impossible de lire la liste des bases : {0}</value></data>
+  <data name="UiDbTables" xml:space="preserve"><value>{0} tables</value></data>
+  <data name="UiDbSystem" xml:space="preserve"><value>système</value></data>
+  <data name="UiDbNotRunning" xml:space="preserve"><value>Démarrez MySQL pour voir vos bases.</value></data>
+  <data name="UiDbRefresh" xml:space="preserve"><value>Actualiser</value></data>
+</root>

@@ -18,6 +18,7 @@ public static partial class Strings
         new("StackR.App.Resources.FirstRunStrings", typeof(Strings).Assembly),
         new("StackR.App.Resources.CaptionsStrings", typeof(Strings).Assembly),
         new("StackR.App.Resources.UpdatesStrings", typeof(Strings).Assembly),
+        new("StackR.App.Resources.UiStrings", typeof(Strings).Assembly),
     ];
 
     /// <summary>Retourne la chaîne localisée, ou la clé si elle est absente.</summary>
