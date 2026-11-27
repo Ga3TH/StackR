@@ -82,6 +82,11 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
     [NotifyCanExecuteChangedFor(nameof(OpenAdminerCommand))]
     private bool _canOpenAdminer;
 
+    /// <summary>StackR SQL (interface web livrée avec l'application) : il suffit qu'Apache tourne.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(OpenStackRSqlCommand))]
+    private bool _canOpenStackRSql;
+
     [ObservableProperty]
     private string _adminerHint = string.Empty;
 
@@ -221,6 +226,7 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
     /// <summary>Adminer s'ouvre si le composant est installé et actif et si Apache tourne ; sinon on explique pourquoi.</summary>
     public void RefreshAdminer()
     {
+        CanOpenStackRSql = IsApacheRunning();
         if (_engine.ActiveDirectory(ComponentKind.Adminer) is null)
         {
             CanOpenAdminer = false;
@@ -250,6 +256,24 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
         {
             using var process = Process.Start(new ProcessStartInfo(AdminerUrl(_engine.Settings.HttpPort)) { UseShellExecute = true });
             Show(Strings.DbAdminerOpened, InfoBarSeverity.Success);
+        }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
+        {
+            Show(UiFormat.Of(Strings.DbAdminerFailed, ex.Message), InfoBarSeverity.Error);
+        }
+    }
+
+    /// <summary>Adresse de StackR SQL : le port 80 est omis.</summary>
+    public static string StackRSqlUrl(int httpPort) =>
+        httpPort == 80 ? "http://localhost/sql/" : string.Create(CultureInfo.InvariantCulture, $"http://localhost:{httpPort}/sql/");
+
+    [RelayCommand(CanExecute = nameof(CanOpenStackRSql))]
+    private void OpenStackRSql()
+    {
+        ClearMessage();
+        try
+        {
+            using var process = Process.Start(new ProcessStartInfo(StackRSqlUrl(_engine.Settings.HttpPort)) { UseShellExecute = true });
         }
         catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
         {

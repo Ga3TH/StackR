@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -78,4 +78,5 @@
   <data name="CapPhpSwitchHint" xml:space="preserve"><value>Pick the PHP version used by Apache and the command line.</value></data>
   <data name="CapLogsFollowHint" xml:space="preserve"><value>Scrolls the log by itself to the newest lines.</value></data>
   <data name="CapDbOpenHeidi" xml:space="preserve"><value>Opens the HeidiSQL MySQL manager, already connected to StackR</value></data>
+  <data name="CapDbOpenSql" xml:space="preserve"><value>Manage your MySQL databases in a clean web interface, on your machine only</value></data>
 </root>

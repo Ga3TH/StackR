@@ -20,6 +20,7 @@ public static partial class Strings
     public static string CapTogglePassword => Get(nameof(CapTogglePassword));
     public static string CapDbCopy => Get(nameof(CapDbCopy));
     public static string CapDbOpenAdminer => Get(nameof(CapDbOpenAdminer));
+    public static string CapDbOpenSql => Get(nameof(CapDbOpenSql));
     public static string CapDbChangePassword => Get(nameof(CapDbChangePassword));
     public static string CapDbOpenClient => Get(nameof(CapDbOpenClient));
     public static string CapDbApply => Get(nameof(CapDbApply));

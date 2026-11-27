@@ -74,6 +74,8 @@ public static partial class Strings
     public static string DbEnvCopied => Get(nameof(DbEnvCopied));
     public static string DbEnvPlaceholder => Get(nameof(DbEnvPlaceholder));
     public static string DbOpenAdminer => Get(nameof(DbOpenAdminer));
+    public static string DbOpenSql => Get(nameof(DbOpenSql));
+    public static string DbSqlNotRunning => Get(nameof(DbSqlNotRunning));
     public static string DbAdminerLogin => Get(nameof(DbAdminerLogin));
     public static string DbAdminerNotInstalled => Get(nameof(DbAdminerNotInstalled));
     public static string DbAdminerNotRunning => Get(nameof(DbAdminerNotRunning));

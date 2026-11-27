@@ -99,6 +99,10 @@
                             </StackPanel>
 
                             <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                <views:CaptionedButton Icon="{ui:SymbolIcon Globe24}" Label="{x:Static res:Strings.DbOpenSql}" Command="{Binding OpenStackRSqlCommand}" Caption="{x:Static res:Strings.CapDbOpenSql}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                                 <views:CaptionedButton Icon="{ui:SymbolIcon Open24}" Label="{x:Static res:Strings.DbOpenAdminer}" Command="{Binding OpenAdminerCommand}" Caption="{x:Static res:Strings.CapDbOpenAdminer}" />
                                 <TextBlock Style="{StaticResource DbLabelStyle}" Margin="16,0,0,0" MaxWidth="520"
                                            TextWrapping="Wrap" Text="{Binding AdminerHint}" />

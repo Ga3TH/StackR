@@ -107,4 +107,6 @@
   <data name="DbHeidiOpened" xml:space="preserve"><value>HeidiSQL is open, connected to StackR.</value></data>
   <data name="DbHeidiFailed" xml:space="preserve"><value>Could not open HeidiSQL: {0}</value></data>
   <data name="DbHeidiNoPassword" xml:space="preserve"><value>HeidiSQL is open but the password could not be saved in its session (the file cannot be modified: {0}). Paste it with the Copy button.</value></data>
+  <data name="DbOpenSql" xml:space="preserve"><value>Open StackR SQL</value></data>
+  <data name="DbSqlNotRunning" xml:space="preserve"><value>Start Apache to open StackR SQL.</value></data>
 </root>

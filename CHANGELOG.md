@@ -5,6 +5,9 @@ versionnage [SemVer](https://semver.org/lang/fr/).
 
 ## [0.1.5] - 2026-11-27
 
+### Ajouté
+- StackR SQL : interface MySQL web soignée sur http://localhost/sql (locale uniquement), bouton « Ouvrir StackR SQL » dans la page Base de données.
+
 ### Modifié
 - **Interface repensée**, plus agréable et plus détaillée :
   - Tableau de bord : accueil « Bonjour / Bonsoir » avec résumé (services actifs, sites, PHP actif) ; cartes de services avec pastille d'état colorée (pulsation pendant un démarrage ou un arrêt), mémoire, durée de fonctionnement, PID et ports en puces, boutons Démarrer/Arrêter, Redémarrer et Journaux ; « Mes sites » (type de projet, ouverture en un clic) ; outils rapides en tuiles (Terminal, Dossier www, HeidiSQL, Adminer, Mailpit) ; conseil clair quand le port 80 est déjà pris (Laragon resté ouvert…).
