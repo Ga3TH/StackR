@@ -56,6 +56,7 @@ public partial class App : System.Windows.Application
     {
         base.OnStartup(e);
         RegisterGlobalErrorHandlers();
+        MouseWheelScrolling.Register();
         _args = e.Args;
 
         // Relance : l'ancienne instance libère le mutex juste avant de nous lancer, puis se ferme.
