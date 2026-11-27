@@ -74,5 +74,7 @@ Fait par les agents (worktrees `C:\.fichier G\StackR-wt\*`, branches `wt/*` loca
 Reste :
 - Vérification visuelle de l'application lancée (avec `STACKR_SETTINGS` et une racine temporaire) :
   assistant complet, chaque page, clair/sombre.
-- `MainWindow.xaml.cs` : n'appeler `SystemThemeWatcher.Watch` que si `App.FollowsSystemTheme`.
 - Revue finale (tâche 18).
+
+Fait le 2026-11-27 : `SystemThemeWatcher.Watch` seulement si `App.FollowsSystemTheme` ; lancement
+de l'application vérifié (8 s sans plantage, paramètres temporaires via `STACKR_SETTINGS`).

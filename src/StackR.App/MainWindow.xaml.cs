@@ -19,7 +19,11 @@ public partial class MainWindow : FluentWindow
         InitializeComponent();
 
         RootNavigation.SetServiceProvider(services);
-        SystemThemeWatcher.Watch(this, WindowBackdropType.Mica, updateAccents: false);
+        // Suivre le thème de Windows seulement si l'utilisateur n'a pas imposé Clair ou Sombre.
+        if (App.FollowsSystemTheme)
+        {
+            SystemThemeWatcher.Watch(this, WindowBackdropType.Mica, updateAccents: false);
+        }
         Loaded += (_, _) => RootNavigation.Navigate(typeof(DashboardPage));
     }
 
