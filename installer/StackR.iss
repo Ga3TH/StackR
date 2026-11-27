@@ -1,6 +1,8 @@
 ; Inno Setup 6 - installation par utilisateur, sans droits administrateur.
 #define AppName "StackR"
+#ifndef AppVersion
 #define AppVersion "0.1.0"
+#endif
 
 [Setup]
 AppId={{B7C5E0A4-3F6D-4C1E-9A52-5C7D1E8F2A10}
@@ -26,6 +28,9 @@ DisableProgramGroupPage=yes
 ; Le préfixe n'est pas écrit : dans cette directive, la barre oblique inverse sert d'échappement (virgule).
 ; Installation par utilisateur (PrivilegesRequired=lowest) : Setup tourne dans la même session que l'app.
 AppMutex=StackR.App
+; Mises à jour : Setup propose de fermer StackR (verrous sur les fichiers) puis ne le relance pas de force.
+CloseApplications=yes
+RestartApplications=no
 
 [Languages]
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
