@@ -3,6 +3,13 @@
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [0.1.4] - 2026-11-27
+
+### Ajouté
+- **Mises à jour dans l'application** : un bandeau « Mise à jour disponible — StackR x.y.z » en haut de la fenêtre (notes de version dépliables, masquable pour la version concernée) avec le bouton « Mettre à jour ». Copie installée : téléchargement de l'installateur de la release (HTTPS, SHA-256 vérifié, progression), confirmation, installation silencieuse puis relance de StackR, services laissés actifs. Copie portable ou release sans empreinte : ouverture de la page de la release.
+- Recherche au lancement puis toutes les 6 h (API publique de GitHub, préversions ignorées), réglable dans Paramètres (« Rechercher les mises à jour automatiquement ») ; bouton « Rechercher maintenant » (« StackR est à jour (x.y.z) »).
+- L'installateur relance StackR après une installation silencieuse.
+
 ## [0.1.3] - 2026-11-27
 
 ### Ajouté

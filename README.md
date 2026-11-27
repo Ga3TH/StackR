@@ -93,6 +93,16 @@ L'assistant vous guide :
 
 Fermer la fenêtre la réduit dans la zone de notification.
 
+## Mises à jour
+
+StackR cherche une nouvelle version sur GitHub (API publique, sans compte) au lancement puis toutes les 6 heures ; l'option se désactive dans Paramètres (« Rechercher les mises à jour automatiquement »), et « Rechercher maintenant » interroge tout de suite.
+
+Quand une version plus récente existe, un bandeau « Mise à jour disponible » apparaît en haut de la fenêtre (Nouveautés = notes de version ; × = masquer pour cette version).
+
+- **Copie installée** (installateur) : « Mettre à jour » télécharge l'installateur de la release (HTTPS, SHA-256 de GitHub vérifié, jamais exécuté s'il diffère), ferme StackR, l'installe en silencieux puis relance StackR. Les services restent actifs.
+- **Copie portable** : le bouton ouvre la page de la release ; remplacez le dossier à la main.
+- Une release sans empreinte SHA-256 publiée n'est pas installable depuis l'application : elle propose « Voir la release ».
+
 ## Migration depuis Laragon
 
 StackR ne touche pas à votre installation Laragon.
