@@ -58,7 +58,14 @@ public sealed class ConfigWriter(
 
         var file = TemplateRenderer.ConfPath(AnsiPath.ForAscii(script));
         var dir = TemplateRenderer.ConfPath(AnsiPath.ForAscii(Path.GetDirectoryName(script)!));
+        // Adminer référence « adminer.css » relativement à /adminer, donc /adminer.css : un alias par thème présent.
+        var cssAliases = AdminerCssFiles
+            .Select(name => Path.Combine(Path.GetDirectoryName(script)!, name))
+            .Where(File.Exists)
+            .Select(css => $"Alias /{Path.GetFileName(css)} \"{TemplateRenderer.ConfPath(AnsiPath.ForAscii(css))}\"");
         return string.Join("\n",
+            [
+            .. cssAliases,
             $"Alias /adminer \"{file}\"",
             $"<Directory \"{dir}\">",
             "    Options None",
@@ -67,8 +74,12 @@ public sealed class ConfigWriter(
             "</Directory>",
             "<Location \"/adminer\">",
             "    Require local",
-            "</Location>");
+            "</Location>",
+            ]);
     }
+
+    /// <summary>Thèmes Adminer (adminer.css clair, adminer-dark.css sombre) copiés à côté du script ; Adminer 5+ choisit selon prefers-color-scheme.</summary>
+    public static readonly string[] AdminerCssFiles = ["adminer.css", "adminer-dark.css"];
 
     public string WritePhpIni(string phpDir)
     {

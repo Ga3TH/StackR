@@ -33,6 +33,9 @@ public sealed record EngineOptions
     /// <summary>Dossier de <c>stackr.exe</c> ajouté au PATH ; par défaut celui de l'exécutable courant.</summary>
     public string? InstallDirectory { get; init; }
 
+    /// <summary>Dossier des paquets embarqués ; par défaut <c>packages\</c> à côté de l'exécutable courant.</summary>
+    public string? PackagesDirectory { get; init; }
+
     /// <summary>
     /// Autorise le moteur à consulter et nettoyer le magasin <c>CurrentUser\Root</c>
     /// (anciennes CA StackR, avertissement « CA non approuvée ») ; désactivé dans les tests.

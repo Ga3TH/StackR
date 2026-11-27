@@ -78,7 +78,7 @@ public sealed class StackREngine : IDisposable
             _ownedHttp = http = new HttpClient { Timeout = Timeout.InfiniteTimeSpan };
         }
 
-        Installer = new ComponentInstaller(new SecureDownloader(http), Paths);
+        Installer = new ComponentInstaller(new SecureDownloader(http), Paths, options.PackagesDirectory);
         _runner = options.ProcessRunner ?? new ProcessRunner(Paths.Logs);
         Services = ServiceManager.CreateDefault(
             Paths, settings, () => _effective, ActiveDirectory, Secrets, _runner);
@@ -318,7 +318,8 @@ public sealed class StackREngine : IDisposable
 
     /// <summary>Composants installés d'office au lancement : tout ce qu'il faut pour un serveur web PHP/MySQL complet.</summary>
     public static IReadOnlyList<ComponentKind> DefaultComponents { get; } =
-        [ComponentKind.Apache, ComponentKind.Php, ComponentKind.MySql, ComponentKind.Mailpit, ComponentKind.Composer, ComponentKind.Adminer];
+        [ComponentKind.Apache, ComponentKind.Php, ComponentKind.MySql, ComponentKind.Mailpit, ComponentKind.Composer, ComponentKind.Adminer,
+         ComponentKind.AdminerCss, ComponentKind.AdminerDarkCss, ComponentKind.HeidiSql];
 
     /// <summary>
     /// Version recommandée de chaque composant par défaut dont aucune version n'est installée
@@ -431,6 +432,9 @@ public sealed class StackREngine : IDisposable
         ComponentKind.Node => "Node.js",
         ComponentKind.Composer => "Composer",
         ComponentKind.Adminer => "Adminer",
+        ComponentKind.AdminerCss => "Thème Adminer (clair)",
+        ComponentKind.AdminerDarkCss => "Thème Adminer (sombre)",
+        ComponentKind.HeidiSql => "HeidiSQL",
         _ => component.ToString(),
     };
 
@@ -775,6 +779,36 @@ public sealed class StackREngine : IDisposable
         return dirs;
     }
 
+    // Adminer charge adminer.css / adminer-dark.css situés à côté de son script : on y copie les thèmes actifs.
+    private static void SyncAdminerThemes(Dictionary<ComponentKind, string> dirs, string adminerDir, List<string> warnings)
+    {
+        foreach (var (kind, fileName) in new[] { (ComponentKind.AdminerCss, "adminer.css"), (ComponentKind.AdminerDarkCss, "adminer-dark.css") })
+        {
+            if (!dirs.TryGetValue(kind, out var themeDir) || !Directory.Exists(adminerDir))
+            {
+                continue;
+            }
+
+            try
+            {
+                var source = Path.Combine(themeDir, fileName);
+                var target = Path.Combine(adminerDir, fileName);
+                if (File.Exists(source))
+                {
+                    var bytes = File.ReadAllBytes(source);
+                    if (!File.Exists(target) || !File.ReadAllBytes(target).AsSpan().SequenceEqual(bytes))
+                    {
+                        AtomicFile.WriteAllBytes(target, bytes);
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                warnings.Add($"Thème Adminer « {fileName} » non copié : {ex.Message}");
+            }
+        }
+    }
+
     private void WriteComponentConfigs(Dictionary<ComponentKind, string> dirs, StackRSettings settings, List<string> warnings)
     {
         var writer = new ConfigWriter(Paths, settings);
@@ -785,6 +819,11 @@ public sealed class StackREngine : IDisposable
         }
 
         dirs.TryGetValue(ComponentKind.Adminer, out var adminer);
+        if (adminer is not null)
+        {
+            SyncAdminerThemes(dirs, adminer, warnings);
+        }
+
         if (dirs.TryGetValue(ComponentKind.Apache, out var apache))
         {
             if (php is null)

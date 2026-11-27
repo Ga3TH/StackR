@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Text.Json;
 using StackR.Core.Download;
 using StackR.Core.Manifests;
@@ -9,13 +10,35 @@ namespace StackR.Core.Components;
 /// <summary>Avancement d'une installation ; <paramref name="Stage"/> vaut Téléchargement, Vérification, Extraction ou Terminé.</summary>
 public sealed record InstallProgress(string Stage, double Percent);
 
-public sealed class ComponentInstaller(SecureDownloader downloader, StackRPaths paths)
+/// <param name="downloader">Téléchargement vérifié (repli si aucun paquet local valide).</param>
+/// <param name="paths">Arborescence StackR.</param>
+/// <param name="packagesDir">
+/// Dossier des paquets embarqués dans l'installateur (<c>packages\</c> à côté de l'exécutable) ;
+/// par défaut celui de <see cref="Environment.ProcessPath"/>. Chaque paquet porte le nom de fichier de l'URL de la release.
+/// </param>
+public sealed class ComponentInstaller(SecureDownloader downloader, StackRPaths paths, string? packagesDir = null)
 {
     private const int RenameAttempts = 5;
     private static readonly TimeSpan RenameBackoff = TimeSpan.FromMilliseconds(200);
 
     private readonly SecureDownloader _downloader = downloader ?? throw new ArgumentNullException(nameof(downloader));
     private readonly StackRPaths _paths = paths ?? throw new ArgumentNullException(nameof(paths));
+    private readonly string? _packagesDir = packagesDir
+        ?? (Environment.ProcessPath is { } exe && Path.GetDirectoryName(exe) is { Length: > 0 } dir ? Path.Combine(dir, "packages") : null);
+
+    /// <summary>Chemin du paquet local de <paramref name="r"/> s'il existe (son empreinte n'est pas encore vérifiée), sinon null.</summary>
+    public string? LocalPackagePath(ComponentRelease r)
+    {
+        ArgumentNullException.ThrowIfNull(r);
+        var name = Path.GetFileName(r.Url.AbsolutePath);
+        if (_packagesDir is null || string.IsNullOrEmpty(name))
+        {
+            return null;
+        }
+
+        var path = Path.Combine(_packagesDir, name);
+        return File.Exists(path) ? path : null;
+    }
 
     /// <summary>
     /// Télécharge (empreinte vérifiée), extrait puis publie le composant. Sans effet s'il est déjà installé.
@@ -35,13 +58,22 @@ public sealed class ComponentInstaller(SecureDownloader downloader, StackRPaths 
 
         Directory.CreateDirectory(_paths.Tmp);
         string? download = null;
+        var downloaded = false;
         var stage = Path.Combine(_paths.Tmp, "install-" + Guid.NewGuid().ToString("N"));
         try
         {
-            p?.Report(new InstallProgress("Téléchargement", 0));
-            var dl = p is null ? null : new SyncProgress<DownloadProgress>(d =>
-                p.Report(new InstallProgress("Téléchargement", d.TotalBytes is > 0 ? 100.0 * d.BytesReceived / d.TotalBytes.Value : 0)));
-            download = await _downloader.DownloadVerifiedAsync(r.Url, r.Sha256, _paths.Tmp, dl, ct, r.SizeBytes).ConfigureAwait(false);
+            // Paquet embarqué : installation hors ligne si son SHA-256 correspond. Sinon (absent, tronqué, altéré)
+            // on retombe sur le téléchargement vérifié : jamais d'installation d'un fichier dont l'empreinte est fausse.
+            download = await VerifiedLocalPackageAsync(r, p, ct).ConfigureAwait(false);
+            if (download is null)
+            {
+                downloaded = true;
+                p?.Report(new InstallProgress("Téléchargement", 0));
+                var dl = p is null ? null : new SyncProgress<DownloadProgress>(d =>
+                    p.Report(new InstallProgress("Téléchargement", d.TotalBytes is > 0 ? 100.0 * d.BytesReceived / d.TotalBytes.Value : 0)));
+                download = await _downloader.DownloadVerifiedAsync(r.Url, r.Sha256, _paths.Tmp, dl, ct, r.SizeBytes).ConfigureAwait(false);
+            }
+
             p?.Report(new InstallProgress("Vérification", 100));
 
             // Extraction immédiate : le fichier vérifié ne reste pas disponible plus longtemps que nécessaire.
@@ -78,9 +110,33 @@ public sealed class ComponentInstaller(SecureDownloader downloader, StackRPaths 
         }
         finally
         {
-            TryDeleteFile(download);
+            if (downloaded)
+            {
+                TryDeleteFile(download); // jamais le paquet embarqué
+            }
+
             TryDeleteDirectory(stage);
             TryDeleteDirectory(stage + ".partial");
+        }
+    }
+
+    private async Task<string?> VerifiedLocalPackageAsync(ComponentRelease r, IProgress<InstallProgress>? p, CancellationToken ct)
+    {
+        if (LocalPackagePath(r) is not { } path)
+        {
+            return null;
+        }
+
+        try
+        {
+            p?.Report(new InstallProgress("Vérification", 0));
+            await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, 81_920, useAsync: true);
+            var hash = Convert.ToHexStringLower(await SHA256.HashDataAsync(stream, ct).ConfigureAwait(false));
+            return string.Equals(hash, r.Sha256, StringComparison.OrdinalIgnoreCase) ? path : null;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return null;
         }
     }
 

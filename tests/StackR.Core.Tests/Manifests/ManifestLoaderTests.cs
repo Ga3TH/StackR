@@ -63,6 +63,20 @@ public class ManifestLoaderTests
     }
 
     [Fact]
+    public void LoadEmbedded_HeidiSqlAndAdminerThemes_AreDefaultOfficialDownloads()
+    {
+        var m = ManifestLoader.LoadEmbedded();
+        var heidi = m.Recommended(ComponentKind.HeidiSql)!;
+        Assert.Equal(PackageType.Zip, heidi.Package);
+        Assert.Equal("github.com", heidi.Url.Host);
+        Assert.EndsWith("_64_Portable.zip", heidi.Url.AbsolutePath, StringComparison.Ordinal);
+        Assert.Equal("adminer.css", Path.GetFileName(m.Recommended(ComponentKind.AdminerCss)!.Url.AbsolutePath));
+        Assert.Equal("adminer-dark.css", Path.GetFileName(m.Recommended(ComponentKind.AdminerDarkCss)!.Url.AbsolutePath));
+        Assert.All(new[] { ComponentKind.HeidiSql, ComponentKind.AdminerCss, ComponentKind.AdminerDarkCss },
+            k => Assert.Contains(k, StackREngine.DefaultComponents));
+    }
+
+    [Fact]
     public void Parse_Sha256WithTrailingNewline_Throws() =>
         Assert.Throws<ManifestException>(() => ManifestLoader.Parse(Json(Entry("Node", "1.2.3", sha: Sha + "\\n"))));
 

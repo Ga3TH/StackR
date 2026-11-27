@@ -42,6 +42,22 @@ public class ConfigWriterTests
     }
 
     [Fact]
+    public void Httpd_AdminerThemesPresent_AliasedAtRoot()
+    {
+        using var tmp = new TempDirectory();
+        var adminerDir = Path.Combine(tmp.Path, "adminer");
+        Directory.CreateDirectory(adminerDir);
+        File.WriteAllText(Path.Combine(adminerDir, "adminer-6.3.1-mysql.php"), "<?php");
+        File.WriteAllText(Path.Combine(adminerDir, "adminer.css"), "/* clair */");
+        File.WriteAllText(Path.Combine(adminerDir, "adminer-dark.css"), "/* sombre */");
+        var writer = new ConfigWriter(new StackRPaths(tmp.Path), new StackRSettings(), NoRoots);
+        var text = File.ReadAllText(writer.WriteHttpdConf(Path.Combine(tmp.Path, "apache"), Path.Combine(tmp.Path, "php"), adminerDir));
+
+        Assert.Contains("Alias /adminer.css \"", text);
+        Assert.Contains("Alias /adminer-dark.css \"", text);
+    }
+
+    [Fact]
     public void Httpd_AdminerInactiveOrMissing_NoAlias()
     {
         using var tmp = new TempDirectory();

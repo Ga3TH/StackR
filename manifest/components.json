@@ -104,6 +104,39 @@
       "package": "File",
       "requires": [],
       "archiveRoot": null
+    },
+    {
+      "component": "AdminerCss",
+      "version": "6.3.1",
+      "channel": "stable",
+      "url": "https://raw.githubusercontent.com/vrana/adminer/v6.3.1/designs/pepa-linha/adminer.css",
+      "sha256": "23f345dea08c812ea680567f5154d8079cb43e7f5a456ffa91673adbd8c723b6",
+      "sizeBytes": 9001,
+      "package": "File",
+      "requires": [],
+      "archiveRoot": null
+    },
+    {
+      "component": "AdminerDarkCss",
+      "version": "6.3.1",
+      "channel": "stable",
+      "url": "https://raw.githubusercontent.com/vrana/adminer/v6.3.1/designs/dracula/adminer-dark.css",
+      "sha256": "a616dc5570690394a666bbce679e0d5bb9be86b83993fbfed39cb2bbd751298e",
+      "sizeBytes": 13028,
+      "package": "File",
+      "requires": [],
+      "archiveRoot": null
+    },
+    {
+      "component": "HeidiSql",
+      "version": "12.22",
+      "channel": "stable",
+      "url": "https://github.com/HeidiSQL/HeidiSQL/releases/download/v12.22/HeidiSQL_12.22_64_Portable.zip",
+      "sha256": "7b36821fa3e16cc37b511d41747efa4c8b980d1e3fa937e52c5931bcc4ee79b4",
+      "sizeBytes": 29903115,
+      "package": "Zip",
+      "requires": [],
+      "archiveRoot": null
     }
   ]
 }
