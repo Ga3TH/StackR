@@ -163,4 +163,8 @@ public static partial class Strings
     public static string StartupUnexpectedTitle => Get(nameof(StartupUnexpectedTitle));
     public static string StartupUnexpectedMessage => Get(nameof(StartupUnexpectedMessage));
     public static string FrCompAdminer => Get(nameof(FrCompAdminer));
+    public static string FrCompHeidiSql => Get(nameof(FrCompHeidiSql));
+    public static string FrCompAdminerCss => Get(nameof(FrCompAdminerCss));
+    public static string FrCompAdminerDarkCss => Get(nameof(FrCompAdminerDarkCss));
+    public static string FrOfflineBundle => Get(nameof(FrOfflineBundle));
 }

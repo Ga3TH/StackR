@@ -77,4 +77,5 @@
   <data name="CapRecentSitesHint" xml:space="preserve"><value>Clique sur une adresse pour ouvrir le site dans le navigateur.</value></data>
   <data name="CapPhpSwitchHint" xml:space="preserve"><value>Choisis la version de PHP utilisée par Apache et par la ligne de commande.</value></data>
   <data name="CapLogsFollowHint" xml:space="preserve"><value>Fait défiler le journal tout seul vers les nouvelles lignes.</value></data>
+  <data name="CapDbOpenHeidi" xml:space="preserve"><value>Ouvre le gestionnaire MySQL HeidiSQL, déjà connecté à StackR</value></data>
 </root>

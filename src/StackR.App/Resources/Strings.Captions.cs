@@ -57,4 +57,5 @@ public static partial class Strings
     public static string CapRecentSitesHint => Get(nameof(CapRecentSitesHint));
     public static string CapPhpSwitchHint => Get(nameof(CapPhpSwitchHint));
     public static string CapLogsFollowHint => Get(nameof(CapLogsFollowHint));
+    public static string CapDbOpenHeidi => Get(nameof(CapDbOpenHeidi));
 }

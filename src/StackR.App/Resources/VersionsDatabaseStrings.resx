@@ -100,4 +100,11 @@
   <data name="DbAdminerOpened" xml:space="preserve"><value>Adminer ouvert dans votre navigateur.</value></data>
   <data name="DbAdminerFailed" xml:space="preserve"><value>Impossible d&apos;ouvrir Adminer : {0}</value></data>
   <data name="VerDescAdminer" xml:space="preserve"><value>Interface graphique pour MySQL (http://localhost/adminer)</value></data>
+  <data name="VerDescHeidiSql" xml:space="preserve"><value>Interface MySQL native de Windows, déjà connectée à StackR</value></data>
+  <data name="DbOpenHeidi" xml:space="preserve"><value>Ouvrir HeidiSQL</value></data>
+  <data name="DbHeidiNotInstalled" xml:space="preserve"><value>HeidiSQL n'est pas installé. Installez-le depuis la page Versions.</value></data>
+  <data name="DbHeidiNotRunning" xml:space="preserve"><value>MySQL doit être démarré pour ouvrir HeidiSQL. Démarrez-le depuis le tableau de bord.</value></data>
+  <data name="DbHeidiOpened" xml:space="preserve"><value>HeidiSQL est ouvert, connecté à StackR.</value></data>
+  <data name="DbHeidiFailed" xml:space="preserve"><value>Impossible d'ouvrir HeidiSQL : {0}</value></data>
+  <data name="DbHeidiNoPassword" xml:space="preserve"><value>HeidiSQL est ouvert mais le mot de passe n'a pas pu être enregistré dans sa session (le fichier n'est pas modifiable : {0}). Collez-le avec le bouton Copier.</value></data>
 </root>

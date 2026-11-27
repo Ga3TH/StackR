@@ -91,6 +91,19 @@ try {
     if (-not $adAsset.digest -or $adAsset.digest -notmatch '^sha256:') { throw 'Digest GitHub absent pour Adminer' }
     Add-Release 'Adminer' $adVer $adAsset.browser_download_url ($adAsset.digest -replace '^sha256:', '') 'File' @() $null
 
+    # --- Thèmes Adminer officiels (dépôt vrana/adminer, même tag que le script ; aucun hash publié : SHA-256 calculé
+    #     sur le fichier téléchargé, puis figé dans le manifeste et revérifié à chaque installation) ---
+    $designs = "https://raw.githubusercontent.com/vrana/adminer/v$adVer/designs"
+    Add-Release 'AdminerCss' $adVer "$designs/pepa-linha/adminer.css" $null 'File' @() $null
+    Add-Release 'AdminerDarkCss' $adVer "$designs/dracula/adminer-dark.css" $null 'File' @() $null
+
+    # --- HeidiSQL portable 64 bits (digest SHA-256 publié par GitHub pour l'asset ; téléchargement officiel de heidisql.com) ---
+    $hs = (Get-Text 'https://api.github.com/repos/HeidiSQL/HeidiSQL/releases/latest') | ConvertFrom-Json
+    $hsVer = $hs.tag_name.TrimStart('v')
+    $hsAsset = $hs.assets | Where-Object { $_.name -eq "HeidiSQL_${hsVer}_64_Portable.zip" }
+    if (-not $hsAsset.digest -or $hsAsset.digest -notmatch '^sha256:') { throw 'Digest GitHub absent pour HeidiSQL' }
+    Add-Release 'HeidiSql' $hsVer $hsAsset.browser_download_url ($hsAsset.digest -replace '^sha256:', '') 'Zip' @() $null
+
     # --- MySQL 8.4 LTS : seul le MD5 est publié, SHA-256 calculé sur le zip officiel ---
     $my = $null
     for ($i = 40; $i -ge 0 -and -not $my; $i--) {
@@ -105,7 +118,7 @@ try {
     if (-not $my) { throw 'Zip MySQL introuvable sur cdn.mysql.com' }
     Add-Release 'MySql' $my.Ver $my.Url $null 'Zip' @() "mysql-$($my.Ver)-winx64"
 
-    $order = 'Apache', 'Php', 'MySql', 'Mailpit', 'Node', 'Composer', 'Adminer'
+    $order = 'Apache', 'Php', 'MySql', 'Mailpit', 'Node', 'Composer', 'Adminer', 'AdminerCss', 'AdminerDarkCss', 'HeidiSql'
     $sorted = $releases | Sort-Object { $order.IndexOf($_.component) }, @{ Expression = { [version]$_.version }; Descending = $true }
     $json = [ordered]@{ releases = @($sorted) } | ConvertTo-Json -Depth 5
     [IO.File]::WriteAllText($Output, $json, (New-Object Text.UTF8Encoding($false)))

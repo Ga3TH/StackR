@@ -420,6 +420,12 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
 
+                            <StackPanel Orientation="Horizontal" Margin="2,8,0,0"
+                                        Visibility="{Binding IsOfflineBundle, Converter={StaticResource Truthy}}">
+                                <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="16" Foreground="{StaticResource BrandVioletBrush}" />
+                                <TextBlock Margin="8,0,0,0" Style="{StaticResource FrHint}" FontWeight="SemiBold" VerticalAlignment="Center" Text="{x:Static res:Strings.FrOfflineBundle}" />
+                            </StackPanel>
+
                             <StackPanel Orientation="Horizontal" Margin="2,8,0,0">
                                 <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="16" Foreground="{StaticResource BrandVioletBrush}" />
                                 <TextBlock Margin="8,0,0,0" Style="{StaticResource FrHint}" VerticalAlignment="Center" Text="{Binding TotalSizeText}" />

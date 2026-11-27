@@ -2,9 +2,10 @@
 <#
 .SYNOPSIS
   Teste puis publie StackR (App + CLI) dans publish\StackR\, et compile l'installeur si Inno Setup est present.
+  -WithPackages : telecharge aussi (SHA-256 verifie) les composants par defaut dans publish\StackR\packages\n  (installation hors ligne, ~400 Mo).
 #>
 [CmdletBinding()]
-param([switch]$SkipTests)
+param([switch]$SkipTests, [switch]$WithPackages)
 
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
@@ -37,6 +38,12 @@ foreach ($exe in 'StackR.App.exe', 'stackr.exe') {
     if (-not (Test-Path (Join-Path $out $exe))) { throw "Fichier attendu absent : $exe" }
 }
 Write-Host "Publie dans $out" -ForegroundColor Green
+
+if ($WithPackages) {
+    Invoke-Step 'Paquets embarques (hors ligne)' {
+        & (Join-Path $root 'toolsetch-packages.ps1') -OutDir (Join-Path $out 'packages')
+    }
+}
 
 # Installeur (optionnel)
 $iscc = $null

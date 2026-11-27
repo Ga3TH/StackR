@@ -91,9 +91,15 @@
                                 </StackPanel>
                             </Grid>
 
-                            <!-- Interface graphique : Adminer -->
+                            <!-- Interfaces graphiques : HeidiSQL (principale) puis Adminer -->
                             <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
-                                <views:CaptionedButton Appearance="Primary" FontSize="16" Icon="{ui:SymbolIcon Open24}" Label="{x:Static res:Strings.DbOpenAdminer}" Command="{Binding OpenAdminerCommand}" Caption="{x:Static res:Strings.CapDbOpenAdminer}" />
+                                <views:CaptionedButton Appearance="Primary" FontSize="16" Icon="{ui:SymbolIcon Window24}" Label="{x:Static res:Strings.DbOpenHeidi}" Command="{Binding OpenHeidiCommand}" Caption="{x:Static res:Strings.CapDbOpenHeidi}" />
+                                <TextBlock Style="{StaticResource DbLabelStyle}" Margin="16,0,0,0" MaxWidth="520"
+                                           TextWrapping="Wrap" Text="{Binding HeidiHint}" />
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                                <views:CaptionedButton Icon="{ui:SymbolIcon Open24}" Label="{x:Static res:Strings.DbOpenAdminer}" Command="{Binding OpenAdminerCommand}" Caption="{x:Static res:Strings.CapDbOpenAdminer}" />
                                 <TextBlock Style="{StaticResource DbLabelStyle}" Margin="16,0,0,0" MaxWidth="520"
                                            TextWrapping="Wrap" Text="{Binding AdminerHint}" />
                             </StackPanel>

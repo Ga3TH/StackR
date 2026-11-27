@@ -40,7 +40,8 @@ public sealed partial class FirstRunViewModel : ObservableObject
     private const string LaragonWww = @"C:\laragon\www";
 
     private static readonly ComponentKind[] ComponentOrder =
-        [ComponentKind.Apache, ComponentKind.Php, ComponentKind.MySql, ComponentKind.Mailpit, ComponentKind.Node, ComponentKind.Composer, ComponentKind.Adminer];
+        [ComponentKind.Apache, ComponentKind.Php, ComponentKind.MySql, ComponentKind.Mailpit, ComponentKind.Node, ComponentKind.Composer, ComponentKind.Adminer,
+         ComponentKind.AdminerCss, ComponentKind.AdminerDarkCss, ComponentKind.HeidiSql];
 
     private readonly Func<StackRSettings, Task<StackREngine>> _startEngine;
     private readonly StackRSettings _initialSettings;
@@ -94,10 +95,24 @@ public sealed partial class FirstRunViewModel : ObservableObject
             }
         }
 
+        // Installateur complet : tous les paquets par défaut sont à côté de l'exécutable (hashes vérifiés à l'installation).
+        var defaults = Components.Where(c => StackREngine.DefaultComponents.Contains(c.Kind)).ToList();
+        IsOfflineBundle = defaults.Count > 0 && defaults.All(c => ComponentInstaller.IsPackagePresent(c.Release));
+        if (IsOfflineBundle)
+        {
+            foreach (var c in Components)
+            {
+                c.IsSelected = defaults.Contains(c); // le reste (Node.js) demanderait un téléchargement : à cocher à la main
+            }
+        }
+
         UpdateStepItems();
         ValidateFoldersLive();
         OnSelectionChanged();
     }
+
+    /// <summary>Vrai quand tous les composants par défaut sont fournis par l'installateur : « Tout est inclus : installation hors ligne ».</summary>
+    public bool IsOfflineBundle { get; }
 
     /// <summary>Levé quand l'assistant est terminé (paramètres enregistrés) : la fenêtre se ferme.</summary>
     public event EventHandler? CloseRequested;
@@ -1079,6 +1094,9 @@ public sealed partial class FirstRunViewModel : ObservableObject
         ComponentKind.Node => "Node.js",
         ComponentKind.Composer => "Composer",
         ComponentKind.Adminer => "Adminer",
+        ComponentKind.AdminerCss => Strings.FrCompAdminerCss,
+        ComponentKind.AdminerDarkCss => Strings.FrCompAdminerDarkCss,
+        ComponentKind.HeidiSql => "HeidiSQL",
         _ => kind.ToString(),
     };
 
@@ -1091,6 +1109,7 @@ public sealed partial class FirstRunViewModel : ObservableObject
         ComponentKind.Node => Strings.FrCompNode,
         ComponentKind.Composer => Strings.FrCompComposer,
         ComponentKind.Adminer => Strings.FrCompAdminer,
+        ComponentKind.HeidiSql => Strings.FrCompHeidiSql,
         _ => "",
     };
 }

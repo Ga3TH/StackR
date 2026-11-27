@@ -17,7 +17,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=..\publish
 OutputBaseFilename=StackR-Setup
-Compression=lzma2/ultra64
+Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 UninstallDisplayIcon={app}\StackR.App.exe
@@ -39,7 +39,9 @@ Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\publish\StackR\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\publish\StackR\*"; DestDir: "{app}"; Excludes: "packages\*"; Flags: ignoreversion recursesubdirs createallsubdirs
+; Paquets des composants par défaut (installation hors ligne) : déjà compressés (zip), donc stockés tels quels.
+Source: "..\publish\StackR\packages\*"; DestDir: "{app}\packages"; Flags: ignoreversion nocompression skipifsourcedoesntexist
 
 [Icons]
 Name: "{autoprograms}\StackR"; Filename: "{app}\StackR.App.exe"

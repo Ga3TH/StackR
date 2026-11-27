@@ -80,4 +80,11 @@ public static partial class Strings
     public static string DbAdminerOpened => Get(nameof(DbAdminerOpened));
     public static string DbAdminerFailed => Get(nameof(DbAdminerFailed));
     public static string VerDescAdminer => Get(nameof(VerDescAdminer));
+    public static string VerDescHeidiSql => Get(nameof(VerDescHeidiSql));
+    public static string DbOpenHeidi => Get(nameof(DbOpenHeidi));
+    public static string DbHeidiNotInstalled => Get(nameof(DbHeidiNotInstalled));
+    public static string DbHeidiNotRunning => Get(nameof(DbHeidiNotRunning));
+    public static string DbHeidiOpened => Get(nameof(DbHeidiOpened));
+    public static string DbHeidiFailed => Get(nameof(DbHeidiFailed));
+    public static string DbHeidiNoPassword => Get(nameof(DbHeidiNoPassword));
 }

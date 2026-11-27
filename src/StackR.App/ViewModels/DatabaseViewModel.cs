@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using StackR.App.Resources;
 using StackR.Core;
+using StackR.Core.Config;
 using StackR.Core.Manifests;
 using StackR.Core.Services;
 using Wpf.Ui.Controls;
@@ -33,7 +34,7 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
         // StatusChanged est levé hors du thread de l'interface.
         foreach (var service in _engine.Services.Services)
         {
-            service.StatusChanged += (_, _) => System.Windows.Application.Current?.Dispatcher.BeginInvoke(RefreshAdminer);
+            service.StatusChanged += (_, _) => System.Windows.Application.Current?.Dispatcher.BeginInvoke(RefreshTools);
         }
     }
 
@@ -81,6 +82,13 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
     [ObservableProperty]
     private string _adminerHint = string.Empty;
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(OpenHeidiCommand))]
+    private bool _canOpenHeidi;
+
+    [ObservableProperty]
+    private string _heidiHint = string.Empty;
+
     public string AdminerLoginHelp => UiFormat.Of(Strings.DbAdminerLogin, Host, User);
 
     public bool IsEmpty => !IsReady;
@@ -109,7 +117,94 @@ public sealed partial class DatabaseViewModel : PageViewModelBase, IDisposable
 
         OnPropertyChanged(nameof(DisplayedPassword));
         OnPropertyChanged(nameof(EnvPreview));
+        RefreshTools();
+    }
+
+    /// <summary>Met à jour les deux interfaces graphiques (HeidiSQL, Adminer).</summary>
+    public void RefreshTools()
+    {
+        RefreshHeidi();
         RefreshAdminer();
+    }
+
+    /// <summary>HeidiSQL s'ouvre s'il est installé et actif et si MySQL tourne ; sinon on explique pourquoi.</summary>
+    public void RefreshHeidi()
+    {
+        if (HeidiDirectory() is null)
+        {
+            CanOpenHeidi = false;
+            HeidiHint = Strings.DbHeidiNotInstalled;
+        }
+        else if (!IsMySqlRunning())
+        {
+            CanOpenHeidi = false;
+            HeidiHint = Strings.DbHeidiNotRunning;
+        }
+        else
+        {
+            CanOpenHeidi = true;
+            HeidiHint = string.Empty;
+        }
+    }
+
+    private string? HeidiDirectory() =>
+        _engine.ActiveDirectory(ComponentKind.HeidiSql) is { } dir && File.Exists(Path.Combine(dir, "heidisql.exe")) ? dir : null;
+
+    [RelayCommand(CanExecute = nameof(CanOpenHeidi))]
+    private async Task OpenHeidiAsync()
+    {
+        ClearMessage();
+        if (HeidiDirectory() is not { } dir || _password is null)
+        {
+            RefreshHeidi();
+            return;
+        }
+
+        if (!IsMySqlRunning())
+        {
+            Show(Strings.DbHeidiNotRunning, InfoBarSeverity.Warning);
+            RefreshHeidi();
+            return;
+        }
+
+        // Le mot de passe va dans la session HeidiSQL (settings.json, format HeidiSQL), jamais sur la ligne de commande.
+        var port = _engine.Settings.MySqlPort;
+        string? sessionProblem = null;
+        var sessionSaved = false;
+        try
+        {
+            HeidiSqlSettings.WriteSession(dir, port, _password);
+            sessionSaved = true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            sessionProblem = ex.Message;
+        }
+
+        try
+        {
+            var psi = new ProcessStartInfo(Path.Combine(dir, "heidisql.exe")) { WorkingDirectory = dir, UseShellExecute = false };
+            foreach (var arg in HeidiSqlSettings.LaunchArguments(sessionSaved, port))
+            {
+                psi.ArgumentList.Add(arg);
+            }
+
+            using var process = Process.Start(psi);
+        }
+        catch (Exception ex) when (ex is Win32Exception or InvalidOperationException)
+        {
+            HeidiSqlSettings.ClearPassword(dir);
+            Show(UiFormat.Of(Strings.DbHeidiFailed, ex.Message), InfoBarSeverity.Error);
+            return;
+        }
+
+        Show(
+            sessionProblem is null ? Strings.DbHeidiOpened : UiFormat.Of(Strings.DbHeidiNoPassword, sessionProblem),
+            sessionProblem is null ? InfoBarSeverity.Success : InfoBarSeverity.Warning);
+
+        // HeidiSQL a lu la session au démarrage : on retire le mot de passe du disque peu après (comme pour le terminal mysql).
+        await Task.Delay(OptionsFileLifetime);
+        HeidiSqlSettings.ClearPassword(dir);
     }
 
     /// <summary>Adminer s'ouvre si le composant est installé et actif et si Apache tourne ; sinon on explique pourquoi.</summary>

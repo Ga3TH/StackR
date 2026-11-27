@@ -29,6 +29,11 @@ jobs:
         shell: pwsh
         run: ./build.ps1 -SkipTests
 
+      - name: Paquets des composants par défaut (installation hors ligne)
+        shell: pwsh
+        # SHA-256 vérifié pour chaque fichier (manifest/components.json) : la moindre différence fait échouer la release.
+        run: ./tools/fetch-packages.ps1 -OutDir publish/StackR/packages
+
       - name: Installeur Inno Setup
         shell: pwsh
         run: |

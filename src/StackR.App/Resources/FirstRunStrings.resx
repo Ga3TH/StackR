@@ -197,4 +197,8 @@ Journal : {2}</value></data>
 
 Les détails ont été enregistrés dans {1}. Si le problème persiste, redémarrez StackR.</value></data>
   <data name="FrCompAdminer" xml:space="preserve"><value>Interface graphique pour gérer vos bases MySQL</value></data>
+  <data name="FrCompHeidiSql" xml:space="preserve"><value>Gestionnaire MySQL natif pour Windows (HeidiSQL)</value></data>
+  <data name="FrCompAdminerCss" xml:space="preserve"><value>Thème clair d'Adminer</value></data>
+  <data name="FrCompAdminerDarkCss" xml:space="preserve"><value>Thème sombre d'Adminer</value></data>
+  <data name="FrOfflineBundle" xml:space="preserve"><value>Tout est inclus : installation hors ligne</value></data>
 </root>

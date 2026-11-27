@@ -23,8 +23,19 @@ public sealed class ComponentInstaller(SecureDownloader downloader, StackRPaths 
 
     private readonly SecureDownloader _downloader = downloader ?? throw new ArgumentNullException(nameof(downloader));
     private readonly StackRPaths _paths = paths ?? throw new ArgumentNullException(nameof(paths));
-    private readonly string? _packagesDir = packagesDir
-        ?? (Environment.ProcessPath is { } exe && Path.GetDirectoryName(exe) is { Length: > 0 } dir ? Path.Combine(dir, "packages") : null);
+    private readonly string? _packagesDir = packagesDir ?? DefaultPackagesDirectory();
+
+    /// <summary><c>packages\</c> à côté de l'exécutable courant (installateur complet), ou null si l'exécutable est inconnu.</summary>
+    public static string? DefaultPackagesDirectory() =>
+        Environment.ProcessPath is { } exe && Path.GetDirectoryName(exe) is { Length: > 0 } dir ? Path.Combine(dir, "packages") : null;
+
+    /// <summary>Le paquet de <paramref name="r"/> est-il présent dans <paramref name="packagesDir"/> (défaut : <see cref="DefaultPackagesDirectory"/>) ? Empreinte non vérifiée ici.</summary>
+    public static bool IsPackagePresent(ComponentRelease r, string? packagesDir = null)
+    {
+        ArgumentNullException.ThrowIfNull(r);
+        var name = Path.GetFileName(r.Url.AbsolutePath);
+        return (packagesDir ?? DefaultPackagesDirectory()) is { } dir && !string.IsNullOrEmpty(name) && File.Exists(Path.Combine(dir, name));
+    }
 
     /// <summary>Chemin du paquet local de <paramref name="r"/> s'il existe (son empreinte n'est pas encore vérifiée), sinon null.</summary>
     public string? LocalPackagePath(ComponentRelease r)

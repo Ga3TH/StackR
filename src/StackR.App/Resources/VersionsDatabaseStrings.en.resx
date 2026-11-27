@@ -100,4 +100,11 @@
   <data name="DbAdminerOpened" xml:space="preserve"><value>Adminer opened in your browser.</value></data>
   <data name="DbAdminerFailed" xml:space="preserve"><value>Could not open Adminer: {0}</value></data>
   <data name="VerDescAdminer" xml:space="preserve"><value>Graphical MySQL manager (http://localhost/adminer)</value></data>
+  <data name="VerDescHeidiSql" xml:space="preserve"><value>Native Windows MySQL client, already connected to StackR</value></data>
+  <data name="DbOpenHeidi" xml:space="preserve"><value>Open HeidiSQL</value></data>
+  <data name="DbHeidiNotInstalled" xml:space="preserve"><value>HeidiSQL is not installed. Install it from the Versions page.</value></data>
+  <data name="DbHeidiNotRunning" xml:space="preserve"><value>MySQL must be running to open HeidiSQL. Start it from the dashboard.</value></data>
+  <data name="DbHeidiOpened" xml:space="preserve"><value>HeidiSQL is open, connected to StackR.</value></data>
+  <data name="DbHeidiFailed" xml:space="preserve"><value>Could not open HeidiSQL: {0}</value></data>
+  <data name="DbHeidiNoPassword" xml:space="preserve"><value>HeidiSQL is open but the password could not be saved in its session (the file cannot be modified: {0}). Paste it with the Copy button.</value></data>
 </root>

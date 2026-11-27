@@ -87,6 +87,14 @@ public static class HeidiSqlSettings
         Save(heidiDir, root);
     }
 
+    /// <summary>
+    /// Arguments de <c>heidisql.exe</c> : la session enregistrée (<c>--description</c>) ou, sans session, la connexion
+    /// sans mot de passe (<c>--host</c>, <c>--port</c>, <c>--user</c>). Jamais de mot de passe en ligne de commande.
+    /// </summary>
+    public static IReadOnlyList<string> LaunchArguments(bool sessionSaved, int port) => sessionSaved
+        ? [$"--description={SessionName}"]
+        : ["--host=127.0.0.1", string.Create(System.Globalization.CultureInfo.InvariantCulture, $"--port={port}"), "--user=root"];
+
     /// <summary>Vide le mot de passe de la session (au mieux : sans effet si le fichier est absent, illisible ou verrouillé).</summary>
     public static void ClearPassword(string heidiDir)
     {

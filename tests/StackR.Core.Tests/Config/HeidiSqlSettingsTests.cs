@@ -55,6 +55,15 @@ public class HeidiSqlSettingsTests
     }
 
     [Fact]
+    public void LaunchArguments_NeverContainAPassword()
+    {
+        Assert.Equal(["--description=StackR"], HeidiSqlSettings.LaunchArguments(true, 3306));
+        var fallback = HeidiSqlSettings.LaunchArguments(false, 3307);
+        Assert.Equal(["--host=127.0.0.1", "--port=3307", "--user=root"], fallback);
+        Assert.DoesNotContain(fallback, a => a.Contains("password", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void WriteSession_CreatesSessionAndPortableLock()
     {
         using var tmp = new TempDirectory();

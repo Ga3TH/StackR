@@ -197,4 +197,8 @@ Log: {2}</value></data>
 
 Details were saved to {1}. If the problem persists, restart StackR.</value></data>
   <data name="FrCompAdminer" xml:space="preserve"><value>Graphical manager for your MySQL databases</value></data>
+  <data name="FrCompHeidiSql" xml:space="preserve"><value>Native MySQL manager for Windows (HeidiSQL)</value></data>
+  <data name="FrCompAdminerCss" xml:space="preserve"><value>Adminer light theme</value></data>
+  <data name="FrCompAdminerDarkCss" xml:space="preserve"><value>Adminer dark theme</value></data>
+  <data name="FrOfflineBundle" xml:space="preserve"><value>Everything is included: offline installation</value></data>
 </root>
