@@ -3,6 +3,11 @@
 Format basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/),
 versionnage [SemVer](https://semver.org/lang/fr/).
 
+## [0.1.6] - 2026-11-27
+
+### Corrigé
+- StackR SQL : le logo en haut à gauche ne s'affichait pas.
+
 ## [0.1.5] - 2026-11-27
 
 ### Ajouté
