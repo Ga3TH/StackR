@@ -2,6 +2,7 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:views="clr-namespace:StackR.App.Views"
       xmlns:res="clr-namespace:StackR.App.Resources"
       Title="{Binding Title}">
     <Page.Resources>
@@ -61,10 +62,10 @@
         </Style>
 
         <!-- Bouton principal tant que le service est arrêté, secondaire une fois actif -->
-        <Style x:Key="ToggleButtonStyle" TargetType="ui:Button" BasedOn="{StaticResource {x:Type ui:Button}}">
+        <Style x:Key="ToggleButtonStyle" TargetType="views:CaptionedButton">
             <Setter Property="Appearance" Value="Primary" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="CaptionWidth" Value="320" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsRunning}" Value="True">
                     <Setter Property="Appearance" Value="Secondary" />
@@ -106,13 +107,16 @@
                     </StackPanel>
                     <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,4,0,0" Text="{Binding PortsText}" />
 
-                    <ui:Button Style="{StaticResource ToggleButtonStyle}" Margin="0,16,0,0"
-                               Command="{Binding ToggleCommand}">
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="{Binding ActionIcon}" Margin="0,0,8,0" />
-                            <TextBlock Text="{Binding ActionText}" />
-                        </StackPanel>
-                    </ui:Button>
+                    <views:CaptionedButton Style="{StaticResource ToggleButtonStyle}" Margin="0,16,0,0"
+                                           Command="{Binding ToggleCommand}"
+                                           Caption="{Binding Name, StringFormat={x:Static res:Strings.CapCardToggleFormat}}">
+                        <views:CaptionedButton.Label>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <ui:SymbolIcon Symbol="{Binding ActionIcon}" Margin="0,0,8,0" />
+                                <TextBlock Text="{Binding ActionText}" />
+                            </StackPanel>
+                        </views:CaptionedButton.Label>
+                    </views:CaptionedButton>
 
                     <ui:InfoBar Margin="0,12,0,0" Severity="Error" IsClosable="False"
                                 Title="{x:Static res:Strings.DashLastError}"
@@ -122,9 +126,7 @@
                     <StackPanel Style="{StaticResource WhenNotInstalledStyle}" Margin="0,12,0,0">
                         <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap"
                                    Text="{x:Static res:Strings.DashNotInstalledHint}" />
-                        <ui:Button Margin="0,8,0,0" Appearance="Secondary" HorizontalAlignment="Left"
-                                   Content="{x:Static res:Strings.DashGoToVersions}"
-                                   Command="{Binding OpenVersionsCommand}" />
+                        <views:CaptionedButton Margin="0,8,0,0" Appearance="Secondary" HorizontalAlignment="Left" Label="{x:Static res:Strings.DashGoToVersions}" Command="{Binding OpenVersionsCommand}" Caption="{x:Static res:Strings.CapDashGoToVersions}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -151,12 +153,8 @@
                     <TextBlock Style="{StaticResource PageSubtitleTextStyle}" Text="{Binding Subtitle}" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,4,0,0">
-                    <ui:Button Appearance="Primary" Icon="{ui:SymbolIcon Play24}"
-                               Content="{x:Static res:Strings.DashStartAll}"
-                               Command="{Binding StartAllCommand}" />
-                    <ui:Button Margin="8,0,0,0" Icon="{ui:SymbolIcon Stop24}"
-                               Content="{x:Static res:Strings.DashStopAll}"
-                               Command="{Binding StopAllCommand}" />
+                    <views:CaptionedButton Appearance="Primary" Icon="{ui:SymbolIcon Play24}" Label="{x:Static res:Strings.DashStartAll}" Command="{Binding StartAllCommand}" Caption="{x:Static res:Strings.CapDashStartAll}" />
+                    <views:CaptionedButton Margin="8,0,0,0" Icon="{ui:SymbolIcon Stop24}" Label="{x:Static res:Strings.DashStopAll}" Command="{Binding StopAllCommand}" Caption="{x:Static res:Strings.CapDashStopAll}" />
                 </StackPanel>
             </Grid>
 
@@ -204,15 +202,9 @@
                     <!-- Raccourcis -->
                     <TextBlock Style="{StaticResource CaptionTextStyle}" Text="{x:Static res:Strings.DashShortcuts}" />
                     <WrapPanel Margin="0,8,0,0">
-                        <ui:Button Margin="0,0,8,8" Icon="{ui:SymbolIcon Window24}"
-                                   Content="{x:Static res:Strings.DashOpenTerminal}"
-                                   Command="{Binding OpenTerminalCommand}" />
-                        <ui:Button Margin="0,0,8,8" Icon="{ui:SymbolIcon Folder24}"
-                                   Content="{x:Static res:Strings.DashOpenWww}"
-                                   Command="{Binding OpenWwwCommand}" />
-                        <ui:Button Margin="0,0,8,8" Icon="{ui:SymbolIcon Mail24}"
-                                   Content="{x:Static res:Strings.DashOpenMailpit}"
-                                   Command="{Binding OpenMailpitCommand}" />
+                        <views:CaptionedButton Margin="0,0,8,8" Icon="{ui:SymbolIcon Window24}" Label="{x:Static res:Strings.DashOpenTerminal}" Command="{Binding OpenTerminalCommand}" Caption="{x:Static res:Strings.CapDashOpenTerminal}" />
+                        <views:CaptionedButton Margin="0,0,8,8" Icon="{ui:SymbolIcon Folder24}" Label="{x:Static res:Strings.DashOpenWww}" Command="{Binding OpenWwwCommand}" Caption="{x:Static res:Strings.CapDashOpenWww}" />
+                        <views:CaptionedButton Margin="0,0,8,8" Icon="{ui:SymbolIcon Mail24}" Label="{x:Static res:Strings.DashOpenMailpit}" Command="{Binding OpenMailpitCommand}" Caption="{x:Static res:Strings.CapDashOpenMailpit}" />
                     </WrapPanel>
                     <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap"
                                Text="{Binding WwwPath, StringFormat={x:Static res:Strings.DashWwwFormat}}" />
@@ -221,6 +213,8 @@
 
                     <!-- Sites récents -->
                     <TextBlock Style="{StaticResource CaptionTextStyle}" Text="{x:Static res:Strings.DashRecentSites}" />
+                    <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,2,0,0" TextWrapping="Wrap"
+                               Text="{x:Static res:Strings.CapRecentSitesHint}" />
                     <ItemsControl Margin="0,8,0,0" ItemsSource="{Binding RecentSites}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -229,7 +223,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <ui:HyperlinkButton Margin="0,0,12,0" Padding="0" Content="{Binding}"
+                                <ui:HyperlinkButton Margin="0,0,12,0" Padding="0" Content="{Binding}" ToolTip="{x:Static res:Strings.CapRecentSitesHint}"
                                                     Icon="{ui:SymbolIcon Open16}"
                                                     Command="{Binding DataContext.OpenSiteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding}" />

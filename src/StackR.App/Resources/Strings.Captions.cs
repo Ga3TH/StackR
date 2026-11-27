@@ -1,0 +1,60 @@
+namespace StackR.App.Resources;
+
+/// <summary>Chaînes : légendes sous les boutons et interrupteurs (valeurs dans CaptionsStrings.resx et CaptionsStrings.en.resx).</summary>
+public static partial class Strings
+{
+    public static string CapDashStartAll => Get(nameof(CapDashStartAll));
+    public static string CapDashStopAll => Get(nameof(CapDashStopAll));
+    public static string CapDashOpenTerminal => Get(nameof(CapDashOpenTerminal));
+    public static string CapDashOpenWww => Get(nameof(CapDashOpenWww));
+    public static string CapDashOpenMailpit => Get(nameof(CapDashOpenMailpit));
+    public static string CapDashGoToVersions => Get(nameof(CapDashGoToVersions));
+    public static string CapSitesNew => Get(nameof(CapSitesNew));
+    public static string CapRefresh => Get(nameof(CapRefresh));
+    public static string CapSitesOpen => Get(nameof(CapSitesOpen));
+    public static string CapSitesFolder => Get(nameof(CapSitesFolder));
+    public static string CapSitesVsCode => Get(nameof(CapSitesVsCode));
+    public static string CapSitesCreate => Get(nameof(CapSitesCreate));
+    public static string CapSitesCancelRun => Get(nameof(CapSitesCancelRun));
+    public static string CapSitesClose => Get(nameof(CapSitesClose));
+    public static string CapTogglePassword => Get(nameof(CapTogglePassword));
+    public static string CapDbCopy => Get(nameof(CapDbCopy));
+    public static string CapDbOpenAdminer => Get(nameof(CapDbOpenAdminer));
+    public static string CapDbChangePassword => Get(nameof(CapDbChangePassword));
+    public static string CapDbOpenClient => Get(nameof(CapDbOpenClient));
+    public static string CapDbApply => Get(nameof(CapDbApply));
+    public static string CapDbCancel => Get(nameof(CapDbCancel));
+    public static string CapDbCopyEnv => Get(nameof(CapDbCopyEnv));
+    public static string CapVerInstall => Get(nameof(CapVerInstall));
+    public static string CapVerCancel => Get(nameof(CapVerCancel));
+    public static string CapVerActivate => Get(nameof(CapVerActivate));
+    public static string CapVerUninstall => Get(nameof(CapVerUninstall));
+    public static string CapLogsClear => Get(nameof(CapLogsClear));
+    public static string CapLogsCopy => Get(nameof(CapLogsCopy));
+    public static string CapLogsOpenFolder => Get(nameof(CapLogsOpenFolder));
+    public static string CapSetRestartNow => Get(nameof(CapSetRestartNow));
+    public static string CapSetChange => Get(nameof(CapSetChange));
+    public static string CapSetResetDefault => Get(nameof(CapSetResetDefault));
+    public static string CapSetBrowse => Get(nameof(CapSetBrowse));
+    public static string CapSetCaTrust => Get(nameof(CapSetCaTrust));
+    public static string CapSetPortsSave => Get(nameof(CapSetPortsSave));
+    public static string CapSetAboutGitHub => Get(nameof(CapSetAboutGitHub));
+    public static string CapSetAboutRootFolder => Get(nameof(CapSetAboutRootFolder));
+    public static string CapSetAboutLogsFolder => Get(nameof(CapSetAboutLogsFolder));
+    public static string CapFrBrowse => Get(nameof(CapFrBrowse));
+    public static string CapFrRecheck => Get(nameof(CapFrRecheck));
+    public static string CapFrVcDownload => Get(nameof(CapFrVcDownload));
+    public static string CapRetryInstall => Get(nameof(CapRetryInstall));
+    public static string CapAddToPath => Get(nameof(CapAddToPath));
+    public static string CapFrRetryAll => Get(nameof(CapFrRetryAll));
+    public static string CapFrCancelInstall => Get(nameof(CapFrCancelInstall));
+    public static string CapFrTrust => Get(nameof(CapFrTrust));
+    public static string CapFrBack => Get(nameof(CapFrBack));
+    public static string CapFrNext => Get(nameof(CapFrNext));
+    public static string CapFinish => Get(nameof(CapFinish));
+    public static string CapCardToggleFormat => Get(nameof(CapCardToggleFormat));
+    public static string CapFollowWindows => Get(nameof(CapFollowWindows));
+    public static string CapRecentSitesHint => Get(nameof(CapRecentSitesHint));
+    public static string CapPhpSwitchHint => Get(nameof(CapPhpSwitchHint));
+    public static string CapLogsFollowHint => Get(nameof(CapLogsFollowHint));
+}

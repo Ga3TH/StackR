@@ -1,0 +1,23 @@
+<UserControl x:Class="StackR.App.Views.CaptionedButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:local="clr-namespace:StackR.App.Views"
+             Focusable="False">
+    <!-- Bouton + courte légende en français dessous (la même phrase sert d'info-bulle). -->
+    <StackPanel>
+        <ui:Button HorizontalAlignment="Stretch"
+                   IsDefault="{Binding IsDefault, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}"
+                   Content="{Binding Label, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}"
+                   Icon="{Binding Icon, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}"
+                   Appearance="{Binding Appearance, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}"
+                   Command="{Binding Command, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}"
+                   CommandParameter="{Binding CommandParameter, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}"
+                   ToolTip="{Binding Caption, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}"
+                   AutomationProperties.HelpText="{Binding Caption, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}" />
+        <TextBlock Style="{StaticResource CaptionTextStyle}" TextWrapping="Wrap" Margin="2,4,0,0"
+                   MaxWidth="{Binding CaptionWidth, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}"
+                   HorizontalAlignment="Left"
+                   Text="{Binding Caption, RelativeSource={RelativeSource AncestorType=local:CaptionedButton}}" />
+    </StackPanel>
+</UserControl>

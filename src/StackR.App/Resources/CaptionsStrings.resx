@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="CapDashStartAll" xml:space="preserve"><value>Tout démarrer — lance Apache, MySQL et Mailpit (ceux qui sont installés).</value></data>
+  <data name="CapDashStopAll" xml:space="preserve"><value>Tout arrêter — coupe tous les services lancés par StackR.</value></data>
+  <data name="CapDashOpenTerminal" xml:space="preserve"><value>Ouvre un terminal où php, composer et mysql sont déjà utilisables.</value></data>
+  <data name="CapDashOpenWww" xml:space="preserve"><value>Ouvre le dossier qui contient tes sites dans l'explorateur.</value></data>
+  <data name="CapDashOpenMailpit" xml:space="preserve"><value>Ouvre la boîte Mailpit : tous les mails envoyés par tes sites y arrivent.</value></data>
+  <data name="CapDashGoToVersions" xml:space="preserve"><value>Ouvre la page Versions pour installer ce composant.</value></data>
+  <data name="CapSitesNew" xml:space="preserve"><value>Crée un site (PHP ou Laravel) avec son adresse https://nom.test.</value></data>
+  <data name="CapRefresh" xml:space="preserve"><value>Relit le dossier www pour détecter les sites ajoutés ou supprimés.</value></data>
+  <data name="CapSitesOpen" xml:space="preserve"><value>Ouvre ce site dans le navigateur.</value></data>
+  <data name="CapSitesFolder" xml:space="preserve"><value>Ouvre le dossier du site dans l'explorateur.</value></data>
+  <data name="CapSitesVsCode" xml:space="preserve"><value>Ouvre le dossier du site dans Visual Studio Code.</value></data>
+  <data name="CapSitesCreate" xml:space="preserve"><value>Crée le dossier du site, son adresse .test et (Laravel) installe le projet.</value></data>
+  <data name="CapSitesCancelRun" xml:space="preserve"><value>Interrompt la création en cours et retire le dossier.</value></data>
+  <data name="CapSitesClose" xml:space="preserve"><value>Ferme cette fenêtre.</value></data>
+  <data name="CapTogglePassword" xml:space="preserve"><value>Affiche ou masque le mot de passe root de MySQL.</value></data>
+  <data name="CapDbCopy" xml:space="preserve"><value>Copie le mot de passe root dans le presse-papiers.</value></data>
+  <data name="CapDbOpenAdminer" xml:space="preserve"><value>Gère tes bases MySQL dans le navigateur (http://localhost/adminer).</value></data>
+  <data name="CapDbChangePassword" xml:space="preserve"><value>Change le mot de passe root de MySQL (configuration mise à jour).</value></data>
+  <data name="CapDbOpenClient" xml:space="preserve"><value>Ouvre un terminal avec le client mysql déjà connecté en root.</value></data>
+  <data name="CapDbApply" xml:space="preserve"><value>Applique le nouveau mot de passe root.</value></data>
+  <data name="CapDbCancel" xml:space="preserve"><value>Abandonne le changement de mot de passe.</value></data>
+  <data name="CapDbCopyEnv" xml:space="preserve"><value>Copie les lignes DB_* à coller dans le .env de ton projet Laravel.</value></data>
+  <data name="CapVerInstall" xml:space="preserve"><value>Télécharge cette version (SHA-256 vérifié) et l'installe.</value></data>
+  <data name="CapVerCancel" xml:space="preserve"><value>Interrompt le téléchargement en cours.</value></data>
+  <data name="CapVerActivate" xml:space="preserve"><value>Utilise cette version : la configuration est réécrite, le service redémarre.</value></data>
+  <data name="CapVerUninstall" xml:space="preserve"><value>Supprime cette version du disque (impossible si elle est active).</value></data>
+  <data name="CapLogsClear" xml:space="preserve"><value>Vide l'affichage ; le fichier journal n'est pas supprimé.</value></data>
+  <data name="CapLogsCopy" xml:space="preserve"><value>Copie le texte affiché dans le presse-papiers.</value></data>
+  <data name="CapLogsOpenFolder" xml:space="preserve"><value>Ouvre le dossier des journaux dans l'explorateur.</value></data>
+  <data name="CapSetRestartNow" xml:space="preserve"><value>Relance StackR pour appliquer les ports et dossiers modifiés.</value></data>
+  <data name="CapSetChange" xml:space="preserve"><value>Choisit un autre dossier racine (pris en compte au prochain lancement).</value></data>
+  <data name="CapSetResetDefault" xml:space="preserve"><value>Revient au dossier www par défaut, dans la racine de StackR.</value></data>
+  <data name="CapSetBrowse" xml:space="preserve"><value>Choisit un autre dossier pour tes sites.</value></data>
+  <data name="CapSetCaTrust" xml:space="preserve"><value>Faire confiance — ajoute le certificat local de StackR à Windows pour que le navigateur n'affiche pas d'alerte.</value></data>
+  <data name="CapSetPortsSave" xml:space="preserve"><value>Enregistre les ports ; ils s'appliquent au prochain lancement de StackR.</value></data>
+  <data name="CapSetAboutGitHub" xml:space="preserve"><value>Ouvre la page du projet sur GitHub.</value></data>
+  <data name="CapSetAboutRootFolder" xml:space="preserve"><value>Ouvre le dossier racine de StackR dans l'explorateur.</value></data>
+  <data name="CapSetAboutLogsFolder" xml:space="preserve"><value>Ouvre le dossier des journaux dans l'explorateur.</value></data>
+  <data name="CapFrBrowse" xml:space="preserve"><value>Ouvre l'explorateur pour choisir le dossier.</value></data>
+  <data name="CapFrRecheck" xml:space="preserve"><value>Refait les vérifications ci-dessus.</value></data>
+  <data name="CapFrVcDownload" xml:space="preserve"><value>Ouvre la page Microsoft du runtime Visual C++ nécessaire à Apache, PHP et MySQL.</value></data>
+  <data name="CapRetryInstall" xml:space="preserve"><value>Relance l'installation de ce composant.</value></data>
+  <data name="CapAddToPath" xml:space="preserve"><value>Ajoute StackR au PATH de ton compte pour utiliser php et composer partout.</value></data>
+  <data name="CapFrRetryAll" xml:space="preserve"><value>Relance l'installation des composants en échec.</value></data>
+  <data name="CapFrCancelInstall" xml:space="preserve"><value>Interrompt les installations en cours.</value></data>
+  <data name="CapFrTrust" xml:space="preserve"><value>Faire confiance — ajoute le certificat local de StackR à Windows pour que le navigateur n'affiche pas d'alerte.</value></data>
+  <data name="CapFrBack" xml:space="preserve"><value>Revient à l'étape précédente.</value></data>
+  <data name="CapFrNext" xml:space="preserve"><value>Passe à l'étape suivante.</value></data>
+  <data name="CapFinish" xml:space="preserve"><value>Termine l'assistant et ouvre StackR.</value></data>
+  <data name="CapCardToggleFormat" xml:space="preserve"><value>Démarre ou arrête {0} en arrière-plan, sur cette machine uniquement.</value></data>
+  <data name="CapFollowWindows" xml:space="preserve"><value>Suit le thème clair ou sombre de Windows.</value></data>
+  <data name="CapRecentSitesHint" xml:space="preserve"><value>Clique sur une adresse pour ouvrir le site dans le navigateur.</value></data>
+  <data name="CapPhpSwitchHint" xml:space="preserve"><value>Choisis la version de PHP utilisée par Apache et par la ligne de commande.</value></data>
+  <data name="CapLogsFollowHint" xml:space="preserve"><value>Fait défiler le journal tout seul vers les nouvelles lignes.</value></data>
+</root>

@@ -221,9 +221,11 @@
                                                     Icon="{ui:SymbolIcon Folder24}"
                                                     AutomationProperties.Name="{x:Static res:Strings.FrRootLabel}" />
                                         <ui:Button Grid.Column="1" Margin="8,0,0,0" Content="{x:Static res:Strings.FrBrowse}"
+                                                   ToolTip="{x:Static res:Strings.CapFrBrowse}"
                                                    Icon="{ui:SymbolIcon FolderOpen24}" Command="{Binding BrowseRootCommand}"
                                                    VerticalAlignment="Stretch" />
                                     </Grid>
+                                    <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,6,0,0" TextWrapping="Wrap" Text="{x:Static res:Strings.CapFrBrowse}" />
                                     <TextBlock Style="{StaticResource FrError}" Text="{Binding RootError}"
                                                Visibility="{Binding RootError, Converter={StaticResource Truthy}}" />
                                 </StackPanel>
@@ -244,9 +246,11 @@
                                                     Icon="{ui:SymbolIcon Globe24}"
                                                     AutomationProperties.Name="{x:Static res:Strings.FrWwwLabel}" />
                                         <ui:Button Grid.Column="1" Margin="8,0,0,0" Content="{x:Static res:Strings.FrBrowse}"
+                                                   ToolTip="{x:Static res:Strings.CapFrBrowse}"
                                                    Icon="{ui:SymbolIcon FolderOpen24}" Command="{Binding BrowseWwwCommand}"
                                                    IsEnabled="{Binding IsWwwEditable}" VerticalAlignment="Stretch" />
                                     </Grid>
+                                    <TextBlock Style="{StaticResource CaptionTextStyle}" Margin="0,6,0,0" TextWrapping="Wrap" Text="{x:Static res:Strings.CapFrBrowse}" />
                                     <TextBlock Style="{StaticResource FrError}" Text="{Binding WwwError}"
                                                Visibility="{Binding WwwError, Converter={StaticResource Truthy}}" />
 
@@ -281,8 +285,7 @@
                                     <ui:ProgressRing IsIndeterminate="True" Width="18" Height="18" />
                                     <TextBlock Margin="10,0,0,0" Style="{StaticResource FrHint}" Text="{x:Static res:Strings.FrChecking}" />
                                 </StackPanel>
-                                <ui:Button Grid.Column="1" Content="{x:Static res:Strings.FrRecheck}" Icon="{ui:SymbolIcon ArrowSync24}"
-                                           Command="{Binding RefreshChecksCommand}" />
+                                <views:CaptionedButton Grid.Column="1" Label="{x:Static res:Strings.FrRecheck}" Icon="{ui:SymbolIcon ArrowSync24}" Command="{Binding RefreshChecksCommand}" Caption="{x:Static res:Strings.CapFrRecheck}" />
                             </Grid>
 
                             <ui:InfoBar Title="{x:Static res:Strings.FrChecksAllGoodTitle}" Message="{x:Static res:Strings.FrChecksAllGoodMessage}"
@@ -329,10 +332,8 @@
                                                    Visibility="{Binding VcRedistMissing, Converter={StaticResource Truthy}}" />
                                         <StackPanel Orientation="Horizontal" Margin="0,12,0,0"
                                                     Visibility="{Binding VcRedistMissing, Converter={StaticResource Truthy}}">
-                                            <ui:Button Appearance="Primary" Content="{x:Static res:Strings.FrVcDownload}"
-                                                       Icon="{ui:SymbolIcon Open24}" Command="{Binding OpenVcRedistCommand}" />
-                                            <ui:Button Margin="8,0,0,0" Content="{x:Static res:Strings.FrRecheck}"
-                                                       Icon="{ui:SymbolIcon ArrowSync24}" Command="{Binding RefreshChecksCommand}" />
+                                            <views:CaptionedButton Appearance="Primary" Label="{x:Static res:Strings.FrVcDownload}" Icon="{ui:SymbolIcon Open24}" Command="{Binding OpenVcRedistCommand}" Caption="{x:Static res:Strings.CapFrVcDownload}" />
+                                            <views:CaptionedButton Margin="8,0,0,0" Label="{x:Static res:Strings.FrRecheck}" Icon="{ui:SymbolIcon ArrowSync24}" Command="{Binding RefreshChecksCommand}" Caption="{x:Static res:Strings.CapFrRecheck}" />
                                         </StackPanel>
                                         <TextBlock Style="{StaticResource FrLabel}" Text="{x:Static res:Strings.FrVcPresent}"
                                                    Visibility="{Binding VcRedistMissing, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
@@ -464,11 +465,7 @@
                                                     <TextBlock Style="{StaticResource FrError}" Text="{Binding ErrorText}"
                                                                Visibility="{Binding ErrorText, Converter={StaticResource Truthy}}" />
                                                 </StackPanel>
-                                                <ui:Button Grid.Column="2" VerticalAlignment="Center" Content="{x:Static res:Strings.FrRetry}"
-                                                           Icon="{ui:SymbolIcon ArrowClockwise24}"
-                                                           Visibility="{Binding CanRetry, Converter={StaticResource Truthy}}"
-                                                           Command="{Binding DataContext.RetryInstallCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                           CommandParameter="{Binding}" />
+                                                <views:CaptionedButton Grid.Column="2" VerticalAlignment="Center" Label="{x:Static res:Strings.FrRetry}" Icon="{ui:SymbolIcon ArrowClockwise24}" Visibility="{Binding CanRetry, Converter={StaticResource Truthy}}" Command="{Binding DataContext.RetryInstallCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Caption="{x:Static res:Strings.CapRetryInstall}" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -493,12 +490,8 @@
                                                Text="{x:Static res:Strings.FrInstallSecurityNote}" />
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                    <ui:Button Content="{x:Static res:Strings.FrRetryAll}" Icon="{ui:SymbolIcon ArrowClockwise24}"
-                                               Command="{Binding RetryAllCommand}"
-                                               Visibility="{Binding InstallHasProblems, Converter={StaticResource Truthy}}" />
-                                    <ui:Button Margin="8,0,0,0" Content="{x:Static res:Strings.FrCancelInstall}" Icon="{ui:SymbolIcon Dismiss24}"
-                                               Command="{Binding CancelInstallCommand}"
-                                               Visibility="{Binding IsInstalling, Converter={StaticResource Truthy}}" />
+                                    <views:CaptionedButton Label="{x:Static res:Strings.FrRetryAll}" Icon="{ui:SymbolIcon ArrowClockwise24}" Command="{Binding RetryAllCommand}" Visibility="{Binding InstallHasProblems, Converter={StaticResource Truthy}}" Caption="{x:Static res:Strings.CapFrRetryAll}" />
+                                    <views:CaptionedButton Margin="8,0,0,0" Label="{x:Static res:Strings.FrCancelInstall}" Icon="{ui:SymbolIcon Dismiss24}" Command="{Binding CancelInstallCommand}" Visibility="{Binding IsInstalling, Converter={StaticResource Truthy}}" Caption="{x:Static res:Strings.CapFrCancelInstall}" />
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
@@ -545,10 +538,7 @@
                                         <TextBlock Style="{StaticResource FrHint}" Margin="0,2,0,0" Text="{x:Static res:Strings.FrCaConfirmHint}"
                                                    Visibility="{Binding CaTrusted, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
                                     </StackPanel>
-                                    <ui:Button Grid.Column="2" Appearance="Primary" VerticalAlignment="Center"
-                                               Content="{x:Static res:Strings.FrTrust}" Icon="{ui:SymbolIcon ShieldCheckmark24}"
-                                               Command="{Binding TrustCommand}"
-                                               Visibility="{Binding CaTrusted, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
+                                    <views:CaptionedButton Grid.Column="2" Appearance="Primary" VerticalAlignment="Center" Label="{x:Static res:Strings.FrTrust}" Icon="{ui:SymbolIcon ShieldCheckmark24}" Command="{Binding TrustCommand}" Visibility="{Binding CaTrusted, Converter={StaticResource Truthy}, ConverterParameter=Invert}" Caption="{x:Static res:Strings.CapFrTrust}" />
                                 </Grid>
                             </Border>
 
@@ -595,8 +585,7 @@
                                     </Grid.ColumnDefinitions>
                                     <ui:SymbolIcon Style="{StaticResource FrErrorIcon}" />
                                     <TextBlock Grid.Column="1" Margin="12,0,12,0" Style="{StaticResource FrHint}" Text="{Binding PathError}" />
-                                    <ui:Button Grid.Column="2" VerticalAlignment="Center" Content="{x:Static res:Strings.FrRetry}"
-                                               Icon="{ui:SymbolIcon ArrowClockwise24}" Command="{Binding AddToPathCommand}" />
+                                    <views:CaptionedButton Grid.Column="2" VerticalAlignment="Center" Label="{x:Static res:Strings.FrRetry}" Icon="{ui:SymbolIcon ArrowClockwise24}" Command="{Binding AddToPathCommand}" Caption="{x:Static res:Strings.CapAddToPath}" />
                                 </Grid>
                             </Border>
 
@@ -717,14 +706,9 @@
                             <TextBlock Margin="10,0,0,0" Style="{StaticResource FrHint}" VerticalAlignment="Center" Text="{Binding BusyText}" />
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <ui:Button MinWidth="110" Content="{x:Static res:Strings.FrBack}" Icon="{ui:SymbolIcon ArrowLeft24}"
-                                       Command="{Binding BackCommand}" />
-                            <ui:Button MinWidth="130" Margin="8,0,0,0" Appearance="Primary" Content="{x:Static res:Strings.FrNext}"
-                                       Icon="{ui:SymbolIcon ArrowRight24}" Command="{Binding NextCommand}" IsDefault="True"
-                                       Visibility="{Binding IsLastStep, Converter={StaticResource Truthy}, ConverterParameter=Invert}" />
-                            <ui:Button MinWidth="130" Margin="8,0,0,0" Appearance="Primary" Content="{Binding FinishButtonText}"
-                                       Icon="{ui:SymbolIcon Checkmark24}" Command="{Binding FinishCommand}"
-                                       Visibility="{Binding IsLastStep, Converter={StaticResource Truthy}}" />
+                            <views:CaptionedButton MinWidth="110" Label="{x:Static res:Strings.FrBack}" Icon="{ui:SymbolIcon ArrowLeft24}" Command="{Binding BackCommand}" Caption="{x:Static res:Strings.CapFrBack}" />
+                            <views:CaptionedButton MinWidth="130" Margin="8,0,0,0" Appearance="Primary" Label="{x:Static res:Strings.FrNext}" Icon="{ui:SymbolIcon ArrowRight24}" Command="{Binding NextCommand}" IsDefault="True" Visibility="{Binding IsLastStep, Converter={StaticResource Truthy}, ConverterParameter=Invert}" Caption="{x:Static res:Strings.CapFrNext}" />
+                            <views:CaptionedButton MinWidth="130" Margin="8,0,0,0" Appearance="Primary" Label="{Binding FinishButtonText}" Icon="{ui:SymbolIcon Checkmark24}" Command="{Binding FinishCommand}" Visibility="{Binding IsLastStep, Converter={StaticResource Truthy}}" Caption="{x:Static res:Strings.CapFinish}" />
                         </StackPanel>
                     </Grid>
                 </Border>

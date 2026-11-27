@@ -2,6 +2,7 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:views="clr-namespace:StackR.App.Views"
       xmlns:res="clr-namespace:StackR.App.Resources"
       xmlns:local="clr-namespace:StackR.App.Views"
       Title="{Binding Title}">
@@ -39,8 +40,7 @@
                         Title="{x:Static res:Strings.SetRestartTitle}"
                         Message="{x:Static res:Strings.SetRestartMessage}">
                 <ui:InfoBar.Content>
-                    <ui:Button Command="{Binding RestartNowCommand}" Appearance="Primary"
-                               Content="{x:Static res:Strings.SetRestartNow}" />
+                    <views:CaptionedButton Command="{Binding RestartNowCommand}" Appearance="Primary" Label="{x:Static res:Strings.SetRestartNow}" Caption="{x:Static res:Strings.CapSetRestartNow}" />
                 </ui:InfoBar.Content>
             </ui:InfoBar>
 
@@ -62,9 +62,14 @@
                 </ContentControl>
     <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <StackPanel Orientation="Horizontal">
-                    <CheckBox Margin="0,0,16,0" VerticalAlignment="Center" IsChecked="{Binding FollowSystemTheme}"
-                              Content="{x:Static res:Strings.SetFollowWindows}" />
-                    <ui:ToggleSwitch IsChecked="{Binding IsDarkMode}" IsEnabled="{Binding FollowSystemTheme, Converter={StaticResource InvertBool}}"
+                    <StackPanel Margin="0,0,16,0" VerticalAlignment="Center">
+                        <CheckBox IsChecked="{Binding FollowSystemTheme}"
+                                  Content="{x:Static res:Strings.SetFollowWindows}"
+                                  ToolTip="{x:Static res:Strings.CapFollowWindows}" />
+                        <TextBlock Style="{StaticResource CaptionTextStyle}" MaxWidth="170" TextWrapping="Wrap"
+                                   Text="{x:Static res:Strings.CapFollowWindows}" />
+                    </StackPanel>
+                    <ui:ToggleSwitch IsChecked="{Binding IsDarkMode}" ToolTip="{x:Static res:Strings.SetDarkModeDesc}" IsEnabled="{Binding FollowSystemTheme, Converter={StaticResource InvertBool}}"
                                      AutomationProperties.Name="{x:Static res:Strings.SetDarkMode}" />
                 </StackPanel>
             </ContentControl>
@@ -84,7 +89,7 @@
                     </StackPanel>
                 </ContentControl>
     <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
-                <ui:ToggleSwitch IsChecked="{Binding StartWithWindows}"
+                <ui:ToggleSwitch IsChecked="{Binding StartWithWindows}" ToolTip="{x:Static res:Strings.SetStartWithWindowsDesc}"
                                  AutomationProperties.Name="{x:Static res:Strings.SetStartWithWindows}" />
             </ContentControl>
   </Grid>
@@ -100,7 +105,7 @@
                     </StackPanel>
                 </ContentControl>
     <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
-                <ui:ToggleSwitch IsChecked="{Binding AutoStartServices}"
+                <ui:ToggleSwitch IsChecked="{Binding AutoStartServices}" ToolTip="{x:Static res:Strings.SetAutoStartDesc}"
                                  AutomationProperties.Name="{x:Static res:Strings.SetAutoStart}" />
             </ContentControl>
   </Grid>
@@ -121,7 +126,7 @@
     <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource PathTextStyle}" Text="{Binding RootPath}" ToolTip="{Binding RootPath}" />
-                    <ui:Button Command="{Binding ChooseRootCommand}" Content="{x:Static res:Strings.SetChange}" />
+                    <views:CaptionedButton Command="{Binding ChooseRootCommand}" Label="{x:Static res:Strings.SetChange}" Caption="{x:Static res:Strings.CapSetChange}" />
                 </StackPanel>
             </ContentControl>
   </Grid>
@@ -139,8 +144,8 @@
     <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource PathTextStyle}" Text="{Binding WwwPath}" ToolTip="{Binding WwwPath}" />
-                    <ui:Button Command="{Binding ResetWwwCommand}" Margin="0,0,8,0" Content="{x:Static res:Strings.SetResetDefault}" />
-                    <ui:Button Command="{Binding ChooseWwwCommand}" Content="{x:Static res:Strings.SetBrowse}" />
+                    <views:CaptionedButton Command="{Binding ResetWwwCommand}" Margin="0,0,8,0" Label="{x:Static res:Strings.SetResetDefault}" Caption="{x:Static res:Strings.CapSetResetDefault}" />
+                    <views:CaptionedButton Command="{Binding ChooseWwwCommand}" Label="{x:Static res:Strings.SetBrowse}" Caption="{x:Static res:Strings.CapSetBrowse}" />
                 </StackPanel>
             </ContentControl>
   </Grid>
@@ -159,7 +164,7 @@
                     </StackPanel>
                 </ContentControl>
     <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
-                <ui:ToggleSwitch IsChecked="{Binding HttpsEnabled}"
+                <ui:ToggleSwitch IsChecked="{Binding HttpsEnabled}" ToolTip="{x:Static res:Strings.SetHttpsDesc}"
                                  AutomationProperties.Name="{x:Static res:Strings.SetHttps}" />
             </ContentControl>
   </Grid>
@@ -178,8 +183,7 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Style="{StaticResource BodyTextStyle}" VerticalAlignment="Center" Margin="0,0,12,0"
                                FontWeight="SemiBold" Text="{Binding CaStatusText}" />
-                    <ui:Button Command="{Binding TrustCaCommand}" IsEnabled="{Binding CanTrustCa}"
-                               Appearance="Primary" Content="{x:Static res:Strings.SetCaTrust}" />
+                    <views:CaptionedButton Command="{Binding TrustCaCommand}" IsEnabled="{Binding CanTrustCa}" Appearance="Primary" Label="{x:Static res:Strings.SetCaTrust}" Caption="{x:Static res:Strings.CapSetCaTrust}" />
                 </StackPanel>
             </ContentControl>
   </Grid>
@@ -225,8 +229,7 @@
                                           AutomationProperties.Name="{x:Static res:Strings.SetPortMailpitSmtp}" />
                         </StackPanel>
                     </Grid>
-                    <ui:Button Margin="0,16,0,0" HorizontalAlignment="Left" Appearance="Primary"
-                               Command="{Binding SavePortsCommand}" Content="{x:Static res:Strings.SetPortsSave}" />
+                    <views:CaptionedButton Margin="0,16,0,0" HorizontalAlignment="Left" Appearance="Primary" Command="{Binding SavePortsCommand}" Label="{x:Static res:Strings.SetPortsSave}" Caption="{x:Static res:Strings.CapSetPortsSave}" />
                 </StackPanel>
             </Border>
 
@@ -243,7 +246,7 @@
                     </StackPanel>
                 </ContentControl>
     <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
-                <ComboBox MinWidth="160" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}"
+                <ComboBox MinWidth="160" ToolTip="{x:Static res:Strings.SetLanguageDesc}" ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}"
                           DisplayMemberPath="Name" AutomationProperties.Name="{x:Static res:Strings.SetLanguage}" />
             </ContentControl>
   </Grid>
@@ -264,8 +267,7 @@
                     </StackPanel>
                 </ContentControl>
     <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
-                <ui:Button Command="{Binding OpenGitHubCommand}" Icon="{ui:SymbolIcon Open24}"
-                           Content="{x:Static res:Strings.SetAboutGitHub}" />
+                <views:CaptionedButton Command="{Binding OpenGitHubCommand}" Icon="{ui:SymbolIcon Open24}" Label="{x:Static res:Strings.SetAboutGitHub}" Caption="{x:Static res:Strings.CapSetAboutGitHub}" />
             </ContentControl>
   </Grid>
 </Border>
@@ -281,8 +283,8 @@
                 </ContentControl>
     <ContentControl Grid.Column="2" Margin="16,0,0,0" VerticalAlignment="Center" Focusable="False">
                 <StackPanel Orientation="Horizontal">
-                    <ui:Button Command="{Binding OpenRootCommand}" Margin="0,0,8,0" Content="{x:Static res:Strings.SetAboutRootFolder}" />
-                    <ui:Button Command="{Binding OpenLogsCommand}" Content="{x:Static res:Strings.SetAboutLogsFolder}" />
+                    <views:CaptionedButton Command="{Binding OpenRootCommand}" Margin="0,0,8,0" Label="{x:Static res:Strings.SetAboutRootFolder}" Caption="{x:Static res:Strings.CapSetAboutRootFolder}" />
+                    <views:CaptionedButton Command="{Binding OpenLogsCommand}" Label="{x:Static res:Strings.SetAboutLogsFolder}" Caption="{x:Static res:Strings.CapSetAboutLogsFolder}" />
                 </StackPanel>
             </ContentControl>
   </Grid>

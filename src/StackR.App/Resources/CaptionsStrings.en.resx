@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="CapDashStartAll" xml:space="preserve"><value>Start all — launches Apache, MySQL and Mailpit (the installed ones).</value></data>
+  <data name="CapDashStopAll" xml:space="preserve"><value>Stop all — shuts down every service started by StackR.</value></data>
+  <data name="CapDashOpenTerminal" xml:space="preserve"><value>Opens a terminal where php, composer and mysql are ready to use.</value></data>
+  <data name="CapDashOpenWww" xml:space="preserve"><value>Opens the folder that holds your sites in Explorer.</value></data>
+  <data name="CapDashOpenMailpit" xml:space="preserve"><value>Opens the Mailpit inbox: every mail sent by your sites lands there.</value></data>
+  <data name="CapDashGoToVersions" xml:space="preserve"><value>Opens the Versions page to install this component.</value></data>
+  <data name="CapSitesNew" xml:space="preserve"><value>Creates a site (PHP or Laravel) with its https://name.test address.</value></data>
+  <data name="CapRefresh" xml:space="preserve"><value>Rescans the www folder for added or removed sites.</value></data>
+  <data name="CapSitesOpen" xml:space="preserve"><value>Opens this site in the browser.</value></data>
+  <data name="CapSitesFolder" xml:space="preserve"><value>Opens the site folder in Explorer.</value></data>
+  <data name="CapSitesVsCode" xml:space="preserve"><value>Opens the site folder in Visual Studio Code.</value></data>
+  <data name="CapSitesCreate" xml:space="preserve"><value>Creates the site folder and its .test address (and installs the Laravel project).</value></data>
+  <data name="CapSitesCancelRun" xml:space="preserve"><value>Stops the creation in progress and removes the folder.</value></data>
+  <data name="CapSitesClose" xml:space="preserve"><value>Closes this window.</value></data>
+  <data name="CapTogglePassword" xml:space="preserve"><value>Shows or hides the MySQL root password.</value></data>
+  <data name="CapDbCopy" xml:space="preserve"><value>Copies the root password to the clipboard.</value></data>
+  <data name="CapDbOpenAdminer" xml:space="preserve"><value>Manage your MySQL databases in the browser (http://localhost/adminer).</value></data>
+  <data name="CapDbChangePassword" xml:space="preserve"><value>Changes the MySQL root password (configuration updated).</value></data>
+  <data name="CapDbOpenClient" xml:space="preserve"><value>Opens a terminal with the mysql client already signed in as root.</value></data>
+  <data name="CapDbApply" xml:space="preserve"><value>Applies the new root password.</value></data>
+  <data name="CapDbCancel" xml:space="preserve"><value>Discards the password change.</value></data>
+  <data name="CapDbCopyEnv" xml:space="preserve"><value>Copies the DB_* lines to paste into your Laravel project's .env.</value></data>
+  <data name="CapVerInstall" xml:space="preserve"><value>Downloads this version (SHA-256 verified) and installs it.</value></data>
+  <data name="CapVerCancel" xml:space="preserve"><value>Stops the download in progress.</value></data>
+  <data name="CapVerActivate" xml:space="preserve"><value>Uses this version: configuration is rewritten and the service restarts.</value></data>
+  <data name="CapVerUninstall" xml:space="preserve"><value>Removes this version from disk (not possible while it is active).</value></data>
+  <data name="CapLogsClear" xml:space="preserve"><value>Clears the view; the log file itself is kept.</value></data>
+  <data name="CapLogsCopy" xml:space="preserve"><value>Copies the displayed text to the clipboard.</value></data>
+  <data name="CapLogsOpenFolder" xml:space="preserve"><value>Opens the logs folder in Explorer.</value></data>
+  <data name="CapSetRestartNow" xml:space="preserve"><value>Restarts StackR to apply the changed ports and folders.</value></data>
+  <data name="CapSetChange" xml:space="preserve"><value>Picks another root folder (applied on next launch).</value></data>
+  <data name="CapSetResetDefault" xml:space="preserve"><value>Goes back to the default www folder, inside the StackR root.</value></data>
+  <data name="CapSetBrowse" xml:space="preserve"><value>Picks another folder for your sites.</value></data>
+  <data name="CapSetCaTrust" xml:space="preserve"><value>Trust — adds the StackR local certificate to Windows so the browser shows no warning.</value></data>
+  <data name="CapSetPortsSave" xml:space="preserve"><value>Saves the ports; they apply on next StackR launch.</value></data>
+  <data name="CapSetAboutGitHub" xml:space="preserve"><value>Opens the project page on GitHub.</value></data>
+  <data name="CapSetAboutRootFolder" xml:space="preserve"><value>Opens the StackR root folder in Explorer.</value></data>
+  <data name="CapSetAboutLogsFolder" xml:space="preserve"><value>Opens the logs folder in Explorer.</value></data>
+  <data name="CapFrBrowse" xml:space="preserve"><value>Opens Explorer to pick the folder.</value></data>
+  <data name="CapFrRecheck" xml:space="preserve"><value>Runs the checks above again.</value></data>
+  <data name="CapFrVcDownload" xml:space="preserve"><value>Opens the Microsoft page for the Visual C++ runtime required by Apache, PHP and MySQL.</value></data>
+  <data name="CapRetryInstall" xml:space="preserve"><value>Retries installing this component.</value></data>
+  <data name="CapAddToPath" xml:space="preserve"><value>Adds StackR to your account PATH so php and composer work everywhere.</value></data>
+  <data name="CapFrRetryAll" xml:space="preserve"><value>Retries every failed component.</value></data>
+  <data name="CapFrCancelInstall" xml:space="preserve"><value>Stops the installations in progress.</value></data>
+  <data name="CapFrTrust" xml:space="preserve"><value>Trust — adds the StackR local certificate to Windows so the browser shows no warning.</value></data>
+  <data name="CapFrBack" xml:space="preserve"><value>Goes back to the previous step.</value></data>
+  <data name="CapFrNext" xml:space="preserve"><value>Moves on to the next step.</value></data>
+  <data name="CapFinish" xml:space="preserve"><value>Finishes the wizard and opens StackR.</value></data>
+  <data name="CapCardToggleFormat" xml:space="preserve"><value>Starts or stops {0} in the background, on this machine only.</value></data>
+  <data name="CapFollowWindows" xml:space="preserve"><value>Follows the Windows light or dark theme.</value></data>
+  <data name="CapRecentSitesHint" xml:space="preserve"><value>Click an address to open the site in the browser.</value></data>
+  <data name="CapPhpSwitchHint" xml:space="preserve"><value>Pick the PHP version used by Apache and the command line.</value></data>
+  <data name="CapLogsFollowHint" xml:space="preserve"><value>Scrolls the log by itself to the newest lines.</value></data>
+</root>
