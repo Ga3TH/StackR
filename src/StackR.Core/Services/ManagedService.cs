@@ -60,7 +60,7 @@ public abstract class ManagedService
     public event EventHandler? StatusChanged;
 
     /// <summary>PID du processus suivi (démarrage, en cours ou arrêt), sinon null.</summary>
-    internal int? ProcessId
+    public int? ProcessId
     {
         get
         {
