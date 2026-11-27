@@ -93,4 +93,7 @@ public static partial class Strings
 
         return template;
     }
+    public static string SetDarkMode => Get(nameof(SetDarkMode));
+    public static string SetDarkModeDesc => Get(nameof(SetDarkModeDesc));
+    public static string SetFollowWindows => Get(nameof(SetFollowWindows));
 }

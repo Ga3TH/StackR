@@ -101,4 +101,7 @@
   <data name="SetStartWithWindowsFailed" xml:space="preserve"><value>Impossible de modifier le démarrage avec Windows : {0}</value></data>
   <data name="SetApplyWarning" xml:space="preserve"><value>Configuration appliquée avec avertissement : {0}</value></data>
   <data name="SetApplyFailed" xml:space="preserve"><value>Impossible d'appliquer la configuration : {0}</value></data>
+  <data name="SetDarkMode" xml:space="preserve"><value>Mode sombre</value></data>
+  <data name="SetDarkModeDesc" xml:space="preserve"><value>Appliqué tout de suite à toutes les fenêtres.</value></data>
+  <data name="SetFollowWindows" xml:space="preserve"><value>Suivre Windows</value></data>
 </root>

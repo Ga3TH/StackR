@@ -12,6 +12,9 @@ public static class ThemeApplier
 {
     private static readonly Color BrandAccent = Color.FromRgb(0x7C, 0x3A, 0xED);
 
+    /// <summary>Vrai si le thème actuellement appliqué est sombre.</summary>
+    public static bool IsDarkNow() => ApplicationThemeManager.GetAppTheme() == ApplicationTheme.Dark;
+
     public static void Apply(string theme)
     {
         switch (theme)
@@ -28,5 +31,21 @@ public static class ThemeApplier
         }
 
         ApplicationAccentColorManager.Apply(BrandAccent, ApplicationThemeManager.GetAppTheme());
+
+        // Toutes les fenêtres ouvertes suivent Windows (Système) ou cessent de le suivre (Clair/Sombre).
+        if (System.Windows.Application.Current is { } app)
+        {
+            foreach (System.Windows.Window window in app.Windows)
+            {
+                if (theme is "Light" or "Dark")
+                {
+                    SystemThemeWatcher.UnWatch(window);
+                }
+                else
+                {
+                    SystemThemeWatcher.Watch(window, WindowBackdropType.Mica, updateAccents: false);
+                }
+            }
+        }
     }
 }

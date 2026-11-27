@@ -29,6 +29,7 @@ public sealed partial class SettingsViewModel : PageViewModelBase
     private readonly AppShell _shell;
     private readonly string _initialLanguage;
     private bool _loading = true;
+    private bool _syncingTheme;
 
     public SettingsViewModel(StackREngine engine, AppShell shell)
         : base(Strings.NavSettings, Strings.SettingsSubtitle)
@@ -62,6 +63,8 @@ public sealed partial class SettingsViewModel : PageViewModelBase
         MailpitSmtpPort = s.MailpitSmtpPort;
         SelectedTheme = Themes.FirstOrDefault(t => t.Id == s.Theme) ?? Themes[0];
         SelectedLanguage = Languages.FirstOrDefault(l => l.Id == s.Language) ?? Languages[0];
+        FollowSystemTheme = SelectedTheme.Id == "System";
+        IsDarkMode = ThemeApplier.IsDarkNow();
         NeedsRestart = engine.RestartRequired;
         CaStatusText = Strings.SetCaChecking;
         _loading = false;
@@ -107,6 +110,12 @@ public sealed partial class SettingsViewModel : PageViewModelBase
 
     [ObservableProperty]
     public partial ChoiceOption SelectedTheme { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsDarkMode { get; set; }
+
+    [ObservableProperty]
+    public partial bool FollowSystemTheme { get; set; }
 
     [ObservableProperty]
     public partial ChoiceOption SelectedLanguage { get; set; }
@@ -208,6 +217,44 @@ public sealed partial class SettingsViewModel : PageViewModelBase
 
         Save(s => s with { Theme = value.Id });
         ThemeApplier.Apply(value.Id);
+        SyncThemeToggles();
+    }
+
+    /// <summary>Interrupteur « Mode sombre » : actif = Sombre, inactif = Clair (désactive « Suivre Windows »).</summary>
+    partial void OnIsDarkModeChanged(bool value)
+    {
+        if (_loading || _syncingTheme)
+        {
+            return;
+        }
+
+        SelectedTheme = Themes.First(t => t.Id == (value ? "Dark" : "Light"));
+    }
+
+    /// <summary>Case « Suivre Windows » : cochée = Système ; décochée = thème actuellement affiché.</summary>
+    partial void OnFollowSystemThemeChanged(bool value)
+    {
+        if (_loading || _syncingTheme)
+        {
+            return;
+        }
+
+        var id = value ? "System" : (ThemeApplier.IsDarkNow() ? "Dark" : "Light");
+        SelectedTheme = Themes.First(t => t.Id == id);
+    }
+
+    private void SyncThemeToggles()
+    {
+        _syncingTheme = true;
+        try
+        {
+            FollowSystemTheme = SelectedTheme.Id == "System";
+            IsDarkMode = ThemeApplier.IsDarkNow();
+        }
+        finally
+        {
+            _syncingTheme = false;
+        }
     }
 
     partial void OnSelectedLanguageChanged(ChoiceOption value)
